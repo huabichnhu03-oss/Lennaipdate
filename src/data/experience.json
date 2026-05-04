@@ -1,0 +1,50 @@
+[
+  {
+    "id": "1",
+    "role": "Product Designer",
+    "company": "Lloyd Hunt Architect",
+    "location": "Ontario",
+    "period": "2026",
+    "bullets": [
+      "Product strategy & research: conducted end-to-end service design research using personas, journey maps, and as-is blueprints to surface critical friction points; applied decision matrices and fishbone analysis to prioritize a product roadmap focused on high-impact usability improvements.",
+      "Conversion-driven information architecture: redesigned website architecture, information hierarchy, and navigation to streamline the client acquisition funnel and improve task completion and findability for target audiences.",
+      "Visual product identity & production: produced high-fidelity architectural photography and integrated visual assets with the UX framework to create a cohesive digital brand identity that strengthened market credibility and marketing effectiveness."
+    ]
+  },
+  {
+    "id": "2",
+    "role": "Internal Product Designer — POS Ecosystem Optimization",
+    "company": "I LOVE PHO",
+    "location": "Mississauga",
+    "period": "2026",
+    "bullets": [
+      "Spearheaded the digital transformation of a legacy POS system, resolving critical technical debt and operational failures to ensure 100% system uptime during high-traffic business hours.",
+      "Re-engineered the end-to-end service blueprint, streamlining the order-to-fulfillment journey for staff which significantly reduced manual input errors and order processing latency.",
+      "Optimized business efficiency by consolidating fragmented legacy tools into a unified internal product, enhancing staff productivity and driving a seamless customer dining experience."
+    ]
+  },
+  {
+    "id": "3",
+    "role": "Event Assistant",
+    "company": "Event Crew",
+    "location": "GTA",
+    "period": "2024 — 2025",
+    "bullets": [
+      "Supported major Toronto events including Annual Dinner 2025, DesignTO, CANFAR's Bloor Street Entertain 28, Limitless Gala 2024, CAFA Awards 2024, and on-call work for Floral Werx | Europe Elegant.",
+      "Executed event setups from concept boards, including table styling, venue décor, auction displays, and backstage support.",
+      "Optimized wayfinding and spatial systems for high-volume environments, iterating on service delivery in real time based on logistical constraints and live user feedback."
+    ]
+  },
+  {
+    "id": "4",
+    "role": "Experience Designer (Visual & Event)",
+    "company": "THG Trade & Service Co., Ltd.",
+    "location": "",
+    "period": "2022 — 2025",
+    "bullets": [
+      "Designed integrated brand and audience experiences across visual systems, motion assets, and spatial environments for live events and campaigns.",
+      "Translated client objectives into structured experience concepts that connected digital visuals with physical interactions, improving coherence across touchpoints.",
+      "Collaborated with planners, marketers, and production teams to deliver end-to-end audience journeys and produced asset libraries and design specifications for seamless implementation."
+    ]
+  }
+]

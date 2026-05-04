@@ -1,0 +1,416 @@
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Inter:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
+  --font-mono: var(--app-font-mono);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ── Light mode (default / :root) ───────────────────── */
+:root {
+  /* Warm cream — sampled from designer swatch ≈ #F7F1DC */
+  --background: 48 56% 94%;
+  --foreground: 25 8% 10%;
+
+  --card: 30 12% 96%;
+  --card-foreground: 25 8% 10%;
+  --card-border: 30 8% 88%;
+
+  --popover: 30 12% 96%;
+  --popover-foreground: 25 8% 10%;
+  --popover-border: 30 8% 88%;
+
+  /* Brand blue #1F67F1 = hsl(219 88% 53%) */
+  --primary: 219 88% 53%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 30 8% 92%;
+  --secondary-foreground: 25 8% 20%;
+
+  --muted: 30 8% 92%;
+  --muted-foreground: 25 10% 35%;
+
+  --accent: 219 88% 53%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 30 8% 88%;
+  --input: 30 8% 88%;
+  --ring: 219 88% 53%;
+
+  --app-font-sans: 'Inter', sans-serif;
+  --app-font-serif: 'Cormorant Garamond', serif;
+  --app-font-mono: Menlo, monospace;
+  --radius: 0.5rem;
+
+  /* Brand tokens — see `src/lib/brand.ts`. */
+  --brand-blue:  #1F67F1;
+  --brand-pink:  #EC4899;
+  --brand-coral: #E8715A;
+  --brand-teal:  #6DB8A2;
+  --brand-ease:  cubic-bezier(0.16, 1, 0.3, 1);
+  --brand-hover-lift:   -8px;
+  --brand-hover-rotate: 0.5deg;
+
+  /* Explicitly override Tailwind's compiled color vars for light mode */
+  --color-background:             hsl(48 56% 94%);
+  --color-foreground:             hsl(25 8% 10%);
+  --color-border:                 hsl(30 8% 88%);
+  --color-input:                  hsl(30 8% 88%);
+  --color-ring:                   hsl(219 88% 53%);
+  --color-card:                   hsl(30 12% 96%);
+  --color-card-foreground:        hsl(25 8% 10%);
+  --color-card-border:            hsl(30 8% 88%);
+  --color-popover:                hsl(30 12% 96%);
+  --color-popover-foreground:     hsl(25 8% 10%);
+  --color-popover-border:         hsl(30 8% 88%);
+  --color-primary:                hsl(219 88% 53%);
+  --color-primary-foreground:     hsl(0 0% 100%);
+  --color-secondary:              hsl(30 8% 92%);
+  --color-secondary-foreground:   hsl(25 8% 20%);
+  --color-muted:                  hsl(30 8% 92%);
+  --color-muted-foreground:       hsl(25 10% 35%);
+  --color-accent:                 hsl(219 88% 53%);
+  --color-accent-foreground:      hsl(0 0% 100%);
+  --color-destructive:            hsl(0 72% 51%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+}
+
+/* ── Dark mode (html.dark class) ────────────────────── */
+html.dark {
+  --background: 30 10% 4%;
+  --foreground: 38 33% 92%;
+
+  --card: 30 11% 7%;
+  --card-foreground: 38 33% 92%;
+  --card-border: 30 8% 14%;
+
+  --popover: 30 11% 7%;
+  --popover-foreground: 38 33% 92%;
+  --popover-border: 30 8% 14%;
+
+  /* #1F67F1 — single brand blue, identical in both themes */
+  --primary: 219 88% 53%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 30 8% 14%;
+  --secondary-foreground: 33 8% 51%;
+
+  --muted: 30 8% 14%;
+  --muted-foreground: 33 8% 51%;
+
+  --accent: 30 9% 21%;
+  --accent-foreground: 38 33% 92%;
+
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 30 8% 14%;
+  --input: 30 8% 14%;
+  --ring: 219 88% 53%;
+
+  /* Override Tailwind's build-time compiled color vars for dark mode */
+  --color-background:             hsl(30 10% 4%);
+  --color-foreground:             hsl(38 33% 92%);
+  --color-border:                 hsl(30 8% 14%);
+  --color-input:                  hsl(30 8% 14%);
+  --color-ring:                   hsl(219 88% 53%);
+  --color-card:                   hsl(30 11% 7%);
+  --color-card-foreground:        hsl(38 33% 92%);
+  --color-card-border:            hsl(30 8% 14%);
+  --color-popover:                hsl(30 11% 7%);
+  --color-popover-foreground:     hsl(38 33% 92%);
+  --color-popover-border:         hsl(30 8% 14%);
+  --color-primary:                hsl(219 88% 53%);
+  --color-primary-foreground:     hsl(0 0% 100%);
+  --color-secondary:              hsl(30 8% 14%);
+  --color-secondary-foreground:   hsl(33 8% 51%);
+  --color-muted:                  hsl(30 8% 14%);
+  --color-muted-foreground:       hsl(33 8% 51%);
+  --color-accent:                 hsl(30 9% 21%);
+  --color-accent-foreground:      hsl(38 33% 92%);
+  --color-destructive:            hsl(0 84.2% 60.2%);
+  --color-destructive-foreground: hsl(0 0% 98%);
+}
+
+@layer base {
+  * { @apply border-border; }
+}
+
+/* ── Force theme on html/body using the JS-controlled vars ── */
+html {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+body {
+  @apply font-sans antialiased;
+  overflow-x: clip;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+/* ── Scrollbar ─────────────────────────────────────── */
+.scrollbar-none { scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* Thin, minimal scrollbar globally (Firefox + WebKit). Use !important to
+   defeat any third-party UI library scrollbar styling (e.g. Radix, shadcn). */
+html, body, * {
+  scrollbar-width: thin !important;
+  scrollbar-color: hsl(var(--foreground) / 0.25) transparent !important;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+  background: transparent !important;
+}
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--foreground) / 0.25) !important;
+  border-radius: 9999px !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--foreground) / 0.45) !important;
+}
+html::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-corner,
+*::-webkit-scrollbar-corner {
+  background: transparent !important;
+}
+html::-webkit-scrollbar-button,
+body::-webkit-scrollbar-button,
+*::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* ── Custom Cursor ─────────────────────────────────── */
+.custom-cursor-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 8px; height: 8px;
+  background-color: hsl(var(--primary));
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.1s ease;
+}
+
+.custom-cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  width: 32px; height: 32px;
+  border: 1px solid hsl(var(--primary));
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 9998;
+  transition: transform 0.15s ease-out, width 0.2s ease, height 0.2s ease;
+}
+
+.hover-trigger:hover ~ .custom-cursor-ring {
+  width: 48px;
+  height: 48px;
+  background-color: hsla(var(--primary), 0.1);
+}
+
+/* ── Grain Overlay ─────────────────────────────────── */
+.grain-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  pointer-events: none;
+  z-index: 9997;
+  opacity: 0.02;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+html.light .grain-overlay { opacity: 0.012; }
+html.dark .grain-overlay { opacity: 0.035; }
+
+/* ── Entry Page Orbs ───────────────────────────────── */
+.entry-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.14;
+  pointer-events: none;
+}
+
+.entry-orb-1 {
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, #1F67F1 0%, transparent 65%);
+  top: -280px; left: -180px;
+  animation: orb-float 28s ease-in-out infinite;
+}
+
+.entry-orb-2 {
+  width: 550px; height: 550px;
+  background: radial-gradient(circle, #0040B0 0%, transparent 65%);
+  bottom: -200px; right: -160px;
+  animation: orb-float 22s ease-in-out infinite reverse;
+}
+
+.entry-orb-3 {
+  width: 380px; height: 380px;
+  background: radial-gradient(circle, #6B9AF9 0%, transparent 65%);
+  top: 35%; left: 42%;
+  animation: orb-float 36s ease-in-out infinite;
+  animation-delay: -12s;
+}
+
+@keyframes orb-float {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  25%       { transform: translate(35px, -45px) scale(1.06); }
+  50%       { transform: translate(-25px, 35px) scale(0.94); }
+  75%       { transform: translate(30px, 25px) scale(1.03); }
+}
+
+/* ── Orbit Ring (Art page) ─────────────────────────── */
+.orbit-ring {
+  position: absolute;
+  inset: 0;
+  animation: orbit-spin 35s linear infinite;
+}
+
+.orbit-item {
+  position: absolute;
+  width: 110px;
+  height: 84px;
+  overflow: hidden;
+  animation: orbit-counter 35s linear infinite;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+@keyframes orbit-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes orbit-counter {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+
+/* ── Wireframe Pill Animation (45r.jp inspired) ─────── */
+@keyframes pill-float {
+  0%, 100% { transform: translate(0px,  0px); }
+  25%       { transform: translate(6px, -9px); }
+  50%       { transform: translate(-5px, 6px); }
+  75%       { transform: translate(4px,  9px); }
+}
+
+/* ── Text Clip Reveal ────────────────────────────────── */
+@keyframes reveal-up {
+  from { clip-path: inset(0 0 100% 0); opacity: 0; transform: translateY(16px); }
+  to   { clip-path: inset(0 0 0% 0);   opacity: 1; transform: translateY(0px); }
+}
+
+.reveal-up {
+  animation: reveal-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Display Font Utility ────────────────────────────── */
+.font-display {
+  font-family: 'Big Shoulders Display', sans-serif;
+}
+
+/* ── Rounded corner overrides ────────────────────────── */
+.rounded-card { border-radius: 0.5rem; }
+
+/* ── Glassmorphic card ───────────────────────────────── */
+/* NOTE: no backdrop-filter — avoid compositing conflict with rotateY 3D transform */
+.card-glass {
+  background: rgba(28, 24, 20, 0.90);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+html:not(.dark) .card-glass {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* ── Entry card floating blob drifts ─────────────────── */
+/* Three independent infinite loops at mismatched durations so the
+   color blobs inside each entry card never re-align — gives the
+   surface a sense of perpetual organic motion. */
+@keyframes entry-blob-drift-1 {
+  0%   { transform: translate(0%, 0%)    scale(1); }
+  25%  { transform: translate(35%, 25%)  scale(1.18); }
+  50%  { transform: translate(55%, 55%)  scale(0.92); }
+  75%  { transform: translate(20%, 30%)  scale(1.08); }
+  100% { transform: translate(0%, 0%)    scale(1); }
+}
+
+@keyframes entry-blob-drift-2 {
+  0%   { transform: translate(0%, 0%)      scale(1); }
+  25%  { transform: translate(-30%, -35%)  scale(0.88); }
+  50%  { transform: translate(-50%, -15%)  scale(1.22); }
+  75%  { transform: translate(-15%, -40%)  scale(0.95); }
+  100% { transform: translate(0%, 0%)      scale(1); }
+}
+
+@keyframes entry-blob-drift-3 {
+  0%   { transform: translate(0%, 0%)    scale(1); }
+  25%  { transform: translate(-40%, 30%) scale(1.25); }
+  50%  { transform: translate(30%, -25%) scale(0.85); }
+  75%  { transform: translate(-20%, 40%) scale(1.1); }
+  100% { transform: translate(0%, 0%)    scale(1); }
+}
