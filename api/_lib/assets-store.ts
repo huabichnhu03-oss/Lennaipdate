@@ -4,7 +4,7 @@ import {
   putAsset,
   replaceAssetAt,
   deleteAsset as deleteBlob,
-} from "./asset-storage";
+} from "./asset-storage.js";
 
 // Postgres-backed asset metadata store. Mirrors the JSON-file
 // implementation in the Replit api-server so the admin UI talks to the
