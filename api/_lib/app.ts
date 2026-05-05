@@ -14,27 +14,27 @@ import {
   getSection,
   isAllowedSection,
   setSection,
-} from "./content-store";
+} from "./content-store.js";
 import {
   AdminConfigError,
   getAdminPassword,
   isAdminRequest,
   issueAdminToken,
-} from "./admin-auth";
-import { saveResume, readResumeBlob } from "./resume-storage";
+} from "./admin-auth.js";
+import { saveResume, readResumeBlob } from "./resume-storage.js";
 import {
   deleteMessage as deleteContactMessage,
   insertMessage as insertContactMessage,
   listMessages as listContactMessages,
   setMessageRead as setContactMessageRead,
-} from "./messages-store";
+} from "./messages-store.js";
 import {
   listAssets,
   uploadAsset,
   renameAsset,
   removeAsset,
   replaceAsset,
-} from "./assets-store";
+} from "./assets-store.js";
 
 // CORS allowlist — Vercel serves the frontend and API on the same
 // domain, so same-origin requests don't need an Origin header. The
