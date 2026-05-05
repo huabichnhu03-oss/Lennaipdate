@@ -1,4 +1,4 @@
-import { readSection, writeSection } from "./db";
+import { readSection, writeSection } from "./db.js";
 
 // Bundled JSON files act as the seed AND the always-available fallback.
 // If the DB is empty (first deploy) or briefly unreachable (cold start
