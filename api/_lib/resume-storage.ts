@@ -13,7 +13,7 @@
 // Both backends preserve a stable public URL so existing links keep
 // working across re-uploads.
 
-import { readSection, writeSection } from "./db";
+import { readSection, writeSection } from "./db.js";
 
 const RESUME_BLOB_KEY = "Lenna_Hua_Resume.pdf";
 const RESUME_DB_SECTION = "files_blob_resume";
