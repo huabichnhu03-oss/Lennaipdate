@@ -1,0 +1,52 @@
+{
+  "photo": "/migrated/WpperrIedfASy9HLtJo8UMFw.jpg",
+  "bio": [
+    "I'm a Product Designer specializing in UX research, service design, and visual storytelling. I turn user insights into product strategy, information architecture, and high-fidelity designs that improve usability, streamline operations, and strengthen brand identity.",
+    "I work closely with product, engineering, and marketing teams to deliver measurable business outcomes — from redesigning client acquisition funnels to spearheading the digital transformation of legacy POS systems. My toolkit spans personas, journey maps, service blueprints, decision matrices, and fishbone analysis to surface friction and prioritize roadmaps focused on high-impact improvements.",
+    "Before product design I worked across visual design, motion graphics, and live experience design — which gave me an eye for hierarchy, storytelling, and cohesive brand identity. Today I combine that visual craft with a deep commitment to usability, evidence-based decisions, and outcomes that move the business forward."
+  ],
+  "community": "Designed and led inclusive beginner design workshops to help 50+ young people from diverse backgrounds build confidence and access creative opportunities. Volunteer with Get REAL Movement, supporting LGBTQ+ education and inclusive community events across Canada.",
+  "skills": [
+    {
+      "category": "Research",
+      "items": [
+        "User research",
+        "Moderated usability testing",
+        "Think-aloud protocols",
+        "Personas & journey mapping",
+        "Service blueprints",
+        "Decision matrices & fishbone analysis"
+      ]
+    },
+    {
+      "category": "UX & Interaction",
+      "items": [
+        "UX/UI design",
+        "Information architecture",
+        "Interaction design",
+        "Wireframing & prototyping",
+        "Design systems",
+        "Design thinking"
+      ]
+    },
+    {
+      "category": "Visual Design",
+      "items": [
+        "Visual storytelling",
+        "Digital graphic design",
+        "Typography",
+        "Motion graphics",
+        "Brand & identity systems"
+      ]
+    },
+    {
+      "category": "Tools & Collaboration",
+      "items": [
+        "Figma",
+        "Adobe Creative Suite",
+        "Stakeholder collaboration",
+        "Cross-functional delivery (product, engineering, marketing)"
+      ]
+    }
+  ]
+}

@@ -1,44 +1,64 @@
-# [Project name]
+# Lenna Portfolio
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A portfolio site for Lenna Hua — a product designer showcasing selected works, studio archive, about, and contact.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080)
+- `pnpm --filter @workspace/lenna-portfolio run dev` — run the frontend (port 23920)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- Optional env: `ADMIN_PASSWORD` (min 8 chars), `ADMIN_TOKEN_SECRET` (min 8 chars), `RESEND_API_KEY`, `CONTACT_TO_EMAIL`
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Frontend: Vite + React, Tailwind v4, shadcn/ui, framer-motion, wouter, React Query
+- API: Express 5 + pg (direct Pool queries, no ORM)
+- DB: PostgreSQL (Replit managed)
+- Asset storage: local filesystem at `artifacts/api-server/data/assets/`
+- Build: esbuild (ESM bundle)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/lenna-portfolio/src/` — frontend source (pages, components, context, lib, data, assets)
+- `artifacts/lenna-portfolio/src/pages/` — route pages (entry, home, work, about, studio, contact, admin)
+- `artifacts/lenna-portfolio/src/data/` — bundled JSON seed data (projects, gallery, identity, etc.)
+- `artifacts/api-server/src/routes/portfolio.ts` — all API routes (content, admin, contact, assets, resume)
+- `artifacts/api-server/src/lib/` — db.ts, content-store.ts, assets-store.ts, messages-store.ts, admin-auth.ts, resume-storage.ts
+- `artifacts/api-server/src/data/` — seed JSON files (same data the frontend bundles as fallback)
+- `artifacts/api-server/data/assets/` — uploaded media files (runtime, gitignored)
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Content sections stored in PostgreSQL (`content` table) with seed data bundled both in frontend (offline fallback) and API server (DB seed); frontend always tries `/api/content/:section` first
+- Asset storage uses local filesystem replacing Vercel Blob; files served at `/api/assets/:filename`; production should mount a persistent volume at `ASSETS_DIR`
+- Admin auth uses HMAC-signed tokens (no sessions) — `ADMIN_TOKEN_SECRET` must be set in production
+- `pg` is externalized from the esbuild bundle (not bundled) to avoid native binding issues
+- Seed JSON lives in `artifacts/api-server/src/data/` (bundled into the esbuild output at build time)
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Entry page with dual-path split (Product Design / Art & Creative)
+- Home page with hero, stats, floating decorations
+- Work page — project grid with filter by category; project detail pages
+- Studio page — art archive with side-scrolling reel
+- About page — bio, experience, education
+- Contact page — contact form (email via Resend) + admin inbox
+- Admin page — password-protected CMS for editing content sections, managing assets, reading messages
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+_Populate as you build._
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- API server must be built before starting (`dev` script runs build then start)
+- `@assets` alias in vite.config.ts points to `src/assets/` (not workspace `attached_assets/`)
+- JSON seed files for the API live in `src/data/` (not `data/`) so esbuild can bundle them from `rootDir: "."`
+- `pg` must stay in the `external` array in `build.mjs` or the build will fail
 
 ## Pointers
 

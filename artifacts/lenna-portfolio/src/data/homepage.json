@@ -1,0 +1,33 @@
+{
+  "entry": {
+    "wordmarkPrefix": "Lenna",
+    "wordmarkSuffix": ".",
+    "topbarTagline": "Crafting digital goods since 2019",
+    "designCard": {
+      "number": "01",
+      "titleLine1": "Product",
+      "titleLine2": "Design",
+      "description": "UX research, systems thinking, and interactive product experiences."
+    },
+    "artCard": {
+      "number": "02",
+      "titleLine1": "Art &",
+      "titleLine2": "Creative",
+      "description": "Visual art, illustration, and experimental creative direction."
+    },
+    "bottomPrompt": "Select a path to enter"
+  },
+  "home": {
+    "heroEyebrow": "✦ Crafting digital goods since 2019",
+    "heroIntro": "I turn messy journeys into clear flows, usable IA, and evidence-based improvements — from moderated tests to synthesis and recommendations.",
+    "primaryCtaLabel": "UX Projects ✦",
+    "primaryCtaHref": "/work",
+    "secondaryCtaLabel": "About Me",
+    "secondaryCtaHref": "/about",
+    "selectedWorkHeading": "Selected Work",
+    "selectedWorkLinkLabel": "View All →",
+    "aboutEyebrow": "About",
+    "aboutHeading": "Approach",
+    "aboutCtaLabel": "Read Full Bio →"
+  }
+}
