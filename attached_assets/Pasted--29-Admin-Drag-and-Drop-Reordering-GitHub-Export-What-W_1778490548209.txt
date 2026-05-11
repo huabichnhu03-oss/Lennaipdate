@@ -1,0 +1,42 @@
+#29 - Admin Drag-and-Drop Reordering + GitHub Export
+What & Why
+The admin currently has no way to reorder items within any list-based section — the only workaround is to delete everything and re-add it in the desired order. This task adds drag-and-drop reordering to every list-based admin tab: Projects, Experience, Education, and Studio/Gallery. The order is persisted to the database so it appears live on the public site immediately after saving. After implementation, all changed files are packaged into a downloadable zip so the user can apply the update to their existing GitHub repository.
+
+Done looks like
+In the admin, any list of cards (Projects, Experience, Education, Studio/Gallery items) can be reordered by dragging a handle or the card itself up or down
+A clear drag affordance (grip icon or cursor change) makes it obvious items are draggable
+Dropping an item into a new position updates the order instantly in the UI without a page reload
+Clicking "Save to Site" persists the new order to the database, and the public site reflects the new order
+Works on both desktop and touch/mobile (admin on tablet)
+No data is lost during reorder — all field values stay intact
+A downloadable zip file is produced containing every file that was added or modified, preserving the full folder structure so the user can drop the contents directly into their GitHub repository
+Out of scope
+Reordering within nested sub-fields (e.g. bullet points inside an experience entry)
+Inline ordering of assets in the asset library
+Keyboard-only drag-and-drop accessibility (nice-to-have for a future pass)
+Pushing changes directly to GitHub (user applies the zip manually)
+Steps
+Install a drag-and-drop library — Add @dnd-kit/core and @dnd-kit/sortable to the portfolio frontend package. These are lightweight, touch-friendly, and work well with React.
+
+Create a reusable SortableList wrapper component — Build a small shared component inside admin.tsx (or a co-located file) that wraps any array of items in a drag-and-drop sortable context. It should render a drag handle icon on each row and call an onReorder callback with the updated array when an item is dropped.
+
+Wire reordering into Projects tab — Replace the static projects list rendering with SortableList, passing the current projects array and an onReorder handler that updates local admin state.
+
+Wire reordering into Experience tab — Same pattern for the experience entries list.
+
+Wire reordering into Education tab — Same pattern for education entries.
+
+Wire reordering into Studio/Gallery tab — Same pattern for gallery items.
+
+Verify save flow preserves order — Confirm that the existing "Save to Site" handler (POST /api/admin/content) serialises the arrays in their current (reordered) state, so no backend changes are needed beyond confirming array order is respected by the upsert logic in content-store.ts.
+
+Package changed files into a downloadable zip — Collect every file that was added or modified during this task and zip them into a single archive (reorder-update.zip) that mirrors the repository folder structure. Present it as a downloadable file. Include a plain-text CHANGES.md inside the zip listing each changed file and a one-line description of what changed, so the user knows exactly what to replace in their GitHub repo.
+
+Relevant files
+artifacts/lenna-portfolio/src/pages/admin.tsx
+artifacts/api-server/src/lib/content-store.ts
+artifacts/api-server/src/routes/admin.ts
+artifacts/lenna-portfolio/src/data/projects.json
+artifacts/lenna-portfolio/src/data/experience.json
+artifacts/lenna-portfolio/src/data/education.json
+artifacts/lenna-portfolio/src/data/gallery.json
