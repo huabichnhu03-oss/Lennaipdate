@@ -1,0 +1,35 @@
+Subject: Bug Report & Feedback on the Generated Next.js Portfolio Project
+
+Here is a summary of the bugs and friction points I encountered while running the generated codebase, along with the manual fixes I had to apply. Please update your generation process to prevent these issues:
+
+1. Missing .env.local File (Admin Login Lockout)
+
+The Bug: The project includes an /admin dashboard that requires a password, but the generated setup instructions and ZIP file did not include the .env.local file. This completely locked me out of the local server upon initial boot.
+
+The Fix: I had to manually create a .env.local file in the root directory and add NEXT_PUBLIC_ADMIN_PASSWORD=lenna2025, then restart the Next.js server to gain access.
+
+Suggestion: Always auto-generate the .env.local file or explicitly halt the user to create it before telling them to run npm run dev.
+
+2. Bash Commands Leaking into Code Outputs
+
+The Bug: When generating full file contents (e.g., types.ts, globals.css, projects.json), the AI included bash shell commands directly inside the code blocks (e.g., cat > /home/.../types.ts << 'ENDOFFILE' at the top and ENDOFFILE echo "Done" at the bottom).
+
+The Fix: I had to manually scrub and delete these bash commands from the files because they caused immediate syntax and compilation errors when pasted into the codebase.
+
+Suggestion: Please separate bash execution commands from the actual file source code. Only output the raw, clean code inside the markdown code blocks.
+
+3. Nested Directories in ZIP Export (ENOENT Error)
+
+The Bug: When downloading the project as a ZIP, the structure was nested improperly (e.g., lenna-portfolio (1)/lenna-portfolio/package.json). When running npm install in the root folder, it threw an ENOENT: no such file or directory error because package.json was buried one level deep.
+
+The Fix: I had to explicitly open the integrated terminal from the nested folder containing the package.json to successfully run npm install and npm run dev.
+
+Suggestion: Ensure the ZIP export places package.json at the absolute root of the downloaded folder, not inside a nested sub-directory.
+
+4. Path Aliases & Infinite Loading on Turbopack
+
+The Bug: The initial setup experienced infinite loading on localhost:3000 without throwing a visible error in the browser. This was partially caused by pathing issues (using @/data/content instead of relative paths like ../data/content when the src directory wasn't properly configured for aliases).
+
+The Fix: Changed imports to explicit relative paths and bypassed Turbopack by running npx next dev instead of the standard dev script to stabilize the compilation.
+
+Please integrate these fixes into your template generation!
