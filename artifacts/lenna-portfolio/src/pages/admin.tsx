@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import projectsDataRaw from "@/data/projects.json";
 import aboutDataRaw from "@/data/about.json";
 import experienceDataRaw from "@/data/experience.json";
@@ -136,6 +137,7 @@ type GalleryItem = {
   tags?: string[];
   coverImage: string;
   images?: string[];
+  imageColumns?: 1 | 2;
   order?: number;
   linkUrl?: string;
   linkLabel?: string;
@@ -1793,6 +1795,38 @@ function GalleryEditor({
                 }
               />
             </div>
+          </div>
+
+          {/* Image layout */}
+          <div className="flex flex-col gap-2 border border-[#272421] rounded p-3">
+            <label className="text-[#8A8278] text-xs uppercase tracking-widest">
+              Image layout
+            </label>
+            <RadioGroup
+              value={String(item.imageColumns ?? 2)}
+              onValueChange={(v) =>
+                update(selectedIdx, { imageColumns: Number(v) as 1 | 2 })
+              }
+              className="flex gap-6"
+            >
+              {([1, 2] as const).map((cols) => (
+                <label
+                  key={cols}
+                  className="flex items-center gap-2 cursor-pointer text-sm text-[#F2EDE5]"
+                >
+                  <RadioGroupItem
+                    value={String(cols)}
+                    className="border-[#8A8278] text-[#C8A96E]"
+                  />
+                  {cols === 1 ? "1 column" : "2 columns"}
+                </label>
+              ))}
+            </RadioGroup>
+            <span className="text-[#4A4540] text-[11px] font-sans">
+              Controls how the additional images grid renders on the Studio
+              detail page. 1 column = full-width editorial; 2 columns =
+              side-by-side.
+            </span>
           </div>
         </div>
       )}

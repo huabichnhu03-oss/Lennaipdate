@@ -21,6 +21,7 @@ type GalleryItem = {
   tags?: string[];
   coverImage: string;
   images?: string[];
+  imageColumns?: 1 | 2;
   order?: number;
   linkUrl?: string;
   linkLabel?: string;

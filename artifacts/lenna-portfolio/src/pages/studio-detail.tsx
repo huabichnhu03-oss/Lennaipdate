@@ -16,6 +16,7 @@ type GalleryItem = {
   tags?: string[];
   coverImage: string;
   images?: string[];
+  imageColumns?: 1 | 2;
   order?: number;
   linkUrl?: string;
   linkLabel?: string;
@@ -263,7 +264,7 @@ export default function StudioDetail() {
 
       {/* Additional images */}
       {item.images && item.images.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className={`grid grid-cols-1 ${(item.imageColumns ?? 2) === 2 ? "md:grid-cols-2" : ""} gap-6`}>
           {item.images.map((src, i) => {
             const errored = erroredImages[i];
             return (
