@@ -365,12 +365,8 @@ export default function Studio() {
   useFastScroll(1);
   const galleryData = useContent("gallery", gallerySeed);
   const all = galleryData as GalleryItem[];
-  const bigItems = all
-    .filter((i) => (i.kind ?? "big") === "big")
-    .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
-  const smallItems = all
-    .filter((i) => i.kind === "small")
-    .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+  const bigItems = all.filter((i) => (i.kind ?? "big") === "big");
+  const smallItems = all.filter((i) => i.kind === "small");
 
   const [modalItem, setModalItem] = useState<GalleryItem | null>(null);
 

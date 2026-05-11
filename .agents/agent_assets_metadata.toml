@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "AaCtvPwQw1raHfFftfgaQ"
+uri = "file://reorder-update.zip"
+type = "unspecified"
+title = "reorder-update.zip — drag-and-drop reorder changes"

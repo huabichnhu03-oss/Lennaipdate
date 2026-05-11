@@ -10,6 +10,7 @@ import contactDataRaw from "@/data/contact.json";
 import filesDataRaw from "@/data/files.json";
 import homepageDataRaw from "@/data/homepage.json";
 import { SafeImage } from "@/components/SafeImage";
+import { AdminSortableList } from "./admin-sortable";
 
 const STORAGE_KEY = "lenna_admin_draft";
 const AUTH_KEY = "lenna_admin_auth";
@@ -1026,19 +1027,32 @@ function ProjectsEditor({
         >
           + Add Project
         </button>
-        {data.map((p, i) => (
-          <button
-            key={p.id}
-            onClick={() => { setSelectedIdx(i); setSubTab("details"); }}
-            className={`text-left text-sm px-3 py-2 truncate transition-colors ${
-              i === selectedIdx
-                ? "bg-[#C8A96E] text-[#0A0908]"
-                : "text-[#8A8278] hover:text-[#F2EDE5] border border-[#272421] hover:border-[#3A3530]"
-            }`}
-          >
-            {p.title}
-          </button>
-        ))}
+        <AdminSortableList
+          items={data}
+          onReorder={(newArr) => {
+            const selectedId = data[selectedIdx]?.id;
+            onChange(newArr);
+            if (selectedId) {
+              const newIdx = newArr.findIndex((p) => p.id === selectedId);
+              if (newIdx !== -1) setSelectedIdx(newIdx);
+            }
+          }}
+          renderItem={(p, i, dragHandle) => (
+            <div className="flex items-center gap-1">
+              {dragHandle}
+              <button
+                onClick={() => { setSelectedIdx(i); setSubTab("details"); }}
+                className={`flex-1 text-left text-sm px-2 py-2 truncate transition-colors ${
+                  i === selectedIdx
+                    ? "bg-[#C8A96E] text-[#0A0908]"
+                    : "text-[#8A8278] hover:text-[#F2EDE5] border border-[#272421] hover:border-[#3A3530]"
+                }`}
+              >
+                {p.title}
+              </button>
+            </div>
+          )}
+        />
       </div>
 
       {project && (
@@ -1248,19 +1262,32 @@ function ExperienceEditor({
         >
           + Add
         </button>
-        {data.map((exp, i) => (
-          <button
-            key={exp.id}
-            onClick={() => setSelectedIdx(i)}
-            className={`text-left text-sm px-3 py-2 truncate transition-colors ${
-              i === selectedIdx
-                ? "bg-[#C8A96E] text-[#0A0908]"
-                : "text-[#8A8278] hover:text-[#F2EDE5] border border-[#272421]"
-            }`}
-          >
-            {exp.role}
-          </button>
-        ))}
+        <AdminSortableList
+          items={data}
+          onReorder={(newArr) => {
+            const selectedId = data[selectedIdx]?.id;
+            onChange(newArr);
+            if (selectedId) {
+              const newIdx = newArr.findIndex((e) => e.id === selectedId);
+              if (newIdx !== -1) setSelectedIdx(newIdx);
+            }
+          }}
+          renderItem={(exp, i, dragHandle) => (
+            <div className="flex items-center gap-1">
+              {dragHandle}
+              <button
+                onClick={() => setSelectedIdx(i)}
+                className={`flex-1 text-left text-sm px-2 py-2 truncate transition-colors ${
+                  i === selectedIdx
+                    ? "bg-[#C8A96E] text-[#0A0908]"
+                    : "text-[#8A8278] hover:text-[#F2EDE5] border border-[#272421]"
+                }`}
+              >
+                {exp.role}
+              </button>
+            </div>
+          )}
+        />
       </div>
       {item && (
         <div className="flex-1 flex flex-col gap-5">
@@ -1329,36 +1356,43 @@ function EducationEditor({
 
   return (
     <div className="flex flex-col gap-8">
-      {data.map((item, idx) => (
-        <div key={item.id} className="border border-[#272421] p-6 flex flex-col gap-4">
-          <div className="flex justify-between">
-            <span className="text-[#C8A96E] text-sm uppercase tracking-widest">
-              Entry {idx + 1}
-            </span>
-            <button
-              onClick={() => onChange(data.filter((_, i) => i !== idx))}
-              className="text-sm text-[#4A4540] hover:text-red-400"
-            >
-              Remove
-            </button>
+      <AdminSortableList
+        items={data}
+        onReorder={onChange}
+        renderItem={(item, idx, dragHandle) => (
+          <div className="border border-[#272421] p-6 flex flex-col gap-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                {dragHandle}
+                <span className="text-[#C8A96E] text-sm uppercase tracking-widest">
+                  Entry {idx + 1}
+                </span>
+              </div>
+              <button
+                onClick={() => onChange(data.filter((_, i) => i !== idx))}
+                className="text-sm text-[#4A4540] hover:text-red-400"
+              >
+                Remove
+              </button>
+            </div>
+            <TextInput
+              label="Degree"
+              value={item.degree}
+              onChange={(v) => update(idx, { degree: v })}
+            />
+            <TextInput
+              label="Institution"
+              value={item.institution}
+              onChange={(v) => update(idx, { institution: v })}
+            />
+            <TextInput
+              label="Year"
+              value={item.year}
+              onChange={(v) => update(idx, { year: v })}
+            />
           </div>
-          <TextInput
-            label="Degree"
-            value={item.degree}
-            onChange={(v) => update(idx, { degree: v })}
-          />
-          <TextInput
-            label="Institution"
-            value={item.institution}
-            onChange={(v) => update(idx, { institution: v })}
-          />
-          <TextInput
-            label="Year"
-            value={item.year}
-            onChange={(v) => update(idx, { year: v })}
-          />
-        </div>
-      ))}
+        )}
+      />
       <button
         onClick={addItem}
         className="self-start text-sm border border-[#C8A96E] text-[#C8A96E] px-3 py-2 hover:bg-[#C8A96E] hover:text-[#0A0908] transition-colors uppercase tracking-widest"
@@ -1517,9 +1551,7 @@ function GalleryEditor({
           + Add Gallery Item
         </button>
         {(["big", "small"] as const).map((kind) => {
-          const group = [...data]
-            .filter((g) => (g.kind ?? "big") === kind)
-            .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+          const group = data.filter((g) => (g.kind ?? "big") === kind);
           if (group.length === 0) return null;
           const heading =
             kind === "big" ? "Big Projects" : "Artworks (slideshow)";
@@ -1528,32 +1560,49 @@ function GalleryEditor({
               <div className="text-[10px] uppercase tracking-[0.3em] text-[#C8A96E] px-1 pt-1 pb-1">
                 {heading} ({group.length})
               </div>
-              {group.map((g) => {
-                const i = data.findIndex((x) => x.id === g.id);
-                return (
-                  <button
-                    key={g.id}
-                    onClick={() => setSelectedIdx(i)}
-                    className={`text-left text-sm px-3 py-2 truncate transition-colors ${
-                      i === selectedIdx
-                        ? "bg-[#C8A96E] text-[#0A0908]"
-                        : "text-[#8A8278] hover:text-[#F2EDE5] border border-[#272421]"
-                    }`}
-                    title={g.title}
-                  >
-                    <span className="opacity-60 mr-2">{g.order ?? "—"}</span>
-                    {g.title}
-                    {g.linkUrl && (
-                      <span
-                        className="ml-2 opacity-70"
-                        title="Has external link"
+              <AdminSortableList
+                items={group}
+                onReorder={(reorderedGroup) => {
+                  const selectedId = data[selectedIdx]?.id;
+                  const positions = data.reduce<number[]>((acc, item, i) => {
+                    if ((item.kind ?? "big") === kind) acc.push(i);
+                    return acc;
+                  }, []);
+                  const newData = [...data];
+                  positions.forEach((pos, i) => {
+                    newData[pos] = reorderedGroup[i]!;
+                  });
+                  onChange(newData);
+                  if (selectedId) {
+                    const newIdx = newData.findIndex((x) => x.id === selectedId);
+                    if (newIdx !== -1) setSelectedIdx(newIdx);
+                  }
+                }}
+                renderItem={(g, _groupIdx, dragHandle) => {
+                  const i = data.findIndex((x) => x.id === g.id);
+                  return (
+                    <div className="flex items-center gap-1">
+                      {dragHandle}
+                      <button
+                        onClick={() => setSelectedIdx(i)}
+                        className={`flex-1 text-left text-sm px-2 py-2 truncate transition-colors ${
+                          i === selectedIdx
+                            ? "bg-[#C8A96E] text-[#0A0908]"
+                            : "text-[#8A8278] hover:text-[#F2EDE5] border border-[#272421]"
+                        }`}
+                        title={g.title}
                       >
-                        ↗
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+                        {g.title}
+                        {g.linkUrl && (
+                          <span className="ml-2 opacity-70" title="Has external link">
+                            ↗
+                          </span>
+                        )}
+                      </button>
+                    </div>
+                  );
+                }}
+              />
             </div>
           );
         })}
