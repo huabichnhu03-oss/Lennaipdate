@@ -1,0 +1,13 @@
+{
+  "rewrites": [
+    {
+      "source": "/((?!api(?:/|$)|_next(?:/|$))[^.]*)",
+      "destination": "/index.html"
+    }
+  ],
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "nodejs22.x"
+    }
+  }
+}
