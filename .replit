@@ -38,3 +38,4 @@ DEFAULT_OBJECT_STORAGE_BUCKET_ID = "replit-objstore-886abf52-c9bd-440e-a783-a5c6
 PUBLIC_OBJECT_SEARCH_PATHS = "/replit-objstore-886abf52-c9bd-440e-a783-a5c68c487d67/public"
 PRIVATE_OBJECT_DIR = "/replit-objstore-886abf52-c9bd-440e-a783-a5c68c487d67/.private"
 CLOUDINARY_CLOUD_NAME = "dydup3cez"
+CONTACT_TO_EMAIL = "lenna.huawork@gmail.com"
