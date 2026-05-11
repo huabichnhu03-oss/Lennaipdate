@@ -1,0 +1,38 @@
+What & Why
+The public/migrated folder contains 123 image files (76MB) that are committed to git, causing Vercel deployments to fail due to size limits. Cloudinary's free tier (25GB storage, 25GB/month bandwidth) will host all images instead. Admin uploads will go directly to Cloudinary, and all existing image references in the data files will be updated to Cloudinary URLs. After this, the repo stays small and Vercel deploys cleanly.
+
+Done looks like
+Vercel deployment succeeds — no file size errors
+All existing portfolio images (projects, gallery, studio) display correctly using Cloudinary URLs
+The /admin image upload flow sends files to Cloudinary and saves the returned URL
+public/migrated is excluded from git via .gitignore so it never bloats the repo again
+The Vercel deploy guide is updated with the Cloudinary env var setup step (takes ~2 minutes for the user to complete)
+The setup works in both local dev (Replit) and production (Vercel)
+Out of scope
+Switching to a paid Cloudinary plan
+Image optimization or resizing transformations
+Video uploads to Cloudinary (keep existing flow for those)
+Removing the public/migrated files from the local disk (only exclude from git)
+Steps
+Add Cloudinary SDK — Install the cloudinary npm package in the API server and the vercel-bundle. Add the required env vars (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET) to the list of expected variables in both environments.
+
+Create a Cloudinary upload adapter — Write an asset-storage-cloudinary.ts module (parallel to the existing asset-storage.ts) that accepts a file buffer and returns a public URL. Use the unsigned upload or signed upload with the SDK depending on which is simpler. The module should be activated when the Cloudinary env vars are present, falling back to local disk when they are absent (so local dev still works without credentials).
+
+Wire admin uploads to Cloudinary — Update the /api/admin/assets/upload endpoint in both the dev API server (artifacts/api-server) and the vercel-bundle (export/vercel-bundle/api) to use the new Cloudinary adapter when credentials are available.
+
+Write a one-time migration script — Create a Node script at scripts/migrate-to-cloudinary.mjs that reads all files in public/migrated/, uploads each one to Cloudinary, and writes a JSON mapping of { "/migrated/filename.png": "https://res.cloudinary.com/..." }. This script is run once manually before deploying.
+
+Update data files with Cloudinary URLs — After the migration script produces the mapping, apply it to projects.json and gallery.json, replacing all /migrated/xxx paths with their Cloudinary counterparts.
+
+Add .gitignore and clean up — Add a .gitignore to artifacts/lenna-portfolio that excludes public/migrated/ and public/uploads/. This immediately unblocks Vercel — even before the migration script is run, Vercel will no longer choke on the large folder.
+
+Update the deploy guide — Add a short Cloudinary section to export/vercel-bundle/DEPLOY_GUIDE.md explaining how to create a free Cloudinary account and add the three env vars to the Vercel dashboard.
+
+Relevant files
+artifacts/lenna-portfolio/public/migrated
+artifacts/lenna-portfolio/src/data/projects.json
+artifacts/lenna-portfolio/src/data/gallery.json
+export/vercel-bundle/api/_lib/asset-storage.ts
+export/vercel-bundle/api/_lib/assets-store.ts
+export/vercel-bundle/DEPLOY_GUIDE.md
+artifacts/api-server
