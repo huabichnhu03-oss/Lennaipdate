@@ -98,6 +98,7 @@ type Project = {
   year: string;
   period?: string;
   featured: boolean;
+  prototypeUrl?: string;
   sections: Section[];
 };
 
@@ -933,6 +934,7 @@ function parseFileToProject(raw: string, filename: string): Partial<Project> {
         coverImage: parsed.coverImage ?? "",
         year: parsed.year ?? String(new Date().getFullYear()),
         featured: parsed.featured ?? false,
+        prototypeUrl: parsed.prototypeUrl ?? "",
         sections: Array.isArray(parsed.sections) ? parsed.sections : [],
       };
     } catch {
@@ -1142,6 +1144,20 @@ function ProjectsEditor({
               <TextareaInput label="Solution / Approach" value={project.solution} onChange={(v) => updateProject(selectedIdx, { solution: v })} />
               <TextareaInput label="Impact / Outcomes" value={project.impact} onChange={(v) => updateProject(selectedIdx, { impact: v })} />
               <CheckboxInput label="★ Show on homepage Selected Work" checked={project.featured} onChange={(v) => updateProject(selectedIdx, { featured: v })} />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[#8A8278] text-xs uppercase tracking-widest">Prototype URL</label>
+                <input
+                  type="url"
+                  value={project.prototypeUrl ?? ""}
+                  onChange={(e) => updateProject(selectedIdx, { prototypeUrl: e.target.value })}
+                  placeholder="https://www.figma.com/proto/…"
+                  className="bg-transparent border-b border-[#3A3530] text-[#F2EDE5] py-2 text-sm focus:outline-none focus:border-[#C8A96E] transition-colors"
+                />
+                {project.prototypeUrl && !project.prototypeUrl.startsWith("http") && (
+                  <span className="text-amber-400 text-xs">URL should start with http:// or https://</span>
+                )}
+                <span className="text-[#4A4540] text-xs">When set, a "View Prototype" button appears on the project detail page.</span>
+              </div>
             </div>
           )}
 

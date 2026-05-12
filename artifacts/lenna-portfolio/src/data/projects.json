@@ -181,7 +181,8 @@
         ],
         "body2": "While this was a conceptual redesign, testing indicated meaningful improvements in usability and comprehension."
       }
-    ]
+    ],
+    "prototypeUrl": ""
   },
   {
     "id": "2",
@@ -341,7 +342,8 @@
         "src": "https://framerusercontent.com/images/ot1i26Uh0GH9zvXWk5ESxrcYTo.png?width=1972&height=909",
         "caption": "Supporting research artifacts"
       }
-    ]
+    ],
+    "prototypeUrl": ""
   },
   {
     "id": "3",
@@ -463,7 +465,8 @@
         ],
         "body2": "This project reinforced my interest in designing systems where UX decisions directly affect real-world safety."
       }
-    ]
+    ],
+    "prototypeUrl": ""
   },
   {
     "id": "4",
@@ -667,7 +670,8 @@
         "body": "This case study represents Phase 2 of the project — research synthesis and early ideation through to a high-fi prototype. The next phase moves into broader interactive testing, incorporating Humber's Idea Lab Audio & Visual resources to validate the pacing model with a wider group of newcomer students.",
         "body2": "Key questions for the next round: Does the milestone structure feel intuitive without coaching? Does plain-language content reduce anxiety, or does it feel too simplified? And — critically — will students actually open it on Day 1? Accessibility note: the next prototype phase treats WCAG 2.1 AA as a baseline, not a bonus — plain language, ≥4.5:1 contrast for body text, multilingual support, and screen-reader compatibility are non-negotiable for users with varying English literacy levels."
       }
-    ]
+    ],
+    "prototypeUrl": ""
   },
   {
     "id": "5",
@@ -932,7 +936,8 @@
           "Designing for high-value purchases means reducing uncertainty before users feel it."
         ]
       }
-    ]
+    ],
+    "prototypeUrl": ""
   },
   {
     "id": "6",
@@ -1075,7 +1080,8 @@
         "src": "https://framerusercontent.com/images/lTK7WWVKMVHbUM58Xf4rVPAJ4.png?width=1784&height=639",
         "caption": "Supporting research artifacts — research plans, collected data, synthesis documentation"
       }
-    ]
+    ],
+    "prototypeUrl": ""
   },
   {
     "id": "7",
@@ -1204,6 +1210,7 @@
         "summary": "Why this work sits next to the product design practice",
         "body": "Working across art and product design isn't a contradiction — both ask the same questions about how something should feel and what it should make a person notice. The gallery is a reminder that craft is craft, regardless of where it ends up living."
       }
-    ]
+    ],
+    "prototypeUrl": ""
   }
 ]

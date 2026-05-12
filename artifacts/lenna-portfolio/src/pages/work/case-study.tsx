@@ -7,6 +7,7 @@ import contactSeed from "@/data/contact.json";
 import { useContent } from "@/lib/use-content";
 import { BRAND_EASE } from "@/lib/brand";
 import { SafeImage } from "@/components/SafeImage";
+import { PrototypeCTAButton } from "@/components/PrototypeCTAButton";
 
 function ClampedText({ children, lines = 5 }: { children: React.ReactNode; lines?: number }) {
   const [expanded, setExpanded] = useState(false);
@@ -81,6 +82,7 @@ interface Project {
   year: string;
   period?: string;
   featured: boolean;
+  prototypeUrl?: string;
   sections?: ContentSection[];
 }
 
@@ -551,6 +553,10 @@ export default function CaseStudy() {
                 </li>
               ))}
             </ul>
+          )}
+
+          {project.prototypeUrl && (
+            <PrototypeCTAButton url={project.prototypeUrl} />
           )}
 
           {/* Metadata strip — equal columns, captions read as secondary */}
