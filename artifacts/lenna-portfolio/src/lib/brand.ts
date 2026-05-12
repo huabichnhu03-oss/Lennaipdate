@@ -3,15 +3,15 @@
 export const BRAND = {
   blue:  "#1F67F1",
   pink:  "#EC4899",
-  coral: "#E8715A",
-  teal:  "#6DB8A2",
+  coral: "#F45D3A",
+  teal:  "#1DB899",
 } as const;
 
 export const BRAND_RGB: Record<string, string> = {
   [BRAND.blue]:  "31,103,241",
   [BRAND.pink]:  "236,72,153",
-  [BRAND.coral]: "232,113,90",
-  [BRAND.teal]:  "109,184,162",
+  [BRAND.coral]: "244,93,58",
+  [BRAND.teal]:  "29,184,153",
 };
 
 export const BRAND_DECK = [
