@@ -192,8 +192,8 @@ body {
 }
 
 /* ── Scrollbar ─────────────────────────────────────── */
-.scrollbar-none { scrollbar-width: none; }
-.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { scrollbar-width: none !important; }
+.scrollbar-none::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
 
 /* Thin, minimal scrollbar globally (Firefox + WebKit). Use !important to
    defeat any third-party UI library scrollbar styling (e.g. Radix, shadcn). */
