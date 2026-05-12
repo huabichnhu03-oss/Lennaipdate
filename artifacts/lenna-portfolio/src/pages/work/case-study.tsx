@@ -647,7 +647,7 @@ export default function CaseStudy() {
                     }`}
                   >
                     <span className={`font-mono text-[10px] tabular-nums tracking-wider transition-colors ${
-                      isActive ? "text-primary" : "text-muted-foreground/70 group-hover/toc:text-foreground"
+                      isActive ? "text-primary" : "text-muted-foreground/80 group-hover/toc:text-foreground"
                     }`}>
                       {String(i + 1).padStart(2, "0")}
                     </span>

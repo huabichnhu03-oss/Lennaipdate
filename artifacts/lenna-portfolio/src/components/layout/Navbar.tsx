@@ -112,7 +112,7 @@ export function Navbar() {
           >
             {/* Eyebrow */}
             <motion.p
-              className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground/60 mb-1"
+              className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-1"
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}

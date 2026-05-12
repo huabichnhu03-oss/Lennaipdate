@@ -40,14 +40,14 @@ export function Footer() {
                 {identity.role}
               </p>
             )}
-            <p className="mt-4 text-xs uppercase tracking-[0.22em] text-muted-foreground/70">
+            <p className="mt-4 text-xs uppercase tracking-[0.22em] text-muted-foreground">
               Crafting digital goods since 2019
             </p>
           </div>
 
           {/* Contact */}
           <div className="md:col-span-4 flex flex-col gap-3">
-            <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground/60 mb-1">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground mb-1">
               Contact
             </p>
             {contact.email?.trim() && (
@@ -69,11 +69,11 @@ export function Footer() {
 
           {/* Elsewhere */}
           <div className="md:col-span-3 flex flex-col gap-3">
-            <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground/60 mb-1">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground mb-1">
               Elsewhere
             </p>
             {socials.length === 0 && (
-              <span className="text-sm text-muted-foreground/60 italic">
+              <span className="text-sm text-muted-foreground italic">
                 Coming soon
               </span>
             )}
@@ -93,7 +93,7 @@ export function Footer() {
         </div>
 
         {/* Baseline strip */}
-        <div className="mt-12 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-muted-foreground/70">
+        <div className="mt-12 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-muted-foreground">
           <span>© {year} {identity.name}. All rights reserved.</span>
           <span className="tracking-[0.18em] uppercase">
             Designed &amp; built with care

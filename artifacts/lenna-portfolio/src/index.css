@@ -138,7 +138,7 @@ html.dark {
   --secondary-foreground: 33 8% 51%;
 
   --muted: 30 8% 14%;
-  --muted-foreground: 33 8% 51%;
+  --muted-foreground: 33 8% 60%;
 
   --accent: 30 9% 21%;
   --accent-foreground: 38 33% 92%;
@@ -167,7 +167,7 @@ html.dark {
   --color-secondary:              hsl(30 8% 14%);
   --color-secondary-foreground:   hsl(33 8% 51%);
   --color-muted:                  hsl(30 8% 14%);
-  --color-muted-foreground:       hsl(33 8% 51%);
+  --color-muted-foreground:       hsl(33 8% 60%);
   --color-accent:                 hsl(30 9% 21%);
   --color-accent-foreground:      hsl(38 33% 92%);
   --color-destructive:            hsl(0 84.2% 60.2%);

@@ -152,7 +152,7 @@ export default function WorkIndex() {
             Lenna Hua · Selected Works
           </span>
           <span
-            className="text-[11px] font-mono uppercase tracking-[0.3em] text-muted-foreground/70"
+            className="text-[11px] font-mono uppercase tracking-[0.3em] text-muted-foreground"
           >
             {projectsData.length} projects
           </span>
