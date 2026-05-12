@@ -2,9 +2,12 @@ import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import { query } from "./db.js";
+import { storeAsset, replaceStoredAsset } from "./asset-storage-adapter.js";
 
-// Local filesystem storage for assets (replaces Vercel Blob)
-// Assets are stored in a persistent directory outside the source tree.
+// Asset storage for upload/replace is delegated to asset-storage-adapter.ts
+// which chooses between Cloudinary (when env vars are set) and the local
+// filesystem (dev fallback). Local fs helpers below are only used for
+// removeAsset (best-effort local file cleanup) and getAssetFilePath (serving).
 
 const ASSETS_DIR = process.env.ASSETS_DIR ?? path.join(process.cwd(), "data", "assets");
 
@@ -58,13 +61,6 @@ export function assetType(mime: string): "image" | "gif" | "video" | "other" {
   return "other";
 }
 
-function makeFilename(originalName: string, ext?: string): string {
-  const baseExt = ext ?? ((/\.([a-z0-9]+)$/i.exec(originalName))?.[1] ?? "bin");
-  const stamp = Date.now().toString(36);
-  const rand = Math.random().toString(36).slice(2, 8);
-  return `${stamp}-${rand}.${baseExt.toLowerCase()}`;
-}
-
 export async function listAssets(opts?: {
   limit?: number;
   offset?: number;
@@ -97,12 +93,7 @@ export async function uploadAsset(input: {
   width?: number | null;
   height?: number | null;
 }): Promise<Asset> {
-  ensureAssetsDir();
-  const ext = (/\.([a-z0-9]+)$/i.exec(input.filename))?.[1];
-  const fname = makeFilename(input.filename, ext);
-  const fpath = path.join(ASSETS_DIR, fname);
-  fs.writeFileSync(fpath, input.buffer);
-  const url = `/api/assets/${fname}`;
+  const url = await storeAsset(input.buffer, input.filename, input.mime);
   const id = crypto.randomUUID();
   const rows = await query<Row>(
     `INSERT INTO assets (id, url, filename, mime, size, width, height)
@@ -124,18 +115,14 @@ export async function replaceAsset(
   if (existing.length === 0) return null;
   const old = toAsset(existing[0]!);
 
-  ensureAssetsDir();
-  // Overwrite the existing file at the same path
-  const fname = path.basename(old.url);
-  const fpath = path.join(ASSETS_DIR, fname);
-  fs.writeFileSync(fpath, input.buffer);
+  const newUrl = await replaceStoredAsset(input.buffer, old.url, input.mime);
 
   const rows = await query<Row>(
     `UPDATE assets
-     SET mime = $1, size = $2, width = $3, height = $4
-     WHERE id = $5
+     SET url = $1, mime = $2, size = $3, width = $4, height = $5
+     WHERE id = $6
      RETURNING id, url, filename, mime, size, width, height, created_at`,
-    [input.mime, input.buffer.length, input.width ?? old.width, input.height ?? old.height, id],
+    [newUrl, input.mime, input.buffer.length, input.width ?? old.width, input.height ?? old.height, id],
   );
   return rows.length > 0 ? toAsset(rows[0]!) : null;
 }

@@ -1,6 +1,7 @@
 import crypto from "crypto";
-import { put, del } from "@vercel/blob";
+import { del } from "@vercel/blob";
 import { query } from "./db.js";
+import { storeAsset, replaceStoredAsset } from "./asset-storage-adapter.js";
 
 export type Asset = {
   id: string;
@@ -46,13 +47,6 @@ export function assetType(mime: string): "image" | "gif" | "video" | "other" {
   return "other";
 }
 
-function makeStorageKey(originalName: string, ext?: string): string {
-  const baseExt = ext ?? ((/\.([a-z0-9]+)$/i.exec(originalName))?.[1] ?? "bin");
-  const stamp = Date.now().toString(36);
-  const rand = Math.random().toString(36).slice(2, 8);
-  return `assets/${stamp}-${rand}.${baseExt.toLowerCase()}`;
-}
-
 export async function listAssets(opts?: {
   limit?: number;
   offset?: number;
@@ -85,18 +79,13 @@ export async function uploadAsset(input: {
   width?: number | null;
   height?: number | null;
 }): Promise<Asset> {
-  const ext = (/\.([a-z0-9]+)$/i.exec(input.filename))?.[1];
-  const key = makeStorageKey(input.filename, ext);
-  const blob = await put(key, input.buffer, {
-    access: "public",
-    contentType: input.mime,
-  });
+  const url = await storeAsset(input.buffer, input.filename, input.mime);
   const id = crypto.randomUUID();
   const rows = await query<Row>(
     `INSERT INTO assets (id, url, filename, mime, size, width, height)
      VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING id, url, filename, mime, size, width, height, created_at`,
-    [id, blob.url, input.filename || "upload", input.mime, input.buffer.length, input.width ?? null, input.height ?? null],
+    [id, url, input.filename || "upload", input.mime, input.buffer.length, input.width ?? null, input.height ?? null],
   );
   return toAsset(rows[0]!);
 }
@@ -112,25 +101,14 @@ export async function replaceAsset(
   if (existing.length === 0) return null;
   const old = toAsset(existing[0]!);
 
-  try {
-    await del(old.url);
-  } catch {
-    /* best-effort — blob may already be gone */
-  }
-
-  const ext = (/\.([a-z0-9]+)$/i.exec(old.filename))?.[1];
-  const key = makeStorageKey(old.filename, ext);
-  const blob = await put(key, input.buffer, {
-    access: "public",
-    contentType: input.mime,
-  });
+  const newUrl = await replaceStoredAsset(input.buffer, old.url, input.mime);
 
   const rows = await query<Row>(
     `UPDATE assets
      SET url = $1, mime = $2, size = $3, width = $4, height = $5
      WHERE id = $6
      RETURNING id, url, filename, mime, size, width, height, created_at`,
-    [blob.url, input.mime, input.buffer.length, input.width ?? old.width, input.height ?? old.height, id],
+    [newUrl, input.mime, input.buffer.length, input.width ?? old.width, input.height ?? old.height, id],
   );
   return rows.length > 0 ? toAsset(rows[0]!) : null;
 }

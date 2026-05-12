@@ -11,6 +11,7 @@ A portfolio site for Lenna Hua — a product designer showcasing selected works,
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
 - Optional env: `ADMIN_PASSWORD` (min 8 chars), `ADMIN_TOKEN_SECRET` (min 8 chars), `RESEND_API_KEY`, `CONTACT_TO_EMAIL`
+- Optional env (Cloudinary): `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` — when all three are set, admin image uploads go to Cloudinary instead of local disk; required for Vercel production where the local filesystem is ephemeral
 
 ## Stack
 
@@ -59,6 +60,7 @@ _Populate as you build._
 - `@assets` alias in vite.config.ts points to `src/assets/` (not workspace `attached_assets/`)
 - JSON seed files for the API live in `src/data/` (not `data/`) so esbuild can bundle them from `rootDir: "."`
 - `pg` must stay in the `external` array in `build.mjs` or the build will fail
+- Cloudinary uploads are opt-in: set all three `CLOUDINARY_*` env vars to enable; omitting any one falls back to local disk. On Vercel, local disk is ephemeral so the Cloudinary vars are effectively required in production.
 
 ## Pointers
 
