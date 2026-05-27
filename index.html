@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>Lenna Portfolio</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      /* Pre-React, pre-paint theme bootstrap.
+
+         The entry route ("/") is intentionally locked to dark, while
+         every other route uses the visitor's saved theme. Without
+         this script, the document would paint with the stylesheet
+         default (light) before React mounts, causing a single-frame
+         flash on cold load / hard refresh — most visible on "/" for
+         visitors who saved light mode, and on inner pages for the
+         opposite case.
+
+         We resolve the intended theme from window.location.pathname
+         and synchronously set `html.dark` (or remove it) before the
+         CSS even resolves background-color for first paint. We do
+         NOT write to localStorage here; the entry page must never
+         mutate the visitor's saved preference. */
+      (function () {
+        try {
+          var path = window.location.pathname || "/";
+          var saved = null;
+          try {
+            /* One-time migration: a previous build wrote "dark" to
+               localStorage on inner pages by accident. Wipe any legacy
+               value once so visitors fall back to the cream default,
+               then mark the migration complete. After this, the toggle
+               saves under the same key as before. */
+            if (!localStorage.getItem("lenna-theme-migrated-v2")) {
+              localStorage.removeItem("lenna-theme");
+              localStorage.setItem("lenna-theme-migrated-v2", "1");
+            }
+            saved = localStorage.getItem("lenna-theme");
+          } catch (_) {}
+          var forceDark = path === "/" || path === "";
+          /* Inner pages default to LIGHT when the visitor has no
+             saved preference. Only `/` is forced dark. */
+          var theme = forceDark ? "dark" : (saved === "dark" ? "dark" : "light");
+          var html = document.documentElement;
+          if (theme === "dark") {
+            html.classList.add("dark");
+            html.classList.remove("light");
+          } else {
+            html.classList.remove("dark");
+            html.classList.add("light");
+          }
+        } catch (_) {
+          /* Fail-open to light so visitors don't get stuck in dark */
+          document.documentElement.classList.add("light");
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
