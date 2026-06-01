@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import projectsSeed from "@/data/projects.json";
@@ -6,23 +7,20 @@ import identitySeed from "@/data/identity.json";
 import contactSeed from "@/data/contact.json";
 import homepageSeed from "@/data/homepage.json";
 import { useContent } from "@/lib/use-content";
+import { FloatingDecor } from "@/components/FloatingDecor";
+import { PinterestCard } from "@/components/PinterestCard";
+import { useTheme } from "@/context/ThemeContext";
 
 type Project = (typeof projectsSeed)[number] & { archived?: boolean };
 
-// Split the editable identity name into a first word (highlighted in
-// brand blue) and the remainder, falling back gracefully if the name
-// is a single word.
+const BLUE = "#1F67F1";
+
 function splitName(full: string): [string, string] {
   const trimmed = (full || "").trim();
   const idx = trimmed.indexOf(" ");
   if (idx === -1) return [trimmed, ""];
   return [trimmed.slice(0, idx), trimmed.slice(idx + 1)];
 }
-import { FloatingDecor } from "@/components/FloatingDecor";
-import { PinterestCard } from "@/components/PinterestCard";
-import { useTheme } from "@/context/ThemeContext";
-
-const BLUE = "#1F67F1";
 
 function buildStats(location: string) {
   const stats = [
@@ -32,7 +30,6 @@ function buildStats(location: string) {
   ];
   const trimmed = (location ?? "").trim();
   if (trimmed) {
-    // Use the first comma-separated token (e.g. "Toronto" from "Toronto, ON, Canada")
     const primary = trimmed.split(",")[0].trim();
     stats.push({ label: primary, sub: "Based", color: BLUE });
   }
@@ -55,14 +52,20 @@ export default function Home() {
   const identityData = useContent("identity", identitySeed) as typeof identitySeed;
   const contactData = useContent("contact", contactSeed) as typeof contactSeed;
   const homepageData = useContent("homepage", homepageSeed) as typeof homepageSeed;
-  const featuredProjects = projectsData
-    .filter((p) => !p.archived && p.featured)
-    .slice(0, 3);
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const [firstName, lastName] = splitName(identityData.name);
-  const STATS = buildStats(contactData.location);
   const hp = homepageData.home;
+
+  const featuredProjects = useMemo(
+    () => projectsData.filter((p) => !p.archived && p.featured).slice(0, 3),
+    [projectsData]
+  );
+  const projectIndexMap = useMemo(
+    () => new Map(projectsData.map((p, i) => [p.id, i])),
+    [projectsData]
+  );
+  const [firstName, lastName] = useMemo(() => splitName(identityData.name), [identityData.name]);
+  const STATS = useMemo(() => buildStats(contactData.location), [contactData.location]);
 
   return (
     <div className="w-full flex flex-col gap-32 md:gap-48 pt-12 md:pt-24 pb-20">
@@ -148,7 +151,7 @@ export default function Home() {
           <Link
             href={hp.primaryCtaHref}
             className="text-sm uppercase tracking-[0.35em] font-sans px-6 py-3 rounded-full font-bold transition-opacity hover:opacity-85"
-            style={{ background: BLUE, color: "#FFFFFF" }}
+            style={{ background: "#1A5BD4", color: "#FFFFFF" }}
           >
             {hp.primaryCtaLabel}
           </Link>
@@ -188,12 +191,10 @@ export default function Home() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch"
         >
           {featuredProjects.map((project) => {
-            const i = projectsData.findIndex((p) => p.id === project.id);
+            const i = projectIndexMap.get(project.id) ?? 0;
             return (
               <motion.div key={project.id} variants={item} className="h-full">
-                <Link href={`/work/${project.slug}`} className="block h-full">
-                  <PinterestCard project={project} i={i} isDark={isDark} />
-                </Link>
+                <PinterestCard project={project} i={i} isDark={isDark} />
               </motion.div>
             );
           })}

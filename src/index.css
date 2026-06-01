@@ -414,3 +414,20 @@ html:not(.dark) .card-glass {
   75%  { transform: translate(-20%, 40%) scale(1.1); }
   100% { transform: translate(0%, 0%)    scale(1); }
 }
+
+/* ── Reduced Motion ─────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .orbit-ring,
+  .orbit-item,
+  .reveal-up {
+    animation: none !important;
+  }
+}

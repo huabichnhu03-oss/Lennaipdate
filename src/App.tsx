@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Switch, Route, Router as WouterRouter, useLocation, Redirect } from "wouter";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -20,27 +19,45 @@ import About from "@/pages/about";
 import Studio from "@/pages/studio";
 import StudioDetail from "@/pages/studio-detail";
 import Contact from "@/pages/contact";
-import Admin from "@/pages/admin";
 import Play from "@/pages/play";
 import NotFound from "@/pages/not-found";
 
-const queryClient = new QueryClient();
+// Lazy load admin — it's 4000+ lines and only used on /admin
+const Admin = lazy(() => import("@/pages/admin"));
 
 function CustomCursor() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const dotRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
+  const pos = useRef({ x: 0, y: 0 });
+  const rafId = useRef(0);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
+      pos.current = { x: e.clientX, y: e.clientY };
+    };
+    const tick = () => {
+      if (dotRef.current) {
+        dotRef.current.style.left = `${pos.current.x}px`;
+        dotRef.current.style.top = `${pos.current.y}px`;
+      }
+      if (ringRef.current) {
+        ringRef.current.style.left = `${pos.current.x}px`;
+        ringRef.current.style.top = `${pos.current.y}px`;
+      }
+      rafId.current = requestAnimationFrame(tick);
     };
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    rafId.current = requestAnimationFrame(tick);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      cancelAnimationFrame(rafId.current);
+    };
   }, []);
 
   return (
     <>
-      <div className="custom-cursor-dot" style={{ left: mousePos.x, top: mousePos.y }} />
-      <div className="custom-cursor-ring" style={{ left: mousePos.x, top: mousePos.y }} />
+      <div ref={dotRef} className="custom-cursor-dot" />
+      <div ref={ringRef} className="custom-cursor-ring" />
     </>
   );
 }
@@ -163,7 +180,7 @@ function AppRoutes() {
         <WithLayout><PageTransition><Play /></PageTransition></WithLayout>
       </Route>
       <Route path="/admin">
-        <WithLayout showBottomNav={false}><PageTransition><Admin /></PageTransition></WithLayout>
+        <WithLayout showBottomNav={false}><PageTransition><Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}><Admin /></Suspense></PageTransition></WithLayout>
       </Route>
       <Route>
         <WithLayout><PageTransition><NotFound /></PageTransition></WithLayout>
@@ -174,21 +191,19 @@ function AppRoutes() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <ContentProvider>
-        <TooltipProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <ScrollManager />
-            <div className="grain-overlay" />
-            <CustomCursor />
-            <AppRoutes />
-          </WouterRouter>
-          <Toaster />
-        </TooltipProvider>
-        </ContentProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <ContentProvider>
+      <TooltipProvider>
+        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+          <ScrollManager />
+          <div className="grain-overlay" />
+          <CustomCursor />
+          <AppRoutes />
+        </WouterRouter>
+        <Toaster />
+      </TooltipProvider>
+      </ContentProvider>
+    </ThemeProvider>
   );
 }
 

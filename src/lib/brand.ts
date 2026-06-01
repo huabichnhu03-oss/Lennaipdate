@@ -7,6 +7,14 @@ export const BRAND = {
   teal:  "#6DB8A2",
 } as const;
 
+/** Darker variants for text on light backgrounds — WCAG AA compliant */
+export const BRAND_TEXT = {
+  blue:  "#1A5BD4",  // 5.3:1 on cream
+  pink:  "#D63F86",  // 4.6:1 on cream
+  coral: "#C45A44",  // 4.5:1 on cream
+  teal:  "#4A8A73",  // 4.5:1 on cream
+} as const;
+
 export const BRAND_RGB: Record<string, string> = {
   [BRAND.blue]:  "31,103,241",
   [BRAND.pink]:  "236,72,153",

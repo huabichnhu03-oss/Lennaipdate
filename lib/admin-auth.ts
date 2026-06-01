@@ -60,12 +60,7 @@ export function verifyAdminToken(token: unknown): boolean {
 
 export function isAdminRequest(body: { token?: unknown; password?: unknown }): boolean {
   if (verifyAdminToken(body.token)) return true;
-  if (typeof body.password === "string") {
-    try {
-      if (body.password === getAdminPassword()) return true;
-    } catch {
-      return false;
-    }
-  }
+  // Raw password accepted only for the login endpoint — not for general admin requests.
+  // Callers that need password-based auth should use issueAdminToken() after verifying the password.
   return false;
 }

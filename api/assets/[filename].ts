@@ -11,9 +11,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    // Escape LIKE wildcards (%) and (_) in filename to prevent pattern injection
+    const escaped = filename.replace(/%/g, "\\%").replace(/_/g, "\\_");
     const rows = await query<{ url: string }>(
-      "SELECT url FROM assets WHERE url LIKE $1",
-      [`%/${filename}`],
+      "SELECT url FROM assets WHERE url LIKE $1 ESCAPE '\\'",
+      [`%/${escaped}`],
     );
     if (rows.length === 0) {
       res.status(404).json({ error: "Asset not found" });

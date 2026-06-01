@@ -73,8 +73,6 @@ function readToken(req: VercelRequest): string | undefined {
   if (typeof h === "string" && h.toLowerCase().startsWith("bearer ")) {
     return h.slice(7).trim();
   }
-  const q = (req.query ?? {}) as Record<string, unknown>;
-  if (typeof q.token === "string") return q.token as string;
   return undefined;
 }
 

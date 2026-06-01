@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sun, Moon } from "lucide-react";
@@ -13,6 +13,44 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, toggle } = useTheme();
   const identityData = useContent("identity", identitySeed) as typeof identitySeed;
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
+
+  // Focus trap for mobile menu
+  useEffect(() => {
+    if (!mobileOpen) {
+      // Return focus to hamburger when menu closes
+      hamburgerRef.current?.focus();
+      return;
+    }
+    const menuEl = mobileMenuRef.current;
+    if (!menuEl) return;
+    // Focus first link on open
+    const firstLink = menuEl.querySelector<HTMLElement>('a, button');
+    firstLink?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMobileOpen(false);
+        return;
+      }
+      if (e.key === "Tab") {
+        const focusable = menuEl.querySelectorAll<HTMLElement>(
+          'a, button, [tabindex]:not([tabindex="-1"])'
+        );
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [mobileOpen]);
 
   const links = [
     { href: "/home",    label: "Home"    },
@@ -42,7 +80,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop nav — pill container (omaidmustafa style) */}
-        <nav className="hidden md:flex items-center gap-2">
+        <nav aria-label="Main navigation" className="hidden md:flex items-center gap-2">
           <div className="flex items-center gap-1 bg-primary/10 rounded-full px-2 py-1.5 border border-primary/15">
             {links.map((link) => (
               <Link
@@ -78,6 +116,7 @@ export function Navbar() {
             {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
           </button>
           <button
+            ref={hamburgerRef}
             className="text-foreground relative z-50 cursor-pointer flex flex-col gap-[5px] w-7 h-5 justify-center"
             onClick={() => setMobileOpen((v) => !v)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
@@ -104,6 +143,10 @@ export function Navbar() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
+            ref={mobileMenuRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
             key="mobile-overlay"
             className="fixed inset-0 z-[60] bg-background/95 backdrop-blur-xl flex flex-col items-start justify-center px-8 sm:px-10 gap-5"
             initial={{ opacity: 0 }}

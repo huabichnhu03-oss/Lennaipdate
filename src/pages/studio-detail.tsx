@@ -100,10 +100,12 @@ function Lightbox({
 export default function StudioDetail() {
   const items = useContent("gallery", gallerySeed) as GalleryItem[];
   const params = useParams();
-  const idx = items.findIndex((i) => i.slug === params.slug);
-  const item = items[idx];
-  const prev = idx > 0 ? items[idx - 1] : null;
-  const next = idx >= 0 && idx < items.length - 1 ? items[idx + 1] : null;
+  // Only navigate among "big" projects — small artworks use modal on studio page
+  const bigItems = items.filter((i) => i.kind === "big");
+  const idx = bigItems.findIndex((i) => i.slug === params.slug);
+  const item = idx >= 0 ? bigItems[idx] : items.find((i) => i.slug === params.slug);
+  const prev = idx > 0 ? bigItems[idx - 1] : null;
+  const next = idx >= 0 && idx < bigItems.length - 1 ? bigItems[idx + 1] : null;
   const [lightbox, setLightbox] = useState<{ src: string; caption?: string } | null>(null);
   const [coverErrored, setCoverErrored] = useState(false);
   const [erroredImages, setErroredImages] = useState<Record<number, boolean>>({});

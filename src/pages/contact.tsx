@@ -247,7 +247,8 @@ export default function Contact() {
                     className="text-sm uppercase tracking-widest font-sans font-bold"
                     style={{ color: BLUE }}
                   >
-                    {label}
+                    {label} <span className="text-red-500" aria-hidden="true">*</span>
+                    <span className="sr-only">(required)</span>
                   </label>
                   <input
                     type={type}
@@ -271,7 +272,8 @@ export default function Contact() {
                   className="text-sm uppercase tracking-widest font-sans font-bold"
                   style={{ color: BLUE }}
                 >
-                  Message
+                  Message <span className="text-red-500" aria-hidden="true">*</span>
+                  <span className="sr-only">(required)</span>
                 </label>
                 <textarea
                   id="message"

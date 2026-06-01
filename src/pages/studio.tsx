@@ -54,9 +54,27 @@ function ArtworkModal({
   item: GalleryItem;
   onClose: () => void;
 }) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
+    closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
+      if (e.key === "Tab" && containerRef.current) {
+        const focusable = containerRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
     };
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
@@ -68,6 +86,10 @@ function ArtworkModal({
 
   return (
     <motion.div
+      ref={containerRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={item.title}
       data-fast-scroll-skip
       className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10"
       style={{ background: "rgba(8,8,10,0.85)", backdropFilter: "blur(8px)" }}
@@ -87,6 +109,7 @@ function ArtworkModal({
       >
         {/* Close button */}
         <button
+          ref={closeRef}
           onClick={onClose}
           aria-label="Close"
           className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center transition-colors text-base"

@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "wouter";
 import {
   Sparkles,
   Star,
@@ -19,6 +18,7 @@ import {
   BRAND,
   BRAND_DECK,
   BRAND_EASE,
+  BRAND_TEXT,
 } from "@/lib/brand";
 
 const ACCENTS = BRAND_DECK;
@@ -123,11 +123,18 @@ export default function WorkIndex() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const visible = projectsData.filter((p) => !p.archived);
-  const filtered =
-    filter === "All"
+  const visible = useMemo(() => projectsData.filter((p) => !p.archived), [projectsData]);
+  const filtered = useMemo(
+    () => filter === "All"
       ? visible
-      : visible.filter((p) => p.type === filter || p.tags.includes(filter));
+      : visible.filter((p) => p.type === filter || p.tags.includes(filter)),
+    [visible, filter]
+  );
+  // Pre-compute index map for O(1) lookups instead of O(n) findIndex per card
+  const projectIndexMap = useMemo(
+    () => new Map(projectsData.map((p, i) => [p.id, i])),
+    [projectsData]
+  );
 
   return (
     <div
@@ -173,9 +180,9 @@ export default function WorkIndex() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: BRAND_EASE }}
           >
-            <span style={{ color: BRAND.coral }}>Selected</span>
+            <span style={{ color: BRAND_TEXT.coral }}>Selected</span>
             <br />
-            <span style={{ color: BRAND.blue }}>Works</span>
+            <span style={{ color: BRAND_TEXT.blue }}>Works</span>
           </motion.h1>
 
           {/* Filter pills */}
@@ -207,10 +214,14 @@ export default function WorkIndex() {
         </section>
 
         {/* Card grid */}
+        <div aria-live="polite" className="sr-only">
+          {filtered.length} project{filtered.length !== 1 ? "s" : ""} shown
+          {filter !== "All" ? ` in ${filter}` : ""}
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
           <AnimatePresence mode="popLayout">
             {filtered.map((project, gi) => {
-              const i = projectsData.findIndex((p) => p.id === project.id);
+              const i = projectIndexMap.get(project.id) ?? 0;
               return (
                 <motion.div
                   key={project.id}
@@ -225,9 +236,7 @@ export default function WorkIndex() {
                   }}
                   className="h-full"
                 >
-                  <Link href={`/work/${project.slug}`} className="block h-full">
-                    <PinterestCard project={project} i={i} isDark={isDark} />
-                  </Link>
+                  <PinterestCard project={project} i={i} isDark={isDark} />
                 </motion.div>
               );
             })}

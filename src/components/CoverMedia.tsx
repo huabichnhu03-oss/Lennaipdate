@@ -10,9 +10,10 @@ interface CoverMediaProps {
   alt: string;
   className?: string;
   style?: React.CSSProperties;
+  loading?: "lazy" | "eager";
 }
 
-export function CoverMedia({ src, alt, className, style }: CoverMediaProps) {
+export function CoverMedia({ src, alt, className, style, loading = "lazy" }: CoverMediaProps) {
   if (isVideo(src)) {
     return (
       <video
@@ -21,10 +22,11 @@ export function CoverMedia({ src, alt, className, style }: CoverMediaProps) {
         loop
         muted
         playsInline
+        aria-label={alt}
         className={className}
         style={style}
       />
     );
   }
-  return <SafeImage src={src} alt={alt} className={className} style={style} />;
+  return <SafeImage src={src} alt={alt} className={className} style={style} loading={loading} />;
 }

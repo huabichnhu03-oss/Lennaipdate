@@ -377,10 +377,20 @@ export default function Entry() {
   }, []);
 
   return (
-    <div
+    <main
       className="fixed inset-0 overflow-hidden flex flex-col"
       style={{ backgroundColor: COLORS.bg }}
     >
+      {/* Skip link for keyboard users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm"
+        style={{ background: DESIGN_ACCENT, color: "#fff" }}
+      >
+        Skip to content
+      </a>
+      {/* Visually hidden h1 for screen readers */}
+      <h1 className="sr-only">{hp.wordmarkPrefix}{hp.wordmarkSuffix} — Portfolio</h1>
       {/* ── Floating pill grid ── */}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
         {PILLS.map((pill, i) => (
@@ -471,6 +481,6 @@ export default function Entry() {
           {hp.bottomPrompt}
         </motion.span>
       </div>
-    </div>
+    </main>
   );
 }

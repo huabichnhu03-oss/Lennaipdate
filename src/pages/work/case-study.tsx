@@ -104,9 +104,30 @@ function buildSocials(contact: typeof contactSeed): Array<{ label: string; title
 
 function Lightbox({ src, caption, onClose }: { src: string; caption?: string; onClose: () => void }) {
   const [zoom, setZoom] = useState(1);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    // Focus the close button on open
+    closeRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      // Trap focus within lightbox
+      if (e.key === "Tab" && containerRef.current) {
+        const focusable = containerRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
+    };
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
     return () => {
@@ -122,6 +143,10 @@ function Lightbox({ src, caption, onClose }: { src: string; caption?: string; on
 
   return (
     <motion.div
+      ref={containerRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={caption || "Image lightbox"}
       className="fixed inset-0 z-[200] flex flex-col items-center justify-center"
       style={{ background: "rgba(5,5,5,0.95)", backdropFilter: "blur(6px)" }}
       initial={{ opacity: 0 }}
@@ -150,6 +175,7 @@ function Lightbox({ src, caption, onClose }: { src: string; caption?: string; on
           aria-label="Reset zoom"
         >Reset</button>
         <button
+          ref={closeRef}
           onClick={onClose}
           className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors ml-2 text-lg"
           aria-label="Close"
@@ -323,9 +349,9 @@ function SectionBlockText({ section }: { section: ContentSection }) {
       {(section.title || section.summary) && (
         <div className="flex flex-col lg:flex-row lg:gap-10 gap-3 border-b border-border pb-5">
           {section.title && (
-            <h3 className="font-display font-black uppercase text-xl md:text-2xl text-primary lg:w-48 flex-shrink-0 leading-tight tracking-tight">
+            <h2 className="font-display font-black uppercase text-xl md:text-2xl text-primary lg:w-48 flex-shrink-0 leading-tight tracking-tight">
               {section.title}
-            </h3>
+            </h2>
           )}
           {section.summary && (
             <p className="text-foreground text-base md:text-xl font-sans leading-relaxed flex-1 font-medium">

@@ -221,3 +221,70 @@ Script: `scripts/test-video-upload.mjs`
 - Add telemetry/log correlation IDs to admin save + migration requests for faster incident tracing.
 - Push all local commits to origin/main.
 - ~~Switch `--no-frozen-lockfile` to `--frozen-lockfile`~~ ✓ Done
+
+---
+
+## Project Review + Fixes (June 1, 2026 — comprehensive audit)
+
+### Security Fixes
+- **Removed token from query strings** — admin tokens no longer accepted via `?token=...` (was leaking in server logs, browser history, referrer headers)
+- **Removed raw password fallback** — `isAdminRequest` no longer accepts raw password on every admin API request; only the login endpoint verifies passwords
+- **Fixed LIKE pattern injection** — escaped `%` and `_` wildcards in `api/assets/[filename].ts` SQL queries
+- **Added rate limiting** — contact form now has in-memory rate limiter (5 requests/IP/minute)
+
+### Critical Bug Fixes
+- **Fixed viewport meta** — removed `maximum-scale=1` that blocked user zoom (WCAG 1.4.4 failure)
+- **Improved admin save error messages** — partial save failures now show which sections were already committed
+- **Fixed studio detail prev/next** — now only navigates among `kind: "big"` items (small artworks use modal)
+- **Fixed shallow merge in loadDraft** — admin draft loading now does per-section deep merge to preserve new default fields
+- **Fixed nested `<a>` links** — removed `<Link>` wrapper from PinterestCard (card already renders as `<a>`)
+
+### Accessibility Hardening
+- **Added focus traps** to lightbox, ArtworkModal, and mobile menu overlay
+- **Added `role="dialog"` and `aria-modal="true"`** to all modals and overlays
+- **Added `prefers-reduced-motion` support** — CSS media query disables all animations, PageTransition respects `useReducedMotion()`
+- **Fixed entry page semantics** — added `<main>` landmark, visually hidden `<h1>`, skip link
+- **Added `aria-label` to Navbar `<nav>`**
+- **Added `aria-live` region** to work page filter (announces result count to screen readers)
+- **Added `aria-hidden`** to all decorative divs in PinterestCard
+- **Fixed heading hierarchy** — case study sections now use `<h2>` instead of `<h3>` (was skipping h1 → h3)
+- **Added required field indicators** — contact form labels now show asterisk with sr-only "(required)"
+- **Added `aria-label` to CoverMedia video elements**
+- **Fixed color contrast** — added `BRAND_TEXT` variants for text on light backgrounds (WCAG AA compliant)
+- **Default `loading="lazy"` on CoverMedia** — images now lazy load by default
+
+### Performance Optimizations
+- **Lazy loaded admin page** — `React.lazy()` + `Suspense` splits admin from public bundle
+- **Fixed CustomCursor re-renders** — now uses refs + `requestAnimationFrame` instead of `useState`
+- **Removed dead dependencies** — `@tanstack/react-query`, `date-fns`, `react-icons` removed from package.json
+- **Added manual chunks** — vite.config.ts now splits `vendor-react`, `vendor-motion`, `vendor-icons`
+- **Memoized PinterestCard** — wrapped in `React.memo`
+- **Memoized computed values** — `featuredProjects`, `splitName`, `buildStats`, filtered lists all use `useMemo`
+- **Fixed O(n²) findIndex** — work/index.tsx and home.tsx now use pre-computed `Map` for project index lookups
+- **Removed unused QueryClientProvider** — React Query was installed but never used
+
+### Files Changed (24 files)
+- `api/admin/assets/index.ts` — removed query string token
+- `api/admin/content/index.ts` — removed query string token
+- `api/admin/messages.ts` — removed query string token
+- `api/assets/[filename].ts` — escaped LIKE wildcards
+- `api/contact.ts` — added rate limiting
+- `index.html` — removed maximum-scale=1
+- `lib/admin-auth.ts` — removed raw password fallback
+- `package.json` — removed dead dependencies
+- `src/App.tsx` — lazy admin, fixed CustomCursor, removed React Query
+- `src/components/CoverMedia.tsx` — added lazy loading default, aria-label on video
+- `src/components/PinterestCard.tsx` — wrapped in memo, added aria-hidden
+- `src/components/layout/Navbar.tsx` — added focus trap, aria-label, refs
+- `src/components/layout/PageTransition.tsx` — added reduced motion support
+- `src/index.css` — added prefers-reduced-motion media query
+- `src/lib/brand.ts` — added BRAND_TEXT for accessible text colors
+- `src/pages/admin.tsx` — fixed loadDraft merge, improved save error messages
+- `src/pages/contact.tsx` — added required field indicators
+- `src/pages/entry.tsx` — added main landmark, h1, skip link
+- `src/pages/home.tsx` — memoized values, fixed findIndex, fixed contrast
+- `src/pages/studio-detail.tsx` — fixed prev/next to only navigate big items
+- `src/pages/studio.tsx` — added focus trap to ArtworkModal
+- `src/pages/work/case-study.tsx` — added focus trap, fixed heading hierarchy
+- `src/pages/work/index.tsx` — memoized values, fixed findIndex, added aria-live, fixed contrast
+- `vite.config.ts` — added manual chunks for code splitting

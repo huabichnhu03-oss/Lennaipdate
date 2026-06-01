@@ -230,10 +230,26 @@ function loadDraft(): ContentData {
   try {
     const saved = safeStorage.getItem(STORAGE_KEY);
     if (saved) {
-      // Merge over defaults so older drafts (missing newly-added sections
-      // like identity / contact) don't render undefined fields.
+      // Per-section deep merge so older drafts (missing newly-added fields
+      // inside sections) don't lose new defaults.
       const parsed = JSON.parse(saved) as Partial<ContentData>;
-      return { ...fresh, ...parsed } as ContentData;
+      const merged = { ...fresh };
+      for (const key of Object.keys(fresh) as (keyof ContentData)[]) {
+        if (parsed[key] !== undefined) {
+          const freshVal = fresh[key];
+          const parsedVal = parsed[key];
+          // If both are plain objects (not arrays), merge deeply
+          if (
+            freshVal && typeof freshVal === "object" && !Array.isArray(freshVal) &&
+            parsedVal && typeof parsedVal === "object" && !Array.isArray(parsedVal)
+          ) {
+            merged[key] = { ...freshVal, ...parsedVal } as any;
+          } else {
+            merged[key] = parsedVal as any;
+          }
+        }
+      }
+      return merged;
     }
   } catch {
     // fall through to default
@@ -3862,9 +3878,12 @@ export default function Admin() {
             setSavedMsg("Unauthorized — please log in again.");
           } else {
             const detail = body.error || rawText || res.statusText || `HTTP ${res.status}`;
-            setSavedMsg(`Error: ${detail} (section: ${section})`);
+            const savedNote = savedSections.length > 0
+              ? ` (${savedSections.length} sections already saved — site may be partially updated)`
+              : "";
+            setSavedMsg(`Error: ${detail} (section: ${section})${savedNote}`);
           }
-          setTimeout(() => setSavedMsg(""), 5000);
+          setTimeout(() => setSavedMsg(""), 7000);
           return;
         }
         savedSections.push(section);

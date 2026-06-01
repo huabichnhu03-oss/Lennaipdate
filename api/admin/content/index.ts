@@ -11,8 +11,6 @@ function readToken(req: VercelRequest): string | undefined {
   }
   const body = (req.body ?? {}) as Record<string, unknown>;
   if (typeof body.token === "string") return body.token;
-  const q = (req.query ?? {}) as Record<string, unknown>;
-  if (typeof q.token === "string") return q.token as string;
   return undefined;
 }
 

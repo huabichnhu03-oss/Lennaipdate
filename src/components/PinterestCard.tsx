@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { CoverMedia } from "@/components/CoverMedia";
 import projectsData from "@/data/projects.json";
@@ -14,7 +15,7 @@ const OMBRE_PAIRS: [string, string][] = [
   ["109,184,162", "31,103,241"],  // teal → blue
 ];
 
-export function PinterestCard({
+export const PinterestCard = memo(function PinterestCard({
   project,
   i,
   isDark,
@@ -45,6 +46,7 @@ export function PinterestCard({
     >
       {/* ── Outer glow (visible on hover) ──────────────────── */}
       <div
+        aria-hidden="true"
         className="absolute -inset-[1px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
         style={{
           background: `linear-gradient(160deg, rgba(${ombreFrom},0.35), rgba(${ombreTo},0.25))`,
@@ -55,6 +57,7 @@ export function PinterestCard({
 
       {/* ── Border glow ring ───────────────────────────────── */}
       <div
+        aria-hidden="true"
         className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
         style={{
           border: `1.5px solid rgba(${rgb},0.45)`,
@@ -68,6 +71,7 @@ export function PinterestCard({
 
       {/* ── Glassmorphic shine sweep ───────────────────────── */}
       <div
+        aria-hidden="true"
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-600 pointer-events-none"
         style={{
           background: `linear-gradient(
@@ -81,6 +85,7 @@ export function PinterestCard({
 
       {/* ── Grain texture overlay ──────────────────────────── */}
       <div
+        aria-hidden="true"
         className="absolute inset-0 rounded-2xl pointer-events-none mix-blend-overlay"
         style={{
           opacity: isDark ? 0.06 : 0.03,
@@ -91,6 +96,7 @@ export function PinterestCard({
 
       {/* ── Ombre gradient blob (bottom-right corner) ──────── */}
       <div
+        aria-hidden="true"
         className="absolute -bottom-12 -right-12 w-48 h-48 rounded-full pointer-events-none transition-opacity duration-700 opacity-40 group-hover:opacity-70"
         style={{
           background: `radial-gradient(circle, rgba(${ombreTo},0.30) 0%, transparent 70%)`,
@@ -173,4 +179,4 @@ export function PinterestCard({
       </div>
     </motion.a>
   );
-}
+});
