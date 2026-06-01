@@ -135,6 +135,11 @@ Script: `scripts/test-video-upload.mjs`
 - **Lockfile cleanup** — switched `--no-frozen-lockfile` to `--frozen-lockfile` in vercel.json (lockfile regenerated and cross-platform compatible)
 
 ## Latest Deployments
+- **Comprehensive review: security, accessibility, performance, bugs (June 1, 2026)**
+  - URL: `https://lennaipdate-i0n91c9kv-huabichnhu03-oss-projects.vercel.app`
+  - Inspect: `https://vercel.com/huabichnhu03-oss-projects/lennaipdate/G17ukLj5MGRrMzPjUCBRi4GkL53t`
+  - Aliases: `https://lennahua.ca`, `https://www.lennahua.ca`
+  - 24 files changed: security hardening, a11y focus traps, reduced-motion, lazy admin, memoization
 - **Preflight panel + dry-run migration + frozen-lockfile (June 1, 2026)**
   - URL: `https://lennaipdate-m2p4zr0pf-huabichnhu03-oss-projects.vercel.app`
   - Inspect: `https://vercel.com/huabichnhu03-oss-projects/lennaipdate/FxPH4oU8NVdL1zYPem9P26eHUpEC`
