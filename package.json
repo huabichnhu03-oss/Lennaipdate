@@ -81,6 +81,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "cloudinary": "^2.5.1",
     "formidable": "^3.5.4",
-    "pg": "^8.20.0"
+    "pg": "^8.20.0",
+    "resend": "^4.0.0"
   }
 }
