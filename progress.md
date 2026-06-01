@@ -108,7 +108,7 @@ Script: `scripts/test-video-upload.mjs`
 
 ---
 
-## Current Status (June 1, 2026 — final)
+## Current Status (June 1, 2026 — extended)
 - Production is live and healthy.
 - Production domain: `https://lennahua.ca` and `https://www.lennahua.ca`.
 - Admin save flow is stable (section-by-section writes, private Blob, proxied asset URLs).
@@ -126,6 +126,13 @@ Script: `scripts/test-video-upload.mjs`
   - Cleaned up `pnpm-workspace.yaml` (removed Replit catalog entries, trimmed workspace packages)
 - **0 npm audit vulnerabilities** — all 12 fixed via pnpm overrides (`minimatch`, `undici`, `smol-toml`, `ajv`)
 - **PinterestCard redesigned** — modern glassmorphism with ombre gradient grain, glow effects, grain texture overlay
+- **Admin preflight check panel** — scans all content sections for:
+  - Per-section payload sizes with 3.5 MB warn threshold (Vercel limit ~4.5 MB)
+  - Inline base64 media across gallery AND projects (not just gallery)
+  - Storage backend detection (Cloudinary vs Vercel Blob)
+  - All-clear / issues-found status indicator
+- **Migration dry-run mode** — previews which gallery inline media files would be migrated without uploading, showing file names and sizes
+- **Lockfile cleanup** — switched `--no-frozen-lockfile` to `--frozen-lockfile` in vercel.json (lockfile regenerated and cross-platform compatible)
 
 ## Latest Deployments
 - **PinterestCard glassmorphism redesign (June 1, 2026)**
@@ -205,11 +212,8 @@ Script: `scripts/test-video-upload.mjs`
 - Check Vercel logs: `POST /api/admin/assets` or `/api/admin/assets/upload` (rewrites to same handler).
 
 ## Next Technical Mitigation (if needed)
-- Add a preflight check panel in admin that reports:
-  - inline media count
-  - approximate section payload sizes
-  - storage backend in use (Cloudinary vs Blob)
-- Add a migration dry-run mode (no writes) to preview which gallery items will be changed.
+- ~~Add a preflight check panel in admin~~ ✓ Done
+- ~~Add a migration dry-run mode~~ ✓ Done
 - Add telemetry/log correlation IDs to admin save + migration requests for faster incident tracing.
-- Push all local commits to origin/main (currently 4 commits ahead).
-- Consider switching `--no-frozen-lockfile` to `--frozen-lockfile` once lockfile is regenerated on Linux.
+- Push all local commits to origin/main.
+- ~~Switch `--no-frozen-lockfile` to `--frozen-lockfile`~~ ✓ Done

@@ -1526,6 +1526,79 @@ function findInlineMediaInGallery(items: GalleryItem[]): {
   return null;
 }
 
+/** Scan ALL content sections for inline base64 data URLs. */
+function findAllInlineMedia(data: ContentData): { section: string; itemLabel: string; field: string }[] {
+  const found: { section: string; itemLabel: string; field: string }[] = [];
+
+  for (const item of data.gallery ?? []) {
+    const label = item.title?.trim() || item.slug?.trim() || item.id;
+    if (typeof item.coverImage === "string" && item.coverImage.startsWith("data:")) {
+      found.push({ section: "gallery", itemLabel: label, field: "coverImage" });
+    }
+    for (let i = 0; i < (item.images ?? []).length; i += 1) {
+      const src = item.images![i];
+      if (typeof src === "string" && src.startsWith("data:")) {
+        found.push({ section: "gallery", itemLabel: label, field: `images[${i}]` });
+      }
+    }
+  }
+
+  for (const proj of data.projects ?? []) {
+    const label = proj.title?.trim() || proj.slug?.trim() || proj.id;
+    if (typeof proj.coverImage === "string" && proj.coverImage.startsWith("data:")) {
+      found.push({ section: "projects", itemLabel: label, field: "coverImage" });
+    }
+    for (const sec of proj.sections ?? []) {
+      if (typeof sec.src === "string" && sec.src.startsWith("data:")) {
+        found.push({ section: "projects", itemLabel: label, field: `section "${sec.title || sec.id}"` });
+      }
+    }
+  }
+
+  return found;
+}
+
+const SECTION_WARN_BYTES = 3.5 * 1024 * 1024; // 3.5 MB warn threshold (Vercel limit ~4.5 MB)
+
+type PreflightInfo = {
+  sectionSizes: { name: string; bytes: number; formatted: string }[];
+  totalBytes: number;
+  totalFormatted: string;
+  oversizeSections: string[];
+  largestSection: string;
+  inlineMedia: { section: string; itemLabel: string; field: string }[];
+  storageBackend: string;
+  allClear: boolean;
+};
+
+function computePreflight(data: ContentData, storageBackend: string): PreflightInfo {
+  const sectionsToCheck: (keyof ContentData)[] = [
+    "projects", "about", "experience", "education",
+    "gallery", "identity", "contact", "files", "homepage",
+  ];
+
+  const sectionSizes = sectionsToCheck.map((name) => {
+    const bytes = new TextEncoder().encode(JSON.stringify(data[name])).length;
+    return { name, bytes, formatted: formatBytes(bytes) };
+  });
+
+  const totalBytes = sectionSizes.reduce((sum, s) => sum + s.bytes, 0);
+  const oversizeSections = sectionSizes.filter((s) => s.bytes > SECTION_WARN_BYTES).map((s) => s.name);
+  const largestSection = sectionSizes.reduce((max, s) => (s.bytes > max.bytes ? s : max)).name;
+  const inlineMedia = findAllInlineMedia(data);
+
+  return {
+    sectionSizes,
+    totalBytes,
+    totalFormatted: formatBytes(totalBytes),
+    oversizeSections,
+    largestSection,
+    inlineMedia,
+    storageBackend,
+    allClear: oversizeSections.length === 0 && inlineMedia.length === 0 && !findInlineMediaInGallery(data.gallery ?? []),
+  };
+}
+
 function extForMime(mime: string): string {
   const normalized = mime.toLowerCase();
   if (normalized === "image/jpeg") return "jpg";
@@ -3280,6 +3353,10 @@ export default function Admin() {
   const [savedMsg, setSavedMsg] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isMigratingInlineMedia, setIsMigratingInlineMedia] = useState(false);
+  const [preflightInfo, setPreflightInfo] = useState<PreflightInfo | null>(null);
+  const [showPreflightPanel, setShowPreflightPanel] = useState(false);
+  const [isDryRunning, setIsDryRunning] = useState(false);
+  const [dryRunResults, setDryRunResults] = useState<{ items: { label: string; field: string; fileName: string; sizeFormatted: string }[]; totalMedia: number } | null>(null);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [messagesError, setMessagesError] = useState("");
@@ -3530,6 +3607,57 @@ export default function Admin() {
     safeSession.removeItem("lenna_admin_pw");
     setIsAuthenticated(false);
     setSessionPassword("");
+  };
+
+  const handleRunPreflight = async () => {
+    try {
+      const url = `${import.meta.env.BASE_URL}api/healthz`;
+      let storage = "unknown";
+      try {
+        const res = await fetch(url);
+        if (res.ok) {
+          const body = await res.json() as { storage?: string };
+          storage = body.storage ?? "unknown";
+        }
+      } catch { /* ignore — use unknown */ }
+      const info = computePreflight(data, storage);
+      setPreflightInfo(info);
+      setShowPreflightPanel(true);
+    } catch {
+      setSavedMsg("Error: could not run preflight check.");
+      setTimeout(() => setSavedMsg(""), 4000);
+    }
+  };
+
+  const handleDryRunMigration = async () => {
+    setIsDryRunning(true);
+    setDryRunResults(null);
+    try {
+      const items: { label: string; field: string; fileName: string; sizeFormatted: string }[] = [];
+      for (let idx = 0; idx < (data.gallery ?? []).length; idx += 1) {
+        const item = data.gallery[idx]!;
+        const label = item.title?.trim() || item.slug?.trim() || item.id;
+
+        if (typeof item.coverImage === "string" && item.coverImage.startsWith("data:")) {
+          const optimized = await shrinkImageDataUrlToFit(item.coverImage, MAX_ASSET_BYTES);
+          const file = await dataUrlToFile(optimized, `${item.slug || item.id || `item-${idx + 1}`}-cover`);
+          items.push({ label, field: "coverImage", fileName: file.name, sizeFormatted: formatBytes(file.size) });
+        }
+        for (let imageIdx = 0; imageIdx < (item.images ?? []).length; imageIdx += 1) {
+          const src = item.images![imageIdx];
+          if (typeof src !== "string" || !src.startsWith("data:")) continue;
+          const optimized = await shrinkImageDataUrlToFit(src, MAX_ASSET_BYTES);
+          const file = await dataUrlToFile(optimized, `${item.slug || item.id || `item-${idx + 1}`}-image-${imageIdx + 1}`);
+          items.push({ label, field: `images[${imageIdx}]`, fileName: file.name, sizeFormatted: formatBytes(file.size) });
+        }
+      }
+      setDryRunResults({ items, totalMedia: items.length });
+    } catch {
+      setSavedMsg("Error: dry-run scan failed.");
+      setTimeout(() => setSavedMsg(""), 4000);
+    } finally {
+      setIsDryRunning(false);
+    }
   };
 
   const handleSaveDraft = () => {
@@ -3860,11 +3988,25 @@ export default function Admin() {
             Save Draft
           </button>
           <button
+            onClick={handleRunPreflight}
+            disabled={isSaving || isMigratingInlineMedia}
+            className="border border-[#3A3530] text-[#8A8278] px-4 py-2 hover:border-[#C8A96E] hover:text-[#C8A96E] transition-colors text-sm uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Preflight
+          </button>
+          <button
             onClick={handleMigrateInlineGalleryMedia}
             disabled={isSaving || isMigratingInlineMedia}
             className="border border-[#3A3530] text-[#8A8278] px-4 py-2 hover:border-[#C8A96E] hover:text-[#C8A96E] transition-colors text-sm uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isMigratingInlineMedia ? "Migrating…" : "Migrate Inline Gallery Media"}
+          </button>
+          <button
+            onClick={handleDryRunMigration}
+            disabled={isSaving || isMigratingInlineMedia || isDryRunning}
+            className="border border-[#3A3530] text-[#8A8278] px-4 py-2 hover:border-[#C8A96E] hover:text-[#C8A96E] transition-colors text-sm uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isDryRunning ? "Scanning…" : "Dry Run Migration"}
           </button>
           <button
             onClick={handleSaveToSite}
@@ -3893,6 +4035,128 @@ export default function Admin() {
           </button>
         </div>
       </div>
+
+      {/* Preflight Panel */}
+      {showPreflightPanel && preflightInfo && (
+        <div className="border border-[#3A3530] rounded-lg p-5 bg-[#0F0E0C]">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-[#F2EDE5] text-lg font-medium">
+              Preflight Check{" "}
+              {preflightInfo.allClear ? (
+                <span className="text-emerald-400 text-sm ml-2">✓ All Clear</span>
+              ) : (
+                <span className="text-amber-400 text-sm ml-2">⚠ Issues Found</span>
+              )}
+            </h3>
+            <button
+              onClick={() => setShowPreflightPanel(false)}
+              className="text-[#8A8278] hover:text-[#F2EDE5] text-sm"
+            >
+              ✕ Close
+            </button>
+          </div>
+
+          {/* Storage Backend */}
+          <div className="mb-4 text-sm">
+            <span className="text-[#8A8278]">Storage backend:</span>{" "}
+            <span className="text-[#C8A96E] font-medium">{preflightInfo.storageBackend}</span>
+          </div>
+
+          {/* Section Sizes */}
+          <div className="mb-4">
+            <h4 className="text-[#8A8278] text-xs uppercase tracking-widest mb-2">
+              Section Payload Sizes{" "}
+              <span className="text-[#F2EDE5] normal-case">({preflightInfo.totalFormatted} total)</span>
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+              {preflightInfo.sectionSizes.map((s) => (
+                <div
+                  key={s.name}
+                  className={`flex justify-between items-center px-3 py-2 rounded text-sm ${
+                    s.bytes > SECTION_WARN_BYTES
+                      ? "bg-amber-500/10 border border-amber-500/30"
+                      : "bg-[#1A1917]"
+                  }`}
+                >
+                  <span className="text-[#F2EDE5] capitalize">{s.name}</span>
+                  <span className={s.bytes > SECTION_WARN_BYTES ? "text-amber-400" : "text-[#8A8278]"}>
+                    {s.formatted}
+                  </span>
+                </div>
+              ))}
+            </div>
+            {preflightInfo.oversizeSections.length > 0 && (
+              <p className="text-amber-400 text-xs mt-2">
+                ⚠ {preflightInfo.oversizeSections.join(", ")} exceed {formatBytes(SECTION_WARN_BYTES)} — may fail on Vercel (limit ~4.5 MB).
+              </p>
+            )}
+          </div>
+
+          {/* Inline Media */}
+          <div>
+            <h4 className="text-[#8A8278] text-xs uppercase tracking-widest mb-2">
+              Inline Base64 Media{" "}
+              <span className="normal-case">
+                ({preflightInfo.inlineMedia.length} found{preflightInfo.inlineMedia.length > 0 ? " — must migrate before saving" : ""})
+              </span>
+            </h4>
+            {preflightInfo.inlineMedia.length === 0 ? (
+              <p className="text-emerald-400/70 text-sm">No inline media detected — safe to save.</p>
+            ) : (
+              <div className="space-y-1">
+                {preflightInfo.inlineMedia.map((m, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm bg-red-500/10 border border-red-500/20 rounded px-3 py-2">
+                    <span className="text-red-400">●</span>
+                    <span className="text-[#8A8278]">{m.section}</span>
+                    <span className="text-[#F2EDE5]">→ {m.itemLabel}</span>
+                    <span className="text-[#8A8278]">→ {m.field}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Dry Run Results */}
+      {dryRunResults && (
+        <div className="border border-[#3A3530] rounded-lg p-5 bg-[#0F0E0C]">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-[#F2EDE5] text-lg font-medium">
+              Migration Dry Run{" "}
+              <span className="text-[#C8A96E] text-sm ml-2">
+                {dryRunResults.totalMedia} file(s) would be migrated
+              </span>
+            </h3>
+            <button
+              onClick={() => setDryRunResults(null)}
+              className="text-[#8A8278] hover:text-[#F2EDE5] text-sm"
+            >
+              ✕ Close
+            </button>
+          </div>
+          {dryRunResults.items.length === 0 ? (
+            <p className="text-emerald-400/70 text-sm">No inline media found — nothing to migrate.</p>
+          ) : (
+            <div className="space-y-1">
+              {dryRunResults.items.map((item, i) => (
+                <div key={i} className="flex items-center gap-3 text-sm bg-[#1A1917] rounded px-3 py-2">
+                  <span className="text-[#C8A96E]">{i + 1}.</span>
+                  <span className="text-[#F2EDE5]">{item.label}</span>
+                  <span className="text-[#8A8278]">→ {item.field}</span>
+                  <span className="text-[#8A8278]">({item.fileName})</span>
+                  <span className="text-[#C8A96E] ml-auto">{item.sizeFormatted}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {dryRunResults.totalMedia > 0 && (
+            <p className="text-[#8A8278] text-xs mt-3">
+              Click <span className="text-[#C8A96E]">Migrate Inline Gallery Media</span> to upload these files, then <span className="text-[#C8A96E]">Save to Site</span>.
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="flex gap-2 border-b border-[#272421] pb-4 overflow-x-auto">
         {tabs.map((tab) => (
