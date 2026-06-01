@@ -135,6 +135,10 @@ Script: `scripts/test-video-upload.mjs`
 - **Lockfile cleanup** — switched `--no-frozen-lockfile` to `--frozen-lockfile` in vercel.json (lockfile regenerated and cross-platform compatible)
 
 ## Latest Deployments
+- **Preflight panel + dry-run migration + frozen-lockfile (June 1, 2026)**
+  - URL: `https://lennaipdate-m2p4zr0pf-huabichnhu03-oss-projects.vercel.app`
+  - Inspect: `https://vercel.com/huabichnhu03-oss-projects/lennaipdate/FxPH4oU8NVdL1zYPem9P26eHUpEC`
+  - Aliases: `https://lennahua.ca`, `https://www.lennahua.ca`
 - **PinterestCard glassmorphism redesign (June 1, 2026)**
   - URL: `https://lennaipdate-ih23cj3k9-huabichnhu03-oss-projects.vercel.app`
   - Inspect: `https://vercel.com/huabichnhu03-oss-projects/lennaipdate/9SJCDfqcQDG3qxQsTrBPxCvQFSXk`
