@@ -108,7 +108,7 @@ Script: `scripts/test-video-upload.mjs`
 
 ---
 
-## Current Status (June 1, 2026 — post-audit)
+## Current Status (June 1, 2026 — final)
 - Production is live and healthy.
 - Production domain: `https://lennahua.ca` and `https://www.lennahua.ca`.
 - Admin save flow is stable (section-by-section writes, private Blob, proxied asset URLs).
@@ -124,12 +124,17 @@ Script: `scripts/test-video-upload.mjs`
   - Updated deprecated `api.bodyParser` config to flat `bodyParser` format
   - Added `maxDuration` config to all API routes
   - Cleaned up `pnpm-workspace.yaml` (removed Replit catalog entries, trimmed workspace packages)
+- **0 npm audit vulnerabilities** — all 12 fixed via pnpm overrides (`minimatch`, `undici`, `smol-toml`, `ajv`)
+- **PinterestCard redesigned** — modern glassmorphism with ombre gradient grain, glow effects, grain texture overlay
 
 ## Latest Deployments
-- **Vercel compliance audit deploy (June 1, 2026)**
+- **PinterestCard glassmorphism redesign (June 1, 2026)**
+  - URL: `https://lennaipdate-ih23cj3k9-huabichnhu03-oss-projects.vercel.app`
+  - Inspect: `https://vercel.com/huabichnhu03-oss-projects/lennaipdate/9SJCDfqcQDG3qxQsTrBPxCvQFSXk`
+  - Aliases: `https://lennahua.ca`, `https://www.lennahua.ca`
+- **Vulnerability fixes + audit deploy (June 1, 2026)**
   - URL: `https://lennaipdate-6ekd4qiqv-huabichnhu03-oss-projects.vercel.app`
   - Inspect: `https://vercel.com/huabichnhu03-oss-projects/lennaipdate/4BHzxu59mo6bPz2dg3U6h1kbGBcX`
-  - Aliases: `https://lennahua.ca`, `https://www.lennahua.ca`
 - **Build fix + replaceAsset deploy (June 1, 2026)**
   - URL: `https://lennaipdate-ddf092q0o-huabichnhu03-oss-projects.vercel.app`
   - Inspect: `https://vercel.com/huabichnhu03-oss-projects/lennaipdate/2uXuAsXeGML9XcmQABgHCToN19Ub`
