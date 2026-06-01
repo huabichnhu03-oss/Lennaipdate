@@ -1,14 +1,14 @@
 import { query } from "./db.js";
 
-import projectsSeed from "./data/projects.json" assert { type: "json" };
-import aboutSeed from "./data/about.json" assert { type: "json" };
-import experienceSeed from "./data/experience.json" assert { type: "json" };
-import educationSeed from "./data/education.json" assert { type: "json" };
-import gallerySeed from "./data/gallery.json" assert { type: "json" };
-import identitySeed from "./data/identity.json" assert { type: "json" };
-import contactSeed from "./data/contact.json" assert { type: "json" };
-import filesSeed from "./data/files.json" assert { type: "json" };
-import homepageSeed from "./data/homepage.json" assert { type: "json" };
+import projectsSeed from "./data/projects.json" with { type: "json" };
+import aboutSeed from "./data/about.json" with { type: "json" };
+import experienceSeed from "./data/experience.json" with { type: "json" };
+import educationSeed from "./data/education.json" with { type: "json" };
+import gallerySeed from "./data/gallery.json" with { type: "json" };
+import identitySeed from "./data/identity.json" with { type: "json" };
+import contactSeed from "./data/contact.json" with { type: "json" };
+import filesSeed from "./data/files.json" with { type: "json" };
+import homepageSeed from "./data/homepage.json" with { type: "json" };
 
 export const ALLOWED_SECTIONS = [
   "projects",
@@ -63,6 +63,31 @@ export async function getAllSections(): Promise<Record<SectionName, unknown>> {
   const out = {} as Record<SectionName, unknown>;
   for (const name of ALLOWED_SECTIONS) {
     out[name] = await getSection(name);
+  }
+  return out;
+}
+
+export async function getContentSectionMeta(): Promise<
+  Record<SectionName, { updatedAt: string | null }>
+> {
+  const rows = await query<{ name: string; updated_at: string | Date }>(
+    `SELECT name, updated_at
+     FROM content_sections
+     WHERE name = ANY($1::text[])`,
+    [ALLOWED_SECTIONS as unknown as string[]],
+  );
+  const out = {} as Record<SectionName, { updatedAt: string | null }>;
+  for (const name of ALLOWED_SECTIONS) {
+    out[name] = { updatedAt: null };
+  }
+  for (const row of rows) {
+    if (!isAllowedSection(row.name)) continue;
+    out[row.name] = {
+      updatedAt:
+        typeof row.updated_at === "string"
+          ? row.updated_at
+          : row.updated_at.toISOString(),
+    };
   }
   return out;
 }
