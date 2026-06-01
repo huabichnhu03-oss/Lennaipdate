@@ -67,3 +67,8 @@ overrides:
   # drizzle-kit uses esbuild internally on an older version that's vulnerable, this overrides it
   "@esbuild-kit/esm-loader": "npm:tsx@^4.21.0"
   esbuild: "0.27.3"
+  # Fix vulnerabilities in @vercel/node transitive dependencies
+  minimatch: ">=10.2.3"
+  undici: ">=6.24.0"
+  smol-toml: ">=1.6.1"
+  ajv: ">=8.17.1"

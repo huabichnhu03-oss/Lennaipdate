@@ -47,7 +47,7 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vercel/blob": "^2.4.0",
-    "@vercel/node": "^5.8.4",
+    "@vercel/node": "^5.8.8",
     "@vitejs/plugin-react": "catalog:",
     "@workspace/api-client-react": "workspace:*",
     "class-variance-authority": "catalog:",
