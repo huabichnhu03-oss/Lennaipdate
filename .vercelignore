@@ -1,0 +1,9 @@
+.git
+node_modules
+.cursor
+.agents
+.migration-backup
+vercel-export
+reorder-update
+attached_assets
+*.zip
