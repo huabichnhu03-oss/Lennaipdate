@@ -1,0 +1,40 @@
+{
+  "framework": "vite",
+  "buildCommand": "pnpm build",
+  "installCommand": "pnpm install --no-frozen-lockfile",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/api/content/:section",
+      "destination": "/api/content?section=:section"
+    },
+    {
+      "source": "/api/admin/content/:section",
+      "destination": "/api/admin/content?section=:section"
+    },
+    {
+      "source": "/api/admin/messages/:id/read",
+      "destination": "/api/admin/messages?id=:id&op=read"
+    },
+    {
+      "source": "/api/admin/messages/:id/delete",
+      "destination": "/api/admin/messages?id=:id&op=delete"
+    },
+    {
+      "source": "/api/admin/assets/upload",
+      "destination": "/api/admin/assets"
+    },
+    {
+      "source": "/api/admin/assets/:filename/rename",
+      "destination": "/api/admin/assets/:filename/replace?action=rename"
+    },
+    {
+      "source": "/api/admin/assets/:filename/delete",
+      "destination": "/api/admin/assets/:filename/replace?action=delete"
+    },
+    {
+      "source": "/((?!api(?:/|$)|_next(?:/|$))[^.]*)",
+      "destination": "/index.html"
+    }
+  ]
+}
