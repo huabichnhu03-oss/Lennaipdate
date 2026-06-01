@@ -1,6 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { query } from "../lib/db.js";
 
+export const config = { maxDuration: 10 };
+
 function hasCloudinary(): boolean {
   return Boolean(
     process.env.CLOUDINARY_CLOUD_NAME &&

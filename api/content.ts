@@ -6,6 +6,8 @@ import {
   isAllowedSection,
 } from "../lib/content-store.js";
 
+export const config = { maxDuration: 15 };
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const section = req.query["section"];
   if (typeof section === "string") {

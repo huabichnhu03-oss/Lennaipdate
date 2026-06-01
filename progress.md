@@ -108,23 +108,25 @@ Script: `scripts/test-video-upload.mjs`
 
 ---
 
-## Current Status (May 27, 2026)
-- Preview and production are both live.
+## Current Status (June 1, 2026)
+- Production is live and healthy.
 - Production domain: `https://lennahua.ca` and `https://www.lennahua.ca`.
 - Admin save flow is stable (section-by-section writes, private Blob, proxied asset URLs).
 - Gallery migration + save path works against private Blob configuration.
 - **Project archive** is live on production (hide from public, keep in admin).
 - **Video upload** verified working on production (≤ 4 MB, `video/mp4` tested).
-- **Pending:** redeploy to production for `replaceAsset` URL fix in `lib/assets-store.ts`.
+- **`replaceAsset` URL fix** now deployed to production.
+- **Vercel build fixed** — removed platform-specific binary overrides that excluded Linux (7 consecutive deploy failures resolved).
 
 ## Latest Deployments
-- **Archive feature production deploy**
+- **Build fix + replaceAsset deploy (June 1, 2026)**
+  - URL: `https://lennaipdate-ddf092q0o-huabichnhu03-oss-projects.vercel.app`
+  - Inspect: `https://vercel.com/huabichnhu03-oss-projects/lennaipdate/2uXuAsXeGML9XcmQABgHCToN19Ub`
+  - Aliases: `https://lennahua.ca`, `https://www.lennahua.ca`
+- **Archive feature production deploy (May 27, 2026)**
   - URL: `https://lennaipdate-jr7w4jgem-huabichnhu03-oss-projects.vercel.app`
   - Inspect: `https://vercel.com/huabichnhu03-oss-projects/lennaipdate/6Bq2HQrwmtuLgkQD3CvAvEkphGaJ`
   - Aliases: `https://lennahua.ca`, `https://www.lennahua.ca`
-- Previous production deploy (pre-archive)
-  - URL: `https://lennaipdate-gmgyl74vy-huabichnhu03-oss-projects.vercel.app`
-  - Inspect: `https://vercel.com/huabichnhu03-oss-projects/lennaipdate/ApiTY9Tj4KbC51Xc6L1RyygZF7om`
 
 ## Architecture Notes
 - Live content is stored in Postgres (`DATABASE_URL`) via `api/admin/content` and `lib/content-store.ts`.
@@ -189,12 +191,10 @@ Script: `scripts/test-video-upload.mjs`
 - Check Vercel logs: `POST /api/admin/assets` or `/api/admin/assets/upload` (rewrites to same handler).
 
 ## Next Technical Mitigation (if needed)
-- Redeploy production with `replaceAsset` fix in `lib/assets-store.ts`.
-- Fix local Windows build: `pnpm install` (ensure `@rollup/rollup-win32-x64-msvc` optional dep installs).
 - Add a preflight check panel in admin that reports:
   - inline media count
   - approximate section payload sizes
   - storage backend in use (Cloudinary vs Blob)
 - Add a migration dry-run mode (no writes) to preview which gallery items will be changed.
 - Add telemetry/log correlation IDs to admin save + migration requests for faster incident tracing.
-- Commit + push archive changes to git so production deploys track version control.
+- Commit + push all local changes to git (2 commits pending push to origin/main).

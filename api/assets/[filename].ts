@@ -1,6 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { query } from "../../lib/db.js";
 
+export const config = { maxDuration: 15 };
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const filename = req.query["filename"] as string;
   if (!filename) {

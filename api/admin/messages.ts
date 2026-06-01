@@ -6,6 +6,8 @@ import {
   deleteMessage,
 } from "../../lib/messages-store.js";
 
+export const config = { maxDuration: 15 };
+
 function readToken(req: VercelRequest): string | undefined {
   const h = req.headers["authorization"];
   if (typeof h === "string" && h.toLowerCase().startsWith("bearer ")) {

@@ -2,6 +2,8 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { ALLOWED_SECTIONS, getSection, isAllowedSection, setSection, validateSection } from "../../../lib/content-store.js";
 import { isAdminRequest } from "../../../lib/admin-auth.js";
 
+export const config = { maxDuration: 30 };
+
 function readToken(req: VercelRequest): string | undefined {
   const h = req.headers["authorization"];
   if (typeof h === "string" && h.toLowerCase().startsWith("bearer ")) {

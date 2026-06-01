@@ -4,7 +4,7 @@ import fs from "fs";
 import { isAdminRequest } from "../../../lib/admin-auth.js";
 import { listAssets, uploadAsset } from "../../../lib/assets-store.js";
 
-export const config = { api: { bodyParser: false } };
+export const config = { bodyParser: false, maxDuration: 30 };
 
 const MAX_ASSET_BYTES = 4 * 1024 * 1024;
 const isAllowedAssetMime = (mime: string): boolean =>
