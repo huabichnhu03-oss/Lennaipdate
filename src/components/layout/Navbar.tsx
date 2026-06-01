@@ -18,6 +18,7 @@ export function Navbar() {
     { href: "/home",    label: "Home"    },
     { href: "/work",    label: "Work"    },
     { href: "/studio",  label: "Studio"  },
+    { href: "/play",    label: "Play"    },
     { href: "/about",   label: "About"   },
     { href: "/contact", label: "Contact" },
   ];
@@ -47,7 +48,7 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`font-sans text-sm uppercase tracking-[0.18em] px-3.5 py-1.5 rounded-full transition-all duration-300 ${
+                className={`font-sans text-sm uppercase tracking-[0.18em] px-3.5 py-1.5 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
                   isActive(link.href)
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground hover:bg-primary/20"
@@ -61,7 +62,7 @@ export function Navbar() {
           <button
             onClick={toggle}
             aria-label="Toggle theme"
-            className="ml-3 inline-flex items-center justify-center w-9 h-9 rounded-full border-2 border-primary/50 text-muted-foreground hover:text-primary hover:border-primary hover:bg-primary/10 transition-colors"
+            className="ml-3 inline-flex items-center justify-center w-9 h-9 rounded-full border-2 border-primary/50 text-muted-foreground hover:text-primary hover:border-primary hover:bg-primary/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
           </button>

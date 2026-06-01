@@ -81,6 +81,7 @@ interface Project {
   year: string;
   period?: string;
   featured: boolean;
+  archived?: boolean;
   sections?: ContentSection[];
 }
 
@@ -435,14 +436,15 @@ function FallbackSections({ project }: { project: Project }) {
 
 export default function CaseStudy() {
   const projects = useContent("projects", projectsSeed) as Project[];
+  const visibleProjects = projects.filter((p) => !p.archived);
   const identityData = useContent("identity", identitySeed) as typeof identitySeed;
   const contactData = useContent("contact", contactSeed) as typeof contactSeed;
   const socials = buildSocials(contactData);
   const params = useParams();
-  const currentIdx = projects.findIndex(p => p.slug === params.slug);
-  const project = projects[currentIdx];
-  const prevProject = currentIdx > 0 ? projects[currentIdx - 1] : null;
-  const nextProject = currentIdx < projects.length - 1 ? projects[currentIdx + 1] : null;
+  const currentIdx = visibleProjects.findIndex(p => p.slug === params.slug);
+  const project = visibleProjects[currentIdx];
+  const prevProject = currentIdx > 0 ? visibleProjects[currentIdx - 1] : null;
+  const nextProject = currentIdx < visibleProjects.length - 1 ? visibleProjects[currentIdx + 1] : null;
   const hasSections = Boolean(project?.sections?.length);
 
   const [lightbox, setLightbox] = useState<{ src: string; caption?: string } | null>(null);

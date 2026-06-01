@@ -41,7 +41,7 @@ async function uploadToVercelBlob(buffer: Buffer, filename: string, mime: string
   const stamp = Date.now().toString(36);
   const rand = Math.random().toString(36).slice(2, 8);
   const key = `assets/${stamp}-${rand}.${ext.toLowerCase()}`;
-  const blob = await put(key, buffer, { access: "public", contentType: mime });
+  const blob = await put(key, buffer, { access: "private", contentType: mime });
   return blob.url;
 }
 
@@ -89,6 +89,6 @@ export async function replaceStoredAsset(
   const stamp = Date.now().toString(36);
   const rand = Math.random().toString(36).slice(2, 8);
   const key = `assets/${stamp}-${rand}.${ext.toLowerCase()}`;
-  const blob = await put(key, buffer, { access: "public", contentType: mime });
+  const blob = await put(key, buffer, { access: "private", contentType: mime });
   return blob.url;
 }

@@ -1,17 +1,10 @@
 import { motion } from "framer-motion";
 import { CoverMedia } from "@/components/CoverMedia";
-// Imported only for the prop type — the actual project comes from the parent.
 import projectsData from "@/data/projects.json";
-import {
-  BRAND_DECK,
-  BRAND_RGB,
-  BRAND_EASE,
-  BRAND_HOVER,
-} from "@/lib/brand";
+import { BRAND_DECK, BRAND_RGB, BRAND_EASE } from "@/lib/brand";
 
 const ACCENTS = BRAND_DECK;
 const ACCENT_RGB = BRAND_RGB;
-const CARD_ALPHA = 0.78;
 
 export function PinterestCard({
   project,
@@ -24,81 +17,94 @@ export function PinterestCard({
 }) {
   const accent = ACCENTS[i % ACCENTS.length];
   const rgb = ACCENT_RGB[accent] ?? "31,103,241";
-  const alpha = CARD_ALPHA;
-  const dotAlpha = 0.07;
+
   return (
-    <motion.div
+    <motion.a
+      href={`/work/${project.slug}`}
       initial={false}
-      whileHover={{
-        y: BRAND_HOVER.lift,
-        rotate: BRAND_HOVER.rotate,
-        boxShadow: isDark
-          ? `0 12px 32px rgba(${rgb},0.28), 0 0 24px 1px rgba(${rgb},0.16), inset 0 0 0 1px rgba(255,255,255,0.10)`
-          : `0 10px 32px rgba(${rgb},0.32), 0 0 24px 1px rgba(${rgb},0.18)`,
-      }}
+      whileHover={{ y: -6 }}
       transition={{ duration: 0.35, ease: BRAND_EASE }}
-      className="flex flex-col rounded-3xl overflow-hidden h-full bg-background"
+      className="group flex flex-col rounded-2xl overflow-hidden h-full cursor-pointer relative"
       style={{
-        backgroundImage: `radial-gradient(circle, rgba(0,0,0,${dotAlpha}) 1px, transparent 1px), linear-gradient(rgba(${rgb},${alpha}), rgba(${rgb},${alpha}))`,
-        backgroundSize: "14px 14px, 100% 100%",
-        boxShadow: isDark
-          ? `0 8px 36px rgba(${rgb},0.18), inset 0 0 0 1px rgba(255,255,255,0.06)`
-          : `0 6px 28px rgba(${rgb},0.28)`,
+        background: isDark
+          ? `linear-gradient(135deg, rgba(${rgb},0.25), rgba(${rgb},0.15))`
+          : `linear-gradient(135deg, rgba(${rgb},0.15), rgba(${rgb},0.08))`,
+        border: `1px solid rgba(${rgb},0.25)`,
       }}
     >
-      <div className="flex flex-col gap-2 px-5 pt-5 pb-4">
-        <span
-          className="text-xs font-sans italic font-medium leading-none"
-          style={{ color: "rgba(0,0,0,0.55)" }}
-        >
-          {project.featured ? "★ Featured · " : ""}
-          {project.type}
-        </span>
-        <h3
-          className="font-display font-black uppercase text-2xl md:text-3xl leading-tight tracking-tight"
-          style={{ color: "rgba(0,0,0,0.85)" }}
-        >
-          {project.title}
-        </h3>
-      </div>
-
-      <div className="px-4 pb-4 flex-1 min-h-0">
-        <div
-          className="relative overflow-hidden rounded-2xl group"
-          style={{ aspectRatio: "4/3" }}
-        >
-          {project.coverImage ? (
-            <CoverMedia
-              src={project.coverImage}
-              alt={project.title}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-            />
-          ) : (
-            <div className="w-full h-full" style={{ background: "rgba(0,0,0,0.1)" }} />
-          )}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 rounded-2xl" />
-        </div>
-      </div>
-
+      {/* Glassmorphic shine */}
       <div
-        className="flex items-center justify-between px-5 py-3 gap-2 flex-wrap"
-        style={{ borderTop: "2px dashed rgba(0,0,0,0.2)" }}
-      >
-        <span className="text-[11px] font-mono font-bold" style={{ color: "rgba(0,0,0,0.6)" }}>
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        style={{
+          background: `linear-gradient(135deg, rgba(255,255,255,${isDark ? "0.1" : "0.2"}) 0%, transparent 50%)`,
+        }}
+      />
+
+      {/* Square image */}
+      <div className="relative overflow-hidden" style={{ aspectRatio: "1/1" }}>
+        {project.coverImage ? (
+          <CoverMedia
+            src={project.coverImage}
+            alt={project.title}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+          />
+        ) : (
+          <div className="w-full h-full" style={{ background: `rgba(${rgb},0.1)` }} />
+        )}
+        {/* Gradient overlay at bottom */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
+          style={{
+            background: isDark
+              ? "linear-gradient(to top, rgba(13,11,9,0.9), transparent)"
+              : "linear-gradient(to top, rgba(247,241,220,0.9), transparent)",
+          }}
+        />
+        {/* Year badge */}
+        <span
+          className="absolute top-3 right-3 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full"
+          style={{
+            background: isDark ? "rgba(0,0,0,0.7)" : "rgba(255,255,255,0.85)",
+            color: isDark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.8)",
+          }}
+        >
           {(project as { period?: string }).period ?? project.year}
         </span>
-        <div className="flex items-center gap-1.5 flex-wrap justify-end">
+      </div>
+
+      {/* Content */}
+      <div className="flex flex-col gap-2.5 px-5 py-4 flex-1">
+        {/* Type */}
+        <span className="text-[10px] uppercase tracking-[0.2em] font-sans font-medium text-muted-foreground">
+          {project.type}
+        </span>
+
+        {/* Title */}
+        <h3 className="font-display font-black uppercase text-lg md:text-xl leading-tight tracking-tight text-foreground group-hover:text-primary transition-colors duration-300">
+          {project.title}
+        </h3>
+
+        {/* Description — short preview */}
+        <p className="text-xs font-sans text-muted-foreground leading-relaxed line-clamp-2 flex-1">
+          {(project as { cardDescription?: string }).cardDescription || project.subtitle}
+        </p>
+
+        {/* Tags */}
+        <div className="flex items-center gap-1.5 flex-wrap pt-1">
           {project.tags.slice(0, 2).map((tag) => (
             <span
               key={tag}
               className="text-[9px] uppercase tracking-wider font-sans font-bold px-2 py-0.5 rounded-full"
-              style={{ background: "rgba(0,0,0,0.15)", color: "rgba(0,0,0,0.7)" }}
+              style={{
+                background: `rgba(${rgb},0.12)`,
+                color: `rgba(${rgb},0.8)`,
+              }}
             >
               {tag}
             </span>
           ))}
         </div>
       </div>
-    </motion.div>
+    </motion.a>
   );
 }

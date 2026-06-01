@@ -7,6 +7,8 @@ import contactSeed from "@/data/contact.json";
 import homepageSeed from "@/data/homepage.json";
 import { useContent } from "@/lib/use-content";
 
+type Project = (typeof projectsSeed)[number] & { archived?: boolean };
+
 // Split the editable identity name into a first word (highlighted in
 // brand blue) and the remainder, falling back gracefully if the name
 // is a single word.
@@ -48,12 +50,14 @@ const container = {
 const VP = { once: true, margin: "-80px" };
 
 export default function Home() {
-  const projectsData = useContent("projects", projectsSeed) as typeof projectsSeed;
+  const projectsData = useContent("projects", projectsSeed) as Project[];
   const aboutData = useContent("about", aboutSeed) as typeof aboutSeed;
   const identityData = useContent("identity", identitySeed) as typeof identitySeed;
   const contactData = useContent("contact", contactSeed) as typeof contactSeed;
   const homepageData = useContent("homepage", homepageSeed) as typeof homepageSeed;
-  const featuredProjects = projectsData.filter((p) => p.featured).slice(0, 3);
+  const featuredProjects = projectsData
+    .filter((p) => !p.archived && p.featured)
+    .slice(0, 3);
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [firstName, lastName] = splitName(identityData.name);

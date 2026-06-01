@@ -12,7 +12,7 @@ export type StoredResume = {
 
 export async function saveResume(buf: Buffer, userFilename: string): Promise<StoredResume> {
   const blob = await put(RESUME_BLOB_KEY, buf, {
-    access: "public",
+    access: "private",
     contentType: "application/pdf",
     addRandomSuffix: false,
   });
@@ -40,7 +40,10 @@ export async function readResumeBlob(): Promise<ResumeBlob> {
     );
     if (rows.length === 0 || !rows[0]?.data?.url) return null;
     const { url, filename = "Lenna_Hua_Resume.pdf" } = rows[0].data;
-    const response = await fetch(url!);
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+    const response = await fetch(url!, {
+      headers: blobToken ? { Authorization: `Bearer ${blobToken}` } : undefined,
+    });
     if (!response.ok) return null;
     const arrayBuffer = await response.arrayBuffer();
     return {

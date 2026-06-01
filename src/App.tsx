@@ -21,6 +21,7 @@ import Studio from "@/pages/studio";
 import StudioDetail from "@/pages/studio-detail";
 import Contact from "@/pages/contact";
 import Admin from "@/pages/admin";
+import Play from "@/pages/play";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -106,6 +107,13 @@ function WithLayout({
 }) {
   return (
     <>
+      {/* Skip navigation link for keyboard users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:font-sans focus:text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+      >
+        Skip to content
+      </a>
       <Navbar />
       <div className="relative flex flex-col min-h-screen bg-background px-6 md:px-12 lg:px-16 pt-[88px] md:pt-[100px] pb-24 md:pb-28 overflow-x-clip">
         <Y2KBackdrop />
@@ -150,6 +158,9 @@ function AppRoutes() {
       </Route>
       <Route path="/contact">
         <WithLayout><PageTransition><Contact /></PageTransition></WithLayout>
+      </Route>
+      <Route path="/play">
+        <WithLayout><PageTransition><Play /></PageTransition></WithLayout>
       </Route>
       <Route path="/admin">
         <WithLayout showBottomNav={false}><PageTransition><Admin /></PageTransition></WithLayout>

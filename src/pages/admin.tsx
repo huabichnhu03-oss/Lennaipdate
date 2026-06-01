@@ -97,6 +97,7 @@ type Project = {
   year: string;
   period?: string;
   featured: boolean;
+  archived?: boolean;
   sections: Section[];
 };
 
@@ -931,6 +932,7 @@ function parseFileToProject(raw: string, filename: string): Partial<Project> {
         coverImage: parsed.coverImage ?? "",
         year: parsed.year ?? String(new Date().getFullYear()),
         featured: parsed.featured ?? false,
+        archived: parsed.archived ?? false,
         sections: Array.isArray(parsed.sections) ? parsed.sections : [],
       };
     } catch {
@@ -967,6 +969,35 @@ function ProjectsEditor({
 }) {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [subTab, setSubTab] = useState<"details" | "sections">("details");
+  const [visibilityFilter, setVisibilityFilter] = useState<
+    "all" | "active" | "archived"
+  >("all");
+
+  const selectedProjectId = data[selectedIdx]?.id;
+  const projectCounts = {
+    all: data.length,
+    active: data.filter((p) => !p.archived).length,
+    archived: data.filter((p) => Boolean(p.archived)).length,
+  };
+  const visibleProjects = data.filter((p) => {
+    if (visibilityFilter === "active") return !p.archived;
+    if (visibilityFilter === "archived") return Boolean(p.archived);
+    return true;
+  });
+
+  useEffect(() => {
+    if (data.length === 0) return;
+    if (!selectedProjectId) {
+      setSelectedIdx(0);
+      return;
+    }
+    const selectedStillVisible = visibleProjects.some((p) => p.id === selectedProjectId);
+    if (selectedStillVisible) return;
+    const fallback = visibleProjects[0];
+    if (!fallback) return;
+    const fallbackIdx = data.findIndex((p) => p.id === fallback.id);
+    if (fallbackIdx !== -1) setSelectedIdx(fallbackIdx);
+  }, [data, visibleProjects, selectedProjectId]);
 
   const updateProject = (idx: number, patch: Partial<Project>) => {
     onChange(data.map((p, i) => (i === idx ? { ...p, ...patch } : p)));
@@ -987,6 +1018,7 @@ function ProjectsEditor({
       coverImage: "",
       year: String(new Date().getFullYear()),
       featured: false,
+      archived: false,
       sections: [],
     };
     const updated = [...data, newProject];
@@ -1025,13 +1057,63 @@ function ProjectsEditor({
         >
           + Add Project
         </button>
+        <div className="mb-2 flex flex-col gap-1">
+          {(
+            [
+              { id: "all" as const, label: "All", count: projectCounts.all },
+              { id: "active" as const, label: "Active", count: projectCounts.active },
+              { id: "archived" as const, label: "Archived", count: projectCounts.archived },
+            ]
+          ).map((opt) => {
+            const active = visibilityFilter === opt.id;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setVisibilityFilter(opt.id)}
+                className={`flex items-center justify-between gap-2 text-[10px] uppercase tracking-widest px-2 py-1.5 border transition-colors ${
+                  active
+                    ? "bg-[#C8A96E] text-[#0A0908] border-[#C8A96E]"
+                    : "text-[#8A8278] border-[#3A3530] hover:border-[#C8A96E]"
+                }`}
+              >
+                <span>{opt.label}</span>
+                <span
+                  className={`tabular-nums text-[9px] px-1.5 py-0.5 rounded ${
+                    active ? "bg-[#0A0908]/20" : "bg-[#1B1815] text-[#4A4540]"
+                  }`}
+                >
+                  {opt.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
         <AdminSortableList
-          items={data}
+          items={visibleProjects}
           onReorder={(newArr) => {
             const selectedId = data[selectedIdx]?.id;
-            onChange(newArr);
+            let reorderedFull = newArr;
+            if (visibilityFilter === "all") {
+              onChange(newArr);
+            } else {
+              const next = [...data];
+              const positions = data.reduce<number[]>((acc, item, i) => {
+                const matches =
+                  visibilityFilter === "active"
+                    ? !item.archived
+                    : Boolean(item.archived);
+                if (matches) acc.push(i);
+                return acc;
+              }, []);
+              positions.forEach((pos, i) => {
+                next[pos] = newArr[i]!;
+              });
+              reorderedFull = next;
+              onChange(next);
+            }
             if (selectedId) {
-              const newIdx = newArr.findIndex((p) => p.id === selectedId);
+              const newIdx = reorderedFull.findIndex((p) => p.id === selectedId);
               if (newIdx !== -1) setSelectedIdx(newIdx);
             }
           }}
@@ -1039,14 +1121,23 @@ function ProjectsEditor({
             <div className="flex items-center gap-1">
               {dragHandle}
               <button
-                onClick={() => { setSelectedIdx(i); setSubTab("details"); }}
+                onClick={() => {
+                  const realIdx = data.findIndex((x) => x.id === p.id);
+                  if (realIdx !== -1) setSelectedIdx(realIdx);
+                  setSubTab("details");
+                }}
                 className={`flex-1 text-left text-sm px-2 py-2 truncate transition-colors ${
-                  i === selectedIdx
+                  p.id === selectedProjectId
                     ? "bg-[#C8A96E] text-[#0A0908]"
                     : "text-[#8A8278] hover:text-[#F2EDE5] border border-[#272421] hover:border-[#3A3530]"
                 }`}
               >
                 {p.title}
+                {p.archived && (
+                  <span className="ml-2 text-[10px] uppercase tracking-widest opacity-70">
+                    (archived)
+                  </span>
+                )}
               </button>
             </div>
           )}
@@ -1095,6 +1186,7 @@ function ProjectsEditor({
               <TextInput label="Title" value={project.title} onChange={(v) => updateProject(selectedIdx, { title: v })} />
               <TextInput label="Slug (URL path)" value={project.slug} onChange={(v) => updateProject(selectedIdx, { slug: v })} />
               <TextInput label="Subtitle" value={project.subtitle} onChange={(v) => updateProject(selectedIdx, { subtitle: v })} />
+              <TextInput label="Card Description (short preview)" value={(project as any).cardDescription || ""} onChange={(v) => updateProject(selectedIdx, { cardDescription: v })} />
               <TextInput label="Type" value={project.type} onChange={(v) => updateProject(selectedIdx, { type: v })} />
               <TextInput label="Year" value={project.year} onChange={(v) => updateProject(selectedIdx, { year: v })} />
               {/* Cover image / video upload */}
@@ -1140,6 +1232,11 @@ function ProjectsEditor({
               <TextareaInput label="Solution / Approach" value={project.solution} onChange={(v) => updateProject(selectedIdx, { solution: v })} />
               <TextareaInput label="Impact / Outcomes" value={project.impact} onChange={(v) => updateProject(selectedIdx, { impact: v })} />
               <CheckboxInput label="★ Show on homepage Selected Work" checked={project.featured} onChange={(v) => updateProject(selectedIdx, { featured: v })} />
+              <CheckboxInput
+                label="Archive (hide from public site)"
+                checked={Boolean(project.archived)}
+                onChange={(v) => updateProject(selectedIdx, { archived: v })}
+              />
             </div>
           )}
 
@@ -1407,6 +1504,103 @@ function slugify(s: string): string {
     .trim()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+function findInlineMediaInGallery(items: GalleryItem[]): {
+  itemLabel: string;
+  field: string;
+} | null {
+  for (const item of items) {
+    const label = item.title?.trim() || item.slug?.trim() || item.id;
+    if (typeof item.coverImage === "string" && item.coverImage.startsWith("data:")) {
+      return { itemLabel: label, field: "coverImage" };
+    }
+    const imgs = item.images ?? [];
+    for (let i = 0; i < imgs.length; i += 1) {
+      const src = imgs[i];
+      if (typeof src === "string" && src.startsWith("data:")) {
+        return { itemLabel: label, field: `images[${i}]` };
+      }
+    }
+  }
+  return null;
+}
+
+function extForMime(mime: string): string {
+  const normalized = mime.toLowerCase();
+  if (normalized === "image/jpeg") return "jpg";
+  if (normalized === "image/png") return "png";
+  if (normalized === "image/webp") return "webp";
+  if (normalized === "image/gif") return "gif";
+  if (normalized === "video/mp4") return "mp4";
+  if (normalized === "video/webm") return "webm";
+  if (normalized === "video/ogg") return "ogv";
+  if (normalized === "video/quicktime") return "mov";
+  const slash = normalized.indexOf("/");
+  if (slash > -1 && slash < normalized.length - 1) {
+    return normalized.slice(slash + 1).replace(/[^a-z0-9]+/g, "");
+  }
+  return "bin";
+}
+
+async function dataUrlToFile(dataUrl: string, baseName: string): Promise<File> {
+  const mimeMatch = /^data:([^;,]+)/i.exec(dataUrl);
+  const mime = (mimeMatch?.[1] ?? "application/octet-stream").toLowerCase();
+  const blob = await fetch(dataUrl).then((r) => r.blob());
+  const ext = extForMime(mime);
+  const safeBase = slugify(baseName || "gallery-inline") || "gallery-inline";
+  return new File([blob], `${safeBase}.${ext}`, { type: mime });
+}
+
+async function shrinkImageDataUrlToFit(
+  dataUrl: string,
+  maxBytes: number,
+): Promise<string> {
+  const mimeMatch = /^data:([^;,]+)/i.exec(dataUrl);
+  const mime = (mimeMatch?.[1] ?? "").toLowerCase();
+  if (!mime.startsWith("image/")) return dataUrl;
+  if (mime === "image/gif" || mime === "image/svg+xml") return dataUrl;
+  const initial = await fetch(dataUrl).then((r) => r.blob());
+  if (initial.size <= maxBytes) return dataUrl;
+
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const el = new Image();
+    el.onload = () => resolve(el);
+    el.onerror = () => reject(new Error("Could not decode inline image."));
+    el.src = dataUrl;
+  });
+
+  // Progressive downscale + quality reduction until under maxBytes.
+  // Keep a little headroom so multipart overhead does not tip it over.
+  const targetBytes = Math.max(256 * 1024, Math.floor(maxBytes * 0.9));
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return dataUrl;
+
+  const sourceW = Math.max(1, img.naturalWidth);
+  const sourceH = Math.max(1, img.naturalHeight);
+  const longest = Math.max(sourceW, sourceH);
+
+  const scales = [1, 0.85, 0.7, 0.55, 0.45, 0.35];
+  const qualities = [0.9, 0.82, 0.75, 0.68, 0.6, 0.5];
+
+  for (const scale of scales) {
+    const maxEdge = Math.max(640, Math.round(longest * scale));
+    const ratio = Math.min(1, maxEdge / longest);
+    const w = Math.max(1, Math.round(sourceW * ratio));
+    const h = Math.max(1, Math.round(sourceH * ratio));
+    canvas.width = w;
+    canvas.height = h;
+    ctx.clearRect(0, 0, w, h);
+    ctx.drawImage(img, 0, 0, w, h);
+    for (const quality of qualities) {
+      const out = canvas.toDataURL("image/jpeg", quality);
+      const size = await fetch(out).then((r) => r.blob()).then((b) => b.size);
+      if (size <= targetBytes) return out;
+    }
+  }
+
+  return dataUrl;
 }
 
 function readFileAsDataUrl(file: File): Promise<string> {
@@ -2577,7 +2771,11 @@ async function uploadAssetFile(
   if (dims?.height != null) fd.append("height", String(dims.height));
   fd.append("file", file, file.name);
   const url = `${import.meta.env.BASE_URL}api/admin/assets/upload`;
-  const res = await fetch(url, { method: "POST", body: fd });
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${sessionToken}` },
+    body: fd,
+  });
   const body = (await res.json().catch(() => ({}))) as {
     asset?: Asset;
     error?: string;
@@ -3081,6 +3279,7 @@ export default function Admin() {
   const [data, setData] = useState<ContentData>(() => loadDraft());
   const [savedMsg, setSavedMsg] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isMigratingInlineMedia, setIsMigratingInlineMedia] = useState(false);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [messagesError, setMessagesError] = useState("");
@@ -3238,7 +3437,11 @@ export default function Admin() {
     if (dims?.height != null) fd.append("height", String(dims.height));
     fd.append("file", file, file.name);
     const url = `${import.meta.env.BASE_URL}api/admin/assets/${encodeURIComponent(id)}/replace`;
-    const res = await fetch(url, { method: "POST", body: fd });
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${sessionPassword}` },
+      body: fd,
+    });
     const body = (await res.json().catch(() => ({}))) as {
       asset?: Asset;
       error?: string;
@@ -3335,27 +3538,120 @@ export default function Admin() {
     setTimeout(() => setSavedMsg(""), 2500);
   };
 
-  const handleSaveToSite = async () => {
-    // Guard: gallery slugs power /studio/:slug — duplicates make routes
-    // ambiguous, so refuse to save until they are resolved.
-    const slugs = (data.gallery ?? []).map((g) => g.slug ?? "");
-    const dupes = slugs.filter(
-      (s, i) => s && slugs.indexOf(s) !== i,
-    );
-    if (dupes.length > 0) {
-      setSavedMsg(
-        `Error: duplicate gallery slug(s): ${[...new Set(dupes)].join(", ")} — fix before saving.`,
-      );
-      setTimeout(() => setSavedMsg(""), 5000);
+  const handleMigrateInlineGalleryMedia = async () => {
+    if (!sessionPassword) {
+      handleLogout();
+      setSavedMsg("Session expired — please log in again.");
+      setTimeout(() => setSavedMsg(""), 4000);
       return;
     }
-    const empty = (data.gallery ?? []).filter((g) => !g.slug);
-    if (empty.length > 0) {
+    setIsMigratingInlineMedia(true);
+    setSavedMsg("");
+    try {
+      let converted = 0;
+      const migratedGallery: GalleryItem[] = [];
+      for (let idx = 0; idx < (data.gallery ?? []).length; idx += 1) {
+        const item = data.gallery[idx]!;
+        let nextItem = item;
+
+        if (typeof item.coverImage === "string" && item.coverImage.startsWith("data:")) {
+          const optimized = await shrinkImageDataUrlToFit(
+            item.coverImage,
+            MAX_ASSET_BYTES,
+          );
+          const file = await dataUrlToFile(
+            optimized,
+            `${item.slug || item.id || `item-${idx + 1}`}-cover`,
+          );
+          if (file.size > MAX_ASSET_BYTES) {
+            throw new Error(
+              `"${file.name}" is too large after optimization (max ${MAX_ASSET_BYTES / 1024 / 1024} MB). Please replace it manually in Gallery.`,
+            );
+          }
+          const uploaded = await uploadAssetFile(file, sessionPassword);
+          nextItem = { ...nextItem, coverImage: resolveAssetUrl(uploaded.url) };
+          converted += 1;
+        }
+
+        const images = nextItem.images ?? [];
+        if (images.length > 0) {
+          const nextImages = [...images];
+          let changedImages = false;
+          for (let imageIdx = 0; imageIdx < images.length; imageIdx += 1) {
+            const src = images[imageIdx];
+            if (typeof src !== "string" || !src.startsWith("data:")) continue;
+            const optimized = await shrinkImageDataUrlToFit(src, MAX_ASSET_BYTES);
+            const file = await dataUrlToFile(
+              optimized,
+              `${item.slug || item.id || `item-${idx + 1}`}-image-${imageIdx + 1}`,
+            );
+            if (file.size > MAX_ASSET_BYTES) {
+              throw new Error(
+                `"${file.name}" is too large after optimization (max ${MAX_ASSET_BYTES / 1024 / 1024} MB). Please replace it manually in Gallery.`,
+              );
+            }
+            const uploaded = await uploadAssetFile(file, sessionPassword);
+            nextImages[imageIdx] = resolveAssetUrl(uploaded.url);
+            converted += 1;
+            changedImages = true;
+          }
+          if (changedImages) nextItem = { ...nextItem, images: nextImages };
+        }
+
+        migratedGallery.push(nextItem);
+      }
+
+      if (converted === 0) {
+        setSavedMsg("No inline gallery media found — nothing to migrate.");
+        setTimeout(() => setSavedMsg(""), 3500);
+        return;
+      }
+
+      const nextData = { ...data, gallery: migratedGallery };
+      setData(nextData);
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(nextData));
+      void fetchAssets(sessionPassword, { search: assetSearch, type: assetType });
       setSavedMsg(
-        `Error: ${empty.length} gallery item(s) have no slug — fix before saving.`,
+        `Migrated ${converted} inline gallery media file(s) to hosted URLs. Click Save to Site.`,
       );
-      setTimeout(() => setSavedMsg(""), 5000);
-      return;
+      setTimeout(() => setSavedMsg(""), 7000);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Migration failed";
+      setSavedMsg(`Error: inline media migration failed — ${message}`);
+      setTimeout(() => setSavedMsg(""), 7000);
+    } finally {
+      setIsMigratingInlineMedia(false);
+    }
+  };
+
+  const handleSaveToSite = async () => {
+    // Auto-fix gallery slugs before save so content edits never get blocked
+    // by missing/duplicate slugs from older data.
+    let normalizedData = data;
+    let autoFixedGallerySlugs = 0;
+    if ((data.gallery ?? []).length > 0) {
+      const used = new Set<string>();
+      const normalizedGallery = (data.gallery ?? []).map((item, idx) => {
+        const preferred =
+          slugify(item.slug ?? "") ||
+          slugify(item.title ?? "") ||
+          `item-${idx + 1}`;
+        let candidate = preferred;
+        let suffix = 2;
+        while (!candidate || used.has(candidate)) {
+          candidate = `${preferred}-${suffix++}`;
+        }
+        used.add(candidate);
+        if ((item.slug ?? "") !== candidate) {
+          autoFixedGallerySlugs += 1;
+          return { ...item, slug: candidate };
+        }
+        return item;
+      });
+      if (autoFixedGallerySlugs > 0) {
+        normalizedData = { ...data, gallery: normalizedGallery };
+        setData(normalizedData);
+      }
     }
     if (!data.identity?.name?.trim()) {
       setSavedMsg("Error: Identity name cannot be empty.");
@@ -3386,32 +3682,73 @@ export default function Admin() {
       setTimeout(() => setSavedMsg(""), 4000);
       return;
     }
+    const inlineMedia = findInlineMediaInGallery(normalizedData.gallery ?? []);
+    if (inlineMedia) {
+      setSavedMsg(
+        `Error: inline base64 media found in gallery (${inlineMedia.itemLabel} -> ${inlineMedia.field}). Re-upload via media library so it becomes a URL, then save again.`,
+      );
+      setTimeout(() => setSavedMsg(""), 7000);
+      return;
+    }
     setIsSaving(true);
     setSavedMsg("");
     try {
-      const url = `${import.meta.env.BASE_URL}api/admin/content`;
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: sessionPassword, data }),
-      });
-      if (res.ok) {
-        safeStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        setSavedMsg("Saved to site! Reload to see changes.");
-        setTimeout(() => setSavedMsg(""), 4000);
-      } else {
-        const body = await res.json().catch(() => ({})) as { error?: string };
-        // 401 means our stored password is stale or wrong — drop the
-        // session so the next attempt forces a fresh login instead of
-        // looping forever.
-        if (res.status === 401) {
-          handleLogout();
-          setSavedMsg("Unauthorized — please log in again.");
-        } else {
-          setSavedMsg(`Error: ${body.error ?? res.statusText}`);
+      // Send smaller per-section requests to avoid Vercel function payload limits.
+      const sectionsToSave: (keyof ContentData)[] = [
+        "projects",
+        "about",
+        "experience",
+        "education",
+        "gallery",
+        "identity",
+        "contact",
+        "files",
+        "homepage",
+      ];
+      const savedSections: string[] = [];
+      for (const section of sectionsToSave) {
+        const url = `${import.meta.env.BASE_URL}api/admin/content?section=${encodeURIComponent(section)}`;
+        const res = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionPassword}`,
+          },
+          body: JSON.stringify({
+            token: sessionPassword,
+            data: normalizedData[section],
+          }),
+        });
+        const rawText = await res.text();
+        const body = (() => {
+          if (!rawText) return {} as { error?: string };
+          try {
+            return JSON.parse(rawText) as { error?: string };
+          } catch {
+            return {} as { error?: string };
+          }
+        })();
+        if (!res.ok) {
+          if (res.status === 401) {
+            handleLogout();
+            setSavedMsg("Unauthorized — please log in again.");
+          } else {
+            const detail = body.error || rawText || res.statusText || `HTTP ${res.status}`;
+            setSavedMsg(`Error: ${detail} (section: ${section})`);
+          }
+          setTimeout(() => setSavedMsg(""), 5000);
+          return;
         }
-        setTimeout(() => setSavedMsg(""), 4000);
+        savedSections.push(section);
       }
+
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedData));
+      setSavedMsg(
+        autoFixedGallerySlugs > 0
+          ? `Saved ${savedSections.length} sections. Auto-fixed ${autoFixedGallerySlugs} gallery slug(s).`
+          : `Saved ${savedSections.length} sections to live database.`,
+      );
+      setTimeout(() => setSavedMsg(""), 4500);
     } catch {
       setSavedMsg("Network error — check the API server is running.");
       setTimeout(() => setSavedMsg(""), 4000);
@@ -3506,7 +3843,7 @@ export default function Admin() {
         <div>
           <h1 className="font-serif text-4xl text-[#F2EDE5]">Content Manager</h1>
           <p className="text-[#8A8278] text-sm mt-1">
-            Edit content below, then click Save to Site to update the live files instantly.
+            Edit content below, then click Save to Site to publish to the live database instantly.
           </p>
         </div>
         <div className="flex gap-3 flex-wrap items-center">
@@ -3517,13 +3854,21 @@ export default function Admin() {
           )}
           <button
             onClick={handleSaveDraft}
+            disabled={isSaving || isMigratingInlineMedia}
             className="border border-[#3A3530] text-[#8A8278] px-4 py-2 hover:border-[#C8A96E] hover:text-[#C8A96E] transition-colors text-sm uppercase tracking-widest"
           >
             Save Draft
           </button>
           <button
+            onClick={handleMigrateInlineGalleryMedia}
+            disabled={isSaving || isMigratingInlineMedia}
+            className="border border-[#3A3530] text-[#8A8278] px-4 py-2 hover:border-[#C8A96E] hover:text-[#C8A96E] transition-colors text-sm uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isMigratingInlineMedia ? "Migrating…" : "Migrate Inline Gallery Media"}
+          </button>
+          <button
             onClick={handleSaveToSite}
-            disabled={isSaving}
+            disabled={isSaving || isMigratingInlineMedia}
             className="bg-[#C8A96E] text-[#0A0908] px-4 py-2 hover:bg-[#E2C99A] transition-colors text-sm uppercase tracking-widest font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSaving ? "Saving…" : "Save to Site"}
@@ -3716,7 +4061,7 @@ export default function Admin() {
 
       <div className="border border-[#272421] p-4 text-[#4A4540] text-sm">
         <strong className="text-[#8A8278]">Workflow:</strong> Edit content above
-        {" → "}<span className="text-[#C8A96E]">Save to Site</span> (writes directly to <code className="text-[#C8A96E]">src/data/</code> and hot-reloads)
+        {" → "}<span className="text-[#C8A96E]">Save to Site</span> (writes to the live database and updates the site)
         {" — or — "}Save Draft (browser only)
         {" → "}Export JSON (manual backup).
       </div>

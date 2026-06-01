@@ -44,31 +44,43 @@ export function ContentProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
+    const hydrate = async () => {
+      const r = await fetch("/api/content?meta=1");
+      if (!r.ok) return;
+      const payload = (await r.json()) as {
+        data?: Record<string, unknown>;
+        meta?: Record<string, { updatedAt?: string | null }>;
+      };
+      const data = payload.data;
+      if (cancelled || !data || typeof data !== "object") return;
+      setContent({
+        projects: data.projects ?? SEEDS.projects,
+        about: data.about ?? SEEDS.about,
+        experience: data.experience ?? SEEDS.experience,
+        education: data.education ?? SEEDS.education,
+        gallery: data.gallery ?? SEEDS.gallery,
+        identity: data.identity ?? SEEDS.identity,
+        contact: data.contact ?? SEEDS.contact,
+        files: data.files ?? SEEDS.files,
+        homepage: data.homepage ?? SEEDS.homepage,
+      });
+    };
     // Fetch live content once on mount. If it fails (network, cold-start
     // hiccup, or first ever deploy before the DB seed runs), the SPA
     // keeps rendering with the bundled seed values — never a blank page.
-    fetch("/api/content")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (cancelled || !data || typeof data !== "object") return;
-        setContent({
-          projects: (data as Record<string, unknown>).projects ?? SEEDS.projects,
-          about: (data as Record<string, unknown>).about ?? SEEDS.about,
-          experience: (data as Record<string, unknown>).experience ?? SEEDS.experience,
-          education: (data as Record<string, unknown>).education ?? SEEDS.education,
-          gallery: (data as Record<string, unknown>).gallery ?? SEEDS.gallery,
-          identity: (data as Record<string, unknown>).identity ?? SEEDS.identity,
-          contact: (data as Record<string, unknown>).contact ?? SEEDS.contact,
-          files: (data as Record<string, unknown>).files ?? SEEDS.files,
-          homepage: (data as Record<string, unknown>).homepage ?? SEEDS.homepage,
-        });
-      })
+    hydrate()
       .catch(() => {
         // Stay on seeds. Don't surface a network error here — the page
         // is already showing valid content.
       });
+    const timer = window.setInterval(() => {
+      void hydrate().catch(() => {
+        // Keep current rendered data if refresh fails.
+      });
+    }, 60_000);
     return () => {
       cancelled = true;
+      window.clearInterval(timer);
     };
   }, []);
 

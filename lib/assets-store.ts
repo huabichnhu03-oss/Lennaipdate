@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import path from "path";
 import { del } from "@vercel/blob";
 import { query } from "./db.js";
 import { storeAsset, replaceStoredAsset } from "./asset-storage-adapter.js";
@@ -28,9 +29,13 @@ type Row = {
 function toAsset(r: Row): Asset {
   const toIso = (v: string | Date): string =>
     typeof v === "string" ? v : v.toISOString();
+  const toClientUrl = (rawUrl: string): string => {
+    if (!/^https?:\/\//i.test(rawUrl)) return rawUrl;
+    return `/api/assets/${encodeURIComponent(path.basename(rawUrl))}`;
+  };
   return {
     id: r.id,
-    url: r.url,
+    url: toClientUrl(r.url),
     filename: r.filename,
     mime: r.mime,
     size: Number(r.size),
@@ -99,9 +104,10 @@ export async function replaceAsset(
     [id],
   );
   if (existing.length === 0) return null;
-  const old = toAsset(existing[0]!);
+  const row = existing[0]!;
+  const old = toAsset(row);
 
-  const newUrl = await replaceStoredAsset(input.buffer, old.url, input.mime);
+  const newUrl = await replaceStoredAsset(input.buffer, row.url, input.mime);
 
   const rows = await query<Row>(
     `UPDATE assets

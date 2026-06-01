@@ -440,7 +440,7 @@ function PlayingScreen({ word, letterOffsets, setLetterOffsets, targetKerning, s
       </div>
 
       <div className="flex justify-end">
-        <motion.button onClick={onSubmit} className="px-8 py-3 bg-gradient-to-r from-primary to-violet-500 text-white font-sans text-xs uppercase tracking-[0.15em] font-bold rounded-full cursor-pointer" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        <motion.button onClick={onSubmit} className="px-8 py-3 bg-foreground text-background font-sans text-xs uppercase tracking-[0.15em] font-bold rounded-full cursor-pointer" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           Check
         </motion.button>
       </div>
@@ -589,7 +589,7 @@ function ResultScreen({ score, word, letterOffsets, targetKerning, round, totalR
       {/* Actions */}
       {!isGameOver ? (
         <div className="flex justify-end">
-          <motion.button onClick={onNext} className="px-8 py-3 bg-foreground text-background font-sans text-xs uppercase tracking-[0.15em] font-bold rounded-full cursor-pointer" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <motion.button onClick={onNext} className="px-8 py-3 bg-primary text-primary-foreground font-sans text-xs uppercase tracking-[0.15em] font-bold rounded-full cursor-pointer" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             Next
           </motion.button>
         </div>

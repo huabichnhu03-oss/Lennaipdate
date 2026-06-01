@@ -24,6 +24,8 @@ import {
 const ACCENTS = BRAND_DECK;
 const FILTERS = ["All", "UX Research", "Product Design", "Analysis"];
 
+type Project = (typeof projectsSeed)[number] & { archived?: boolean };
+
 /* ───────────────────── Cursor-following floating icons ───────────────── */
 /* A handful of small decorative icons scattered across the page that
    drift slightly toward the cursor (parallax-style). Each icon has its
@@ -116,15 +118,16 @@ function CursorFollowIcons() {
 
 /* ════════════════════════════════════════════════════════════════════════ */
 export default function WorkIndex() {
-  const projectsData = useContent("projects", projectsSeed) as typeof projectsSeed;
+  const projectsData = useContent("projects", projectsSeed) as Project[];
   const [filter, setFilter] = useState("All");
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
+  const visible = projectsData.filter((p) => !p.archived);
   const filtered =
     filter === "All"
-      ? projectsData
-      : projectsData.filter((p) => p.type === filter || p.tags.includes(filter));
+      ? visible
+      : visible.filter((p) => p.type === filter || p.tags.includes(filter));
 
   return (
     <div
@@ -154,7 +157,7 @@ export default function WorkIndex() {
           <span
             className="text-[11px] font-mono uppercase tracking-[0.3em] text-muted-foreground/70"
           >
-            {projectsData.length} projects
+            {visible.length} projects
           </span>
         </motion.div>
 

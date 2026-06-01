@@ -212,6 +212,8 @@ export default function Contact() {
         >
           {status === "success" ? (
             <motion.div
+              role="status"
+              aria-live="polite"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center justify-center gap-6 py-16 text-center"
@@ -253,7 +255,7 @@ export default function Contact() {
                     name={id}
                     value={form[id as keyof typeof form]}
                     onChange={handleChange}
-                    className="bg-transparent border-b-2 text-foreground py-3 focus:outline-none transition-colors font-sans text-base"
+                    className="bg-transparent border-b-2 text-foreground py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-colors font-sans text-base"
                     style={{ borderColor: BLUE + "55" }}
                     onFocus={e => (e.currentTarget.style.borderColor = BLUE)}
                     onBlur={e  => (e.currentTarget.style.borderColor = BLUE + "55")}
@@ -277,7 +279,7 @@ export default function Contact() {
                   rows={5}
                   value={form.message}
                   onChange={handleChange}
-                  className="bg-transparent border-b-2 text-foreground py-3 focus:outline-none transition-colors resize-none font-sans text-base"
+                  className="bg-transparent border-b-2 text-foreground py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-colors resize-none font-sans text-base"
                   style={{ borderColor: BLUE + "55" }}
                   onFocus={e => (e.currentTarget.style.borderColor = BLUE)}
                   onBlur={e  => (e.currentTarget.style.borderColor = BLUE + "55")}
@@ -287,7 +289,7 @@ export default function Contact() {
               </div>
 
               {status === "error" && (
-                <p className="text-sm font-sans text-red-400 -mt-4">
+                <p role="alert" aria-live="assertive" className="text-sm font-sans text-red-400 -mt-4">
                   {errorMsg || "Something went wrong. Please try again."}
                 </p>
               )}

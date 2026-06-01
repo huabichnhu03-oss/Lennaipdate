@@ -1,8 +1,9 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+// @ts-expect-error formidable typings are not resolved in Vercel API typecheck.
 import formidable from "formidable";
 import fs from "fs";
 import { isAdminRequest } from "../../../../lib/admin-auth.js";
-import { replaceAsset } from "../../../../lib/assets-store.js";
+import { removeAsset, renameAsset, replaceAsset } from "../../../../lib/assets-store.js";
 
 export const config = { api: { bodyParser: false } };
 
@@ -19,15 +20,24 @@ const intField = (v: unknown): number | null => {
   return null;
 };
 
+type MultipartFields = Record<string, string | string[] | undefined>;
+type MultipartFile = {
+  mimetype?: string;
+  size?: number;
+  filepath: string;
+  originalFilename?: string | null;
+};
+type MultipartFiles = Record<string, MultipartFile | MultipartFile[] | undefined>;
+
 function parseMultipart(req: VercelRequest): Promise<{
-  fields: formidable.Fields;
-  files: formidable.Files;
+  fields: MultipartFields;
+  files: MultipartFiles;
 }> {
   return new Promise((resolve, reject) => {
     const form = formidable({ maxFileSize: MAX_ASSET_BYTES });
-    form.parse(req as unknown as Parameters<typeof form.parse>[0], (err, fields, files) => {
+    form.parse(req as unknown as Parameters<typeof form.parse>[0], (err: unknown, fields: unknown, files: unknown) => {
       if (err) reject(err);
-      else resolve({ fields, files });
+      else resolve({ fields: fields as MultipartFields, files: files as MultipartFiles });
     });
   });
 }
@@ -37,6 +47,28 @@ function firstStr(v: string | string[] | undefined): string {
   return v ?? "";
 }
 
+function readRawBody(req: VercelRequest): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    req.on("data", (chunk) => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+    req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+    req.on("error", reject);
+  });
+}
+
+async function readJsonBody(req: VercelRequest): Promise<Record<string, unknown>> {
+  const raw = await readRawBody(req);
+  if (!raw.trim()) return {};
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : {};
+  } catch {
+    return {};
+  }
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
@@ -44,10 +76,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const id = req.query["filename"] as string;
+  const action = typeof req.query["action"] === "string" ? req.query["action"] : "replace";
   const contentType = req.headers["content-type"] ?? "";
 
   if (contentType.includes("multipart/form-data")) {
-    let parsed: { fields: formidable.Fields; files: formidable.Files };
+    let parsed: { fields: MultipartFields; files: MultipartFiles };
     try {
       parsed = await parseMultipart(req);
     } catch (err) {
@@ -107,12 +140,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const body = (req.body ?? {}) as Record<string, unknown>;
+  const body = await readJsonBody(req);
   const tokenVal = req.headers["authorization"]?.startsWith("Bearer ")
     ? req.headers["authorization"].slice(7)
     : (typeof body.token === "string" ? body.token : "");
   if (!isAdminRequest({ token: tokenVal })) {
     res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  if (action === "rename") {
+    const filename = typeof body.filename === "string" ? body.filename : "";
+    if (!filename.trim()) {
+      res.status(400).json({ error: "Filename cannot be empty." });
+      return;
+    }
+    try {
+      const updated = await renameAsset(id, filename);
+      if (!updated) {
+        res.status(404).json({ error: "Asset not found" });
+        return;
+      }
+      res.json({ ok: true, asset: updated });
+    } catch (err) {
+      console.error("[admin] rename asset failed", err);
+      res.status(500).json({ error: "Failed to rename asset" });
+    }
+    return;
+  }
+
+  if (action === "delete") {
+    try {
+      const removed = await removeAsset(id);
+      if (!removed) {
+        res.status(404).json({ error: "Asset not found" });
+        return;
+      }
+      res.json({ ok: true });
+    } catch (err) {
+      console.error("[admin] delete asset failed", err);
+      res.status(500).json({ error: "Failed to delete asset" });
+    }
     return;
   }
 

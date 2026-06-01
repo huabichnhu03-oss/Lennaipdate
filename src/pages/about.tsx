@@ -169,12 +169,13 @@ export default function About() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="font-display font-black uppercase leading-[0.88] tracking-tight"
             style={{ fontSize: "clamp(4rem,13vw,13rem)" }}
+            aria-label="About"
           >
-            <span style={{ color: BLUE }}>A</span>
-            <span style={{ color: BLUE }}>B</span>
-            <span style={{ color: BLUE }}>O</span>
-            <span style={{ color: BLUE }}>U</span>
-            <span style={{ color: BLUE }}>T</span>
+            <span aria-hidden="true" style={{ color: BLUE }}>A</span>
+            <span aria-hidden="true" style={{ color: BLUE }}>B</span>
+            <span aria-hidden="true" style={{ color: BLUE }}>O</span>
+            <span aria-hidden="true" style={{ color: BLUE }}>U</span>
+            <span aria-hidden="true" style={{ color: BLUE }}>T</span>
           </motion.h1>
 
           <motion.div

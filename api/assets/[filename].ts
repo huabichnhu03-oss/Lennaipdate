@@ -18,7 +18,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
     const blobUrl = rows[0]!.url;
-    const response = await fetch(blobUrl);
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+    const response = await fetch(blobUrl, {
+      headers: blobToken ? { Authorization: `Bearer ${blobToken}` } : undefined,
+    });
     if (!response.ok) {
       res.status(404).json({ error: "Asset not found in storage" });
       return;

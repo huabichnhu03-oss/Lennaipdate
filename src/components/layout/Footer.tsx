@@ -21,7 +21,7 @@ export function Footer() {
     : "";
 
   const linkClass =
-    "group inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300";
+    "group inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm";
   const underline =
     "relative after:absolute after:left-0 after:bottom-[-2px] after:h-px after:w-full after:scale-x-0 after:origin-left after:bg-current after:transition-transform after:duration-300 group-hover:after:scale-x-100";
 
