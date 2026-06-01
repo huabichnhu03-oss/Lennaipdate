@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-// @ts-expect-error formidable typings are not resolved in Vercel API typecheck.
 import formidable from "formidable";
 import fs from "fs";
 import { isAdminRequest } from "../../../lib/admin-auth.js";
