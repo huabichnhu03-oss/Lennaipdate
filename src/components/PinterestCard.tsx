@@ -37,11 +37,9 @@ export const PinterestCard = memo(function PinterestCard({
       className="group flex flex-col rounded-2xl overflow-hidden h-full cursor-pointer relative"
       style={{
         background: isDark
-          ? `linear-gradient(160deg, rgba(${ombreFrom},0.18) 0%, rgba(${ombreTo},0.08) 100%)`
-          : `linear-gradient(160deg, rgba(${ombreFrom},0.10) 0%, rgba(${ombreTo},0.04) 100%)`,
-        border: `1px solid rgba(${rgb},0.20)`,
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
+          ? `linear-gradient(160deg, rgba(${ombreFrom},0.12) 0%, rgba(${ombreTo},0.06) 50%, hsl(30 11% 7%) 100%)`
+          : `linear-gradient(160deg, rgba(${ombreFrom},0.06) 0%, rgba(${ombreTo},0.03) 50%, hsl(48 56% 94%) 100%)`,
+        border: `1px solid rgba(${rgb},${isDark ? "0.25" : "0.18"})`,
       }}
     >
       {/* ── Outer glow (visible on hover) ──────────────────── */}
@@ -49,7 +47,7 @@ export const PinterestCard = memo(function PinterestCard({
         aria-hidden="true"
         className="absolute -inset-[1px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
         style={{
-          background: `linear-gradient(160deg, rgba(${ombreFrom},0.35), rgba(${ombreTo},0.25))`,
+          background: `linear-gradient(160deg, rgba(${ombreFrom},0.30), rgba(${ombreTo},0.20))`,
           filter: "blur(18px)",
           zIndex: -1,
         }}
@@ -60,25 +58,24 @@ export const PinterestCard = memo(function PinterestCard({
         aria-hidden="true"
         className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
         style={{
-          border: `1.5px solid rgba(${rgb},0.45)`,
+          border: `1.5px solid rgba(${rgb},0.50)`,
           boxShadow: `
-            inset 0 0 20px rgba(${rgb},0.08),
-            0 0 30px rgba(${rgb},0.12),
-            0 0 60px rgba(${rgb},0.06)
+            inset 0 0 20px rgba(${rgb},0.06),
+            0 0 30px rgba(${rgb},0.10),
+            0 0 60px rgba(${rgb},0.05)
           `,
         }}
       />
 
-      {/* ── Glassmorphic shine sweep ───────────────────────── */}
+      {/* ── Subtle top-left shine ──────────────────────────── */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-600 pointer-events-none"
+        className="absolute inset-0 rounded-2xl pointer-events-none"
         style={{
           background: `linear-gradient(
             135deg,
-            rgba(255,255,255,${isDark ? "0.12" : "0.22"}) 0%,
-            rgba(255,255,255,${isDark ? "0.04" : "0.08"}) 40%,
-            transparent 60%
+            rgba(255,255,255,${isDark ? "0.04" : "0.08"}) 0%,
+            transparent 50%
           )`,
         }}
       />
@@ -88,19 +85,9 @@ export const PinterestCard = memo(function PinterestCard({
         aria-hidden="true"
         className="absolute inset-0 rounded-2xl pointer-events-none mix-blend-overlay"
         style={{
-          opacity: isDark ? 0.06 : 0.03,
+          opacity: isDark ? 0.04 : 0.02,
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
           backgroundSize: "128px 128px",
-        }}
-      />
-
-      {/* ── Ombre gradient blob (bottom-right corner) ──────── */}
-      <div
-        aria-hidden="true"
-        className="absolute -bottom-12 -right-12 w-48 h-48 rounded-full pointer-events-none transition-opacity duration-700 opacity-40 group-hover:opacity-70"
-        style={{
-          background: `radial-gradient(circle, rgba(${ombreTo},0.30) 0%, transparent 70%)`,
-          filter: "blur(40px)",
         }}
       />
 
@@ -133,10 +120,8 @@ export const PinterestCard = memo(function PinterestCard({
         <span
           className="absolute top-3 right-3 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full"
           style={{
-            background: isDark ? "rgba(0,0,0,0.7)" : "rgba(255,255,255,0.85)",
-            color: isDark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.8)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
+            background: isDark ? "rgba(20,18,15,0.9)" : "rgba(255,252,245,0.95)",
+            color: isDark ? "rgba(255,255,255,0.85)" : "rgba(0,0,0,0.75)",
           }}
         >
           {(project as { period?: string }).period ?? project.year}
@@ -167,9 +152,9 @@ export const PinterestCard = memo(function PinterestCard({
               key={tag}
               className="text-[9px] uppercase tracking-wider font-sans font-bold px-2 py-0.5 rounded-full"
               style={{
-                background: `rgba(${rgb},0.12)`,
-                color: `rgba(${rgb},0.8)`,
-                border: `1px solid rgba(${rgb},0.10)`,
+                background: isDark ? `rgba(${rgb},0.15)` : `rgba(${rgb},0.10)`,
+                color: `rgba(${rgb},0.85)`,
+                border: `1px solid rgba(${rgb},${isDark ? "0.20" : "0.15"})`,
               }}
             >
               {tag}
