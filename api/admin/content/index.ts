@@ -9,8 +9,6 @@ function readToken(req: VercelRequest): string | undefined {
   if (typeof h === "string" && h.toLowerCase().startsWith("bearer ")) {
     return h.slice(7).trim();
   }
-  const body = (req.body ?? {}) as Record<string, unknown>;
-  if (typeof body.token === "string") return body.token;
   return undefined;
 }
 
@@ -40,7 +38,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const raw = readBodyObject(req);
-  if (!isAdminRequest({ token: readToken(req), ...raw })) {
+  if (!isAdminRequest({ token: readToken(req) })) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }

@@ -42,6 +42,8 @@ export function SafeImage({
       alt={alt}
       className={className}
       style={style}
+      loading={rest.loading ?? "lazy"}
+      decoding="async"
       onError={(e) => {
         setErrored(true);
         onError?.(e);

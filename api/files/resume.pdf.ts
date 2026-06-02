@@ -9,9 +9,10 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
       return;
     }
     res.setHeader("Content-Type", blob.contentType);
+    const safeFilename = blob.filename.replace(/[^\w.\- ]/g, "_");
     res.setHeader(
       "Content-Disposition",
-      `inline; filename="${blob.filename.replace(/"/g, "")}"`,
+      `inline; filename="${safeFilename}"`,
     );
     res.setHeader("Cache-Control", "public, max-age=300");
     res.send(blob.buffer);

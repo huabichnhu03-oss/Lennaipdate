@@ -117,7 +117,7 @@ function FloatingPreviews({
   colors: EntryColors;
 }) {
   return (
-    <>
+    <div aria-hidden="true">
       {items.map((item, i) => {
         if (!item.src) return null;
         return (
@@ -149,7 +149,7 @@ function FloatingPreviews({
               >
                 <SafeImage
                   src={item.src}
-                  alt={item.alt}
+                  alt=""
                   className="w-full h-full object-cover"
                 />
               </motion.div>
@@ -157,7 +157,7 @@ function FloatingPreviews({
           </AnimatePresence>
         );
       })}
-    </>
+    </div>
   );
 }
 
@@ -378,6 +378,7 @@ export default function Entry() {
 
   return (
     <main
+      id="main-content"
       className="fixed inset-0 overflow-hidden flex flex-col"
       style={{ backgroundColor: COLORS.bg }}
     >

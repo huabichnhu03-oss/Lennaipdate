@@ -1,6 +1,6 @@
 import crypto from "crypto";
 
-const TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 30;
+const TOKEN_TTL_MS = 1000 * 60 * 60 * 24; // 24 hours
 
 export class AdminConfigError extends Error {
   constructor(message: string) {
@@ -11,9 +11,10 @@ export class AdminConfigError extends Error {
 
 function requireSecret(name: "ADMIN_PASSWORD" | "ADMIN_TOKEN_SECRET"): string {
   const v = process.env[name];
-  if (!v || v.length < 8) {
+  const minLen = name === "ADMIN_TOKEN_SECRET" ? 32 : 12;
+  if (!v || v.length < minLen) {
     throw new AdminConfigError(
-      `${name} is not configured (must be at least 8 characters). ` +
+      `${name} is not configured (must be at least ${minLen} characters). ` +
         "Set it in your Vercel environment variables.",
     );
   }

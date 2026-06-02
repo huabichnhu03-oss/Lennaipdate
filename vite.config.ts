@@ -16,25 +16,26 @@ export default defineConfig({
   build: {
     outDir: "dist",
     emptyOutDir: true,
+    target: "es2020",
+    reportCompressedSize: false,
     rollupOptions: {
+      external: ["pg", "cloudinary", "resend", "formidable"],
       output: {
         manualChunks: {
-          // Split vendor libraries into separate chunks
           "vendor-react": ["react", "react-dom"],
           "vendor-motion": ["framer-motion"],
           "vendor-icons": ["lucide-react"],
+          "vendor-wouter": ["wouter"],
         },
       },
     },
   },
   server: {
     port: 5173,
-    host: "0.0.0.0",
-    allowedHosts: true,
+    host: "localhost",
   },
   preview: {
     port: 4173,
-    host: "0.0.0.0",
-    allowedHosts: true,
+    host: "localhost",
   },
 });

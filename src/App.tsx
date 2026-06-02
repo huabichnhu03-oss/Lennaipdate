@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Switch, Route, Router as WouterRouter, useLocation, Redirect } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ContentProvider } from "@/lib/use-content";
 
@@ -11,18 +10,17 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { Y2KBackdrop } from "@/components/layout/Y2KBackdrop";
 
-import Entry from "@/pages/entry";
-import Home from "@/pages/home";
-import WorkIndex from "@/pages/work/index";
-import CaseStudy from "@/pages/work/case-study";
-import About from "@/pages/about";
-import Studio from "@/pages/studio";
-import StudioDetail from "@/pages/studio-detail";
-import Contact from "@/pages/contact";
-import Play from "@/pages/play";
-import NotFound from "@/pages/not-found";
-
-// Lazy load admin — it's 4000+ lines and only used on /admin
+// Lazy load all route-level pages for code splitting
+const Entry = lazy(() => import("@/pages/entry"));
+const Home = lazy(() => import("@/pages/home"));
+const WorkIndex = lazy(() => import("@/pages/work/index"));
+const CaseStudy = lazy(() => import("@/pages/work/case-study"));
+const About = lazy(() => import("@/pages/about"));
+const Studio = lazy(() => import("@/pages/studio"));
+const StudioDetail = lazy(() => import("@/pages/studio-detail"));
+const Contact = lazy(() => import("@/pages/contact"));
+const Play = lazy(() => import("@/pages/play"));
+const NotFound = lazy(() => import("@/pages/not-found"));
 const Admin = lazy(() => import("@/pages/admin"));
 
 function CustomCursor() {
@@ -32,6 +30,9 @@ function CustomCursor() {
   const rafId = useRef(0);
 
   useEffect(() => {
+    // Skip on touch devices — no mouse cursor to replace
+    if (!window.matchMedia("(hover: hover)").matches) return;
+
     const handleMouseMove = (e: MouseEvent) => {
       pos.current = { x: e.clientX, y: e.clientY };
     };
@@ -53,6 +54,11 @@ function CustomCursor() {
       cancelAnimationFrame(rafId.current);
     };
   }, []);
+
+  // Don't render on touch devices
+  if (typeof window !== "undefined" && !window.matchMedia("(hover: hover)").matches) {
+    return null;
+  }
 
   return (
     <>
@@ -144,46 +150,58 @@ function WithLayout({
   );
 }
 
+const PageLoading = () => (
+  <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto py-12 px-6 animate-pulse" role="status" aria-label="Loading page">
+    <div className="h-4 w-32 rounded bg-muted" />
+    <div className="h-10 w-3/4 rounded bg-muted" />
+    <div className="h-4 w-full rounded bg-muted" />
+    <div className="h-4 w-5/6 rounded bg-muted" />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+      <div className="aspect-[4/3] rounded-xl bg-muted" />
+      <div className="aspect-[4/3] rounded-xl bg-muted" />
+    </div>
+    <span className="sr-only">Loading page content…</span>
+  </div>
+);
+
 function AppRoutes() {
   return (
     <Switch>
       <Route path="/">
-        <Entry />
+        <Suspense fallback={<PageLoading />}><Entry /></Suspense>
       </Route>
       <Route path="/home">
-        <WithLayout><PageTransition><Home /></PageTransition></WithLayout>
+        <WithLayout><PageTransition><Suspense fallback={<PageLoading />}><Home /></Suspense></PageTransition></WithLayout>
       </Route>
       <Route path="/work">
-        <WithLayout><PageTransition><WorkIndex /></PageTransition></WithLayout>
+        <WithLayout><PageTransition><Suspense fallback={<PageLoading />}><WorkIndex /></Suspense></PageTransition></WithLayout>
       </Route>
       <Route path="/work/:slug">
-        <WithLayout><PageTransition><CaseStudy /></PageTransition></WithLayout>
+        <WithLayout><PageTransition><Suspense fallback={<PageLoading />}><CaseStudy /></Suspense></PageTransition></WithLayout>
       </Route>
       <Route path="/art">
-        {/* Old Art route consolidated into Studio — keep redirect so any
-            saved/shared links continue to land in the right place. */}
         <Redirect to="/studio" />
       </Route>
       <Route path="/about">
-        <WithLayout><PageTransition><About /></PageTransition></WithLayout>
+        <WithLayout><PageTransition><Suspense fallback={<PageLoading />}><About /></Suspense></PageTransition></WithLayout>
       </Route>
       <Route path="/studio/:slug">
-        <WithLayout><PageTransition><StudioDetail /></PageTransition></WithLayout>
+        <WithLayout><PageTransition><Suspense fallback={<PageLoading />}><StudioDetail /></Suspense></PageTransition></WithLayout>
       </Route>
       <Route path="/studio">
-        <WithLayout><PageTransition><Studio /></PageTransition></WithLayout>
+        <WithLayout><PageTransition><Suspense fallback={<PageLoading />}><Studio /></Suspense></PageTransition></WithLayout>
       </Route>
       <Route path="/contact">
-        <WithLayout><PageTransition><Contact /></PageTransition></WithLayout>
+        <WithLayout><PageTransition><Suspense fallback={<PageLoading />}><Contact /></Suspense></PageTransition></WithLayout>
       </Route>
       <Route path="/play">
-        <WithLayout><PageTransition><Play /></PageTransition></WithLayout>
+        <WithLayout><PageTransition><Suspense fallback={<PageLoading />}><Play /></Suspense></PageTransition></WithLayout>
       </Route>
       <Route path="/admin">
-        <WithLayout showBottomNav={false}><PageTransition><Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}><Admin /></Suspense></PageTransition></WithLayout>
+        <WithLayout showBottomNav={false}><PageTransition><Suspense fallback={<PageLoading />}><Admin /></Suspense></PageTransition></WithLayout>
       </Route>
       <Route>
-        <WithLayout><PageTransition><NotFound /></PageTransition></WithLayout>
+        <WithLayout><PageTransition><Suspense fallback={<PageLoading />}><NotFound /></Suspense></PageTransition></WithLayout>
       </Route>
     </Switch>
   );
@@ -193,7 +211,6 @@ function App() {
   return (
     <ThemeProvider>
       <ContentProvider>
-      <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
           <ScrollManager />
           <div className="grain-overlay" />
@@ -201,7 +218,6 @@ function App() {
           <AppRoutes />
         </WouterRouter>
         <Toaster />
-      </TooltipProvider>
       </ContentProvider>
     </ThemeProvider>
   );

@@ -118,7 +118,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
-    const token = readToken(req) || firstStr(parsed.fields["token"]) || firstStr(parsed.fields["sessionPassword"]);
+    const token = readToken(req);
     if (!isAdminRequest({ token })) {
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -156,7 +156,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.json({ ok: true, asset });
     } catch (err) {
       console.error("[admin] upload asset failed", err);
-      res.status(500).json({ error: err instanceof Error ? err.message : "Failed to store asset" });
+      res.status(500).json({ error: "Failed to store asset" });
     }
     return;
   }
@@ -164,7 +164,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const body = await readJsonBody(req);
   const tokenVal = req.headers["authorization"]?.startsWith("Bearer ")
     ? req.headers["authorization"].slice(7)
-    : (typeof body.token === "string" ? body.token : "");
+    : undefined;
   if (!isAdminRequest({ token: tokenVal })) {
     res.status(401).json({ error: "Unauthorized" });
     return;

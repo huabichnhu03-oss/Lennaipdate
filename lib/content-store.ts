@@ -110,16 +110,55 @@ function isSafeHref(v: unknown): boolean {
 }
 
 export function validateSection(name: SectionName, data: unknown): string | null {
-  if (name !== "homepage") return null;
-  if (typeof data !== "object" || data === null) return "Invalid homepage payload";
-  const home = (data as { home?: unknown }).home;
-  if (typeof home !== "object" || home === null) return null;
-  const h = home as Record<string, unknown>;
-  if ("primaryCtaHref" in h && !isSafeHref(h["primaryCtaHref"])) {
-    return "Primary CTA link must be a relative path, http(s), mailto, or tel URL";
+  if (typeof data !== "object" || data === null) return `Invalid ${name} payload`;
+
+  if (name === "homepage") {
+    const home = (data as { home?: unknown }).home;
+    if (typeof home !== "object" || home === null) return null;
+    const h = home as Record<string, unknown>;
+    if ("primaryCtaHref" in h && !isSafeHref(h["primaryCtaHref"])) {
+      return "Primary CTA link must be a relative path, http(s), mailto, or tel URL";
+    }
+    if ("secondaryCtaHref" in h && !isSafeHref(h["secondaryCtaHref"])) {
+      return "Secondary CTA link must be a relative path, http(s), mailto, or tel URL";
+    }
   }
-  if ("secondaryCtaHref" in h && !isSafeHref(h["secondaryCtaHref"])) {
-    return "Secondary CTA link must be a relative path, http(s), mailto, or tel URL";
+
+  if (name === "contact") {
+    const contact = data as Record<string, unknown>;
+    const socials = contact.socials;
+    if (Array.isArray(socials)) {
+      for (const s of socials) {
+        if (s && typeof s === "object" && "href" in s && !isSafeHref((s as Record<string, unknown>).href)) {
+          return "Social link must use http(s), mailto, tel, or a relative path";
+        }
+      }
+    }
   }
+
+  // Validate all href fields across any section
+  const checkHrefs = (obj: unknown): string | null => {
+    if (!obj || typeof obj !== "object") return null;
+    if (Array.isArray(obj)) {
+      for (const item of obj) {
+        const err = checkHrefs(item);
+        if (err) return err;
+      }
+      return null;
+    }
+    for (const [key, val] of Object.entries(obj as Record<string, unknown>)) {
+      if (key === "href" && !isSafeHref(val)) {
+        return `Link "${val}" must use http(s), mailto, tel, or a relative path`;
+      }
+      if (val && typeof val === "object") {
+        const err = checkHrefs(val);
+        if (err) return err;
+      }
+    }
+    return null;
+  };
+  const hrefErr = checkHrefs(data);
+  if (hrefErr) return hrefErr;
+
   return null;
 }

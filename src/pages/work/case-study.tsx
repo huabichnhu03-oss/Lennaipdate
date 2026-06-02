@@ -1,6 +1,6 @@
 import { useParams, Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import projectsSeed from "@/data/projects.json";
 import identitySeed from "@/data/identity.json";
 import contactSeed from "@/data/contact.json";

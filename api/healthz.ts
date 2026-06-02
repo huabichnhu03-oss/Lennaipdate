@@ -14,18 +14,8 @@ function hasCloudinary(): boolean {
 export default async function handler(_req: VercelRequest, res: VercelResponse) {
   try {
     await query("SELECT 1");
-    res.json({
-      status: "ok",
-      db: "connected",
-      storage: hasCloudinary() ? "cloudinary" : "vercel-blob",
-      hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "error",
-      db: "disconnected",
-      hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
-      message: err instanceof Error ? err.message : "Database health check failed",
-    });
+    res.json({ status: "ok" });
+  } catch {
+    res.status(500).json({ status: "error" });
   }
 }

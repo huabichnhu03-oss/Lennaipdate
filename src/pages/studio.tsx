@@ -28,20 +28,24 @@ type GalleryItem = {
 
 /* Studio is a long-scroll page; we boost wheel scrolling so the masonry
    feels notably snappier than the default browser rate (~2.5x). We
-   attach a single wheel listener while the page is mounted. Trackpad
-   pinch-zoom (ctrlKey) and any element opted-out via
+   attach a single passive wheel listener while the page is mounted.
+   Trackpad pinch-zoom (ctrlKey) and any element opted-out via
    [data-fast-scroll-skip] are left untouched. */
 function useFastScroll(multiplier = 2.5) {
   useEffect(() => {
+    let lastTime = 0;
     const onWheel = (e: WheelEvent) => {
       if (e.ctrlKey) return;
       const target = e.target as HTMLElement | null;
       if (target?.closest("[data-fast-scroll-skip]")) return;
       if (e.deltaY === 0) return;
-      e.preventDefault();
-      window.scrollBy({ top: e.deltaY * multiplier, behavior: "auto" });
+      // Throttle to avoid excessive scroll jumps
+      const now = performance.now();
+      if (now - lastTime < 16) return;
+      lastTime = now;
+      window.scrollBy({ top: e.deltaY * (multiplier - 1), behavior: "auto" });
     };
-    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("wheel", onWheel, { passive: true });
     return () => window.removeEventListener("wheel", onWheel);
   }, [multiplier]);
 }
