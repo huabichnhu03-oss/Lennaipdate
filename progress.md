@@ -225,7 +225,31 @@ Script: `scripts/test-video-upload.mjs`
 - ~~Add a migration dry-run mode~~ ✓ Done
 - Add telemetry/log correlation IDs to admin save + migration requests for faster incident tracing.
 - Push all local commits to origin/main.
+- 15 commits ahead of origin/main (as of June 2, 2026).
 - ~~Switch `--no-frozen-lockfile` to `--frozen-lockfile`~~ ✓ Done
+
+---
+
+## Project Cards Redesign (June 2, 2026)
+- **Interactive showcase style** — image fills the entire card, text reveals on hover
+- Removed glassmorphism, ombre gradients, grain texture, outer glow blur
+- Bottom gradient overlay intensifies on hover
+- Top badges (type + year) always visible with backdrop-blur
+- Title peeks at bottom, description + tags slide up on hover/focus
+- **Mixed/variable sizing** — featured projects span 2 columns (16:10), regular cards 4:5
+- Focus-visible support for keyboard navigation
+- Reduced-motion: content always visible, no transitions
+- Removed framer-motion dependency from card (CSS transitions only)
+- Files: `PinterestCard.tsx`, `work/index.tsx`, `home.tsx`
+
+## Admin Refactor (June 2, 2026)
+- **admin.tsx: 1806 → 1149 lines** (36% reduction)
+- Extracted 14 modular components into `src/components/admin/`:
+  - `types.ts`, `shared.tsx`, `TagsManager.tsx`, `ProjectEditor.tsx`
+  - `GalleryEditor.tsx`, `MessageInbox.tsx`, `PreflightCheck.tsx`, `AssetLibrary.tsx`
+  - `AboutEditor.tsx`, `ExperienceEditor.tsx`, `EducationEditor.tsx`
+  - `IdentityContactEditor.tsx`, `FilesEditor.tsx`, `HomepageEditor.tsx`
+- Cleaned up unused imports in admin.tsx
 
 ---
 
