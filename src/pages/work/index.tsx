@@ -188,6 +188,8 @@ export default function WorkIndex() {
           {/* Filter pills */}
           <motion.div
             className="flex flex-wrap gap-2"
+            role="group"
+            aria-label="Filter projects by category"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.18, duration: 0.5 }}
@@ -199,6 +201,7 @@ export default function WorkIndex() {
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
+                  aria-pressed={isActive}
                   className="px-4 py-1.5 text-sm uppercase tracking-widest font-sans rounded-full transition-all duration-300"
                   style={
                     isActive
@@ -218,10 +221,11 @@ export default function WorkIndex() {
           {filtered.length} project{filtered.length !== 1 ? "s" : ""} shown
           {filter !== "All" ? ` in ${filter}` : ""}
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           <AnimatePresence mode="popLayout">
             {filtered.map((project, gi) => {
               const i = projectIndexMap.get(project.id) ?? 0;
+              const isFeatured = project.featured && filter === "All";
               return (
                 <motion.div
                   key={project.id}
@@ -234,9 +238,14 @@ export default function WorkIndex() {
                     delay: (gi % 6) * 0.07,
                     ease: BRAND_EASE,
                   }}
-                  className="h-full"
+                  className={`h-full ${isFeatured ? "sm:col-span-2" : ""}`}
                 >
-                  <PinterestCard project={project} i={i} isDark={isDark} />
+                  <PinterestCard
+                    project={project}
+                    i={i}
+                    isDark={isDark}
+                    featured={isFeatured}
+                  />
                 </motion.div>
               );
             })}

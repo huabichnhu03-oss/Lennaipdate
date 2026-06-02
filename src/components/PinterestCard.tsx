@@ -1,160 +1,142 @@
 import { memo } from "react";
-import { motion } from "framer-motion";
 import { CoverMedia } from "@/components/CoverMedia";
 import projectsData from "@/data/projects.json";
-import { BRAND_DECK, BRAND_RGB, BRAND_EASE } from "@/lib/brand";
+import { BRAND_DECK, BRAND_RGB } from "@/lib/brand";
 
 const ACCENTS = BRAND_DECK;
 const ACCENT_RGB = BRAND_RGB;
-
-/** Ombre gradient pairs — each card cycles through a different two-tone blend */
-const OMBRE_PAIRS: [string, string][] = [
-  ["31,103,241", "236,72,153"],   // blue → pink
-  ["236,72,153", "232,113,90"],   // pink → coral
-  ["232,113,90", "109,184,162"],  // coral → teal
-  ["109,184,162", "31,103,241"],  // teal → blue
-];
 
 export const PinterestCard = memo(function PinterestCard({
   project,
   i,
   isDark,
+  featured,
 }: {
-  project: typeof projectsData[0];
+  project: (typeof projectsData)[0];
   i: number;
   isDark: boolean;
+  featured?: boolean;
 }) {
   const accent = ACCENTS[i % ACCENTS.length];
   const rgb = ACCENT_RGB[accent] ?? "31,103,241";
-  const [ombreFrom, ombreTo] = OMBRE_PAIRS[i % OMBRE_PAIRS.length];
 
   return (
-    <motion.a
+    <a
       href={`/work/${project.slug}`}
-      initial={false}
-      whileHover={{ y: -6 }}
-      transition={{ duration: 0.35, ease: BRAND_EASE }}
-      className="group flex flex-col rounded-2xl overflow-hidden h-full cursor-pointer relative"
-      style={{
-        background: isDark
-          ? `linear-gradient(160deg, rgba(${ombreFrom},0.12) 0%, rgba(${ombreTo},0.06) 50%, hsl(30 11% 7%) 100%)`
-          : `linear-gradient(160deg, rgba(${ombreFrom},0.06) 0%, rgba(${ombreTo},0.03) 50%, hsl(48 56% 94%) 100%)`,
-        border: `1px solid rgba(${rgb},${isDark ? "0.25" : "0.18"})`,
-      }}
+      className={`group relative flex flex-col rounded-2xl overflow-hidden cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 ${
+        featured ? "sm:col-span-2 aspect-[16/10]" : "aspect-[4/5]"
+      }`}
+      style={{ outlineColor: accent }}
+      tabIndex={0}
     >
-      {/* ── Outer glow (visible on hover) ──────────────────── */}
-      <div
-        aria-hidden="true"
-        className="absolute -inset-[1px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
-        style={{
-          background: `linear-gradient(160deg, rgba(${ombreFrom},0.30), rgba(${ombreTo},0.20))`,
-          filter: "blur(18px)",
-          zIndex: -1,
-        }}
-      />
-
-      {/* ── Border glow ring ───────────────────────────────── */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-        style={{
-          border: `1.5px solid rgba(${rgb},0.50)`,
-          boxShadow: `
-            inset 0 0 20px rgba(${rgb},0.06),
-            0 0 30px rgba(${rgb},0.10),
-            0 0 60px rgba(${rgb},0.05)
-          `,
-        }}
-      />
-
-      {/* ── Subtle top-left shine ──────────────────────────── */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 rounded-2xl pointer-events-none"
-        style={{
-          background: `linear-gradient(
-            135deg,
-            rgba(255,255,255,${isDark ? "0.04" : "0.08"}) 0%,
-            transparent 50%
-          )`,
-        }}
-      />
-
-      {/* ── Grain texture overlay ──────────────────────────── */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 rounded-2xl pointer-events-none mix-blend-overlay"
-        style={{
-          opacity: isDark ? 0.04 : 0.02,
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-          backgroundSize: "128px 128px",
-        }}
-      />
-
-      {/* Square image */}
-      <div className="relative overflow-hidden" style={{ aspectRatio: "1/1" }}>
+      {/* ── Full-bleed cover image ───────────────────────────── */}
+      <div className="absolute inset-0">
         {project.coverImage ? (
           <CoverMedia
             src={project.coverImage}
             alt={project.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+            loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04] group-focus-within:scale-[1.04]"
           />
         ) : (
           <div
             className="w-full h-full"
             style={{
-              background: `linear-gradient(160deg, rgba(${ombreFrom},0.15), rgba(${ombreTo},0.08))`,
+              background: isDark
+                ? "linear-gradient(160deg, hsl(30 11% 10%), hsl(30 11% 5%))"
+                : "linear-gradient(160deg, hsl(30 12% 92%), hsl(30 12% 85%))",
             }}
           />
         )}
-        {/* Gradient overlay at bottom */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
-          style={{
-            background: isDark
-              ? "linear-gradient(to top, rgba(13,11,9,0.92), transparent)"
-              : "linear-gradient(to top, rgba(247,241,220,0.92), transparent)",
-          }}
-        />
-        {/* Year badge */}
+      </div>
+
+      {/* ── Bottom gradient (always visible, intensifies on hover) ── */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none transition-opacity duration-500"
+        style={{
+          background:
+            "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.05) 70%, transparent 100%)",
+          opacity: 0.6,
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-500"
+        style={{
+          background:
+            "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.50) 35%, rgba(0,0,0,0.10) 65%, transparent 100%)",
+        }}
+      />
+
+      {/* ── Subtle border ─────────────────────────────────────── */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 rounded-2xl pointer-events-none transition-all duration-500"
+        style={{ border: `1px solid rgba(${rgb}, 0.15)` }}
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-500"
+        style={{
+          border: `1.5px solid rgba(${rgb}, 0.45)`,
+          boxShadow: `0 0 40px rgba(${rgb}, 0.08)`,
+        }}
+      />
+
+      {/* ── Top badges (always visible) ───────────────────────── */}
+      <div className="absolute top-3 left-3 right-3 flex items-start justify-between z-10 pointer-events-none">
         <span
-          className="absolute top-3 right-3 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full"
+          className="text-[10px] uppercase tracking-[0.2em] font-sans font-bold px-2.5 py-1 rounded-full backdrop-blur-sm"
           style={{
-            background: isDark ? "rgba(20,18,15,0.9)" : "rgba(255,252,245,0.95)",
-            color: isDark ? "rgba(255,255,255,0.85)" : "rgba(0,0,0,0.75)",
+            background: isDark ? "rgba(20,18,15,0.7)" : "rgba(255,252,245,0.8)",
+            color: isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.7)",
+          }}
+        >
+          {project.type}
+        </span>
+        <span
+          className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full backdrop-blur-sm"
+          style={{
+            background: isDark ? "rgba(20,18,15,0.7)" : "rgba(255,252,245,0.8)",
+            color: isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.7)",
           }}
         >
           {(project as { period?: string }).period ?? project.year}
         </span>
       </div>
 
-      {/* Content */}
-      <div className="flex flex-col gap-2.5 px-5 py-4 flex-1 relative">
-        {/* Type */}
-        <span className="text-[10px] uppercase tracking-[0.2em] font-sans font-medium text-muted-foreground">
-          {project.type}
-        </span>
-
-        {/* Title */}
-        <h3 className="font-display font-black uppercase text-lg md:text-xl leading-tight tracking-tight text-foreground group-hover:text-primary transition-colors duration-300">
+      {/* ── Slide-up content panel ────────────────────────────── */}
+      <div
+        className="absolute inset-x-0 bottom-0 z-10 flex flex-col gap-2 px-5 pb-5 pt-10
+          translate-y-[calc(100%-3.5rem)] group-hover:translate-y-0 group-focus-within:translate-y-0
+          transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]
+          motion-reduce:translate-y-0 motion-reduce:transition-none"
+        style={{
+          background: "linear-gradient(to top, rgba(0,0,0,0.90) 60%, transparent 100%)",
+        }}
+      >
+        {/* Title — always peeking at the bottom */}
+        <h3 className="font-display font-black uppercase text-lg md:text-xl leading-tight tracking-tight text-white">
           {project.title}
         </h3>
 
-        {/* Description — short preview */}
-        <p className="text-xs font-sans text-muted-foreground leading-relaxed line-clamp-2 flex-1">
-          {(project as { cardDescription?: string }).cardDescription || project.subtitle}
+        {/* Description — revealed on hover */}
+        <p className="text-xs font-sans text-white/70 leading-relaxed line-clamp-2 transition-opacity duration-300 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 motion-reduce:opacity-100 motion-reduce:transition-none">
+          {(project as { cardDescription?: string }).cardDescription ||
+            project.subtitle}
         </p>
 
-        {/* Tags */}
-        <div className="flex items-center gap-1.5 flex-wrap pt-1">
-          {project.tags.slice(0, 2).map((tag) => (
+        {/* Tags — revealed on hover */}
+        <div className="flex items-center gap-1.5 flex-wrap transition-opacity duration-300 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 motion-reduce:opacity-100 motion-reduce:transition-none">
+          {project.tags.slice(0, 3).map((tag) => (
             <span
               key={tag}
               className="text-[9px] uppercase tracking-wider font-sans font-bold px-2 py-0.5 rounded-full"
               style={{
-                background: isDark ? `rgba(${rgb},0.15)` : `rgba(${rgb},0.10)`,
-                color: `rgba(${rgb},0.85)`,
-                border: `1px solid rgba(${rgb},${isDark ? "0.20" : "0.15"})`,
+                background: `rgba(${rgb}, 0.25)`,
+                color: "rgba(255,255,255,0.85)",
+                border: `1px solid rgba(${rgb}, 0.35)`,
               }}
             >
               {tag}
@@ -162,6 +144,6 @@ export const PinterestCard = memo(function PinterestCard({
           ))}
         </div>
       </div>
-    </motion.a>
+    </a>
   );
 });

@@ -188,13 +188,17 @@ export default function Home() {
           initial="hidden"
           whileInView="show"
           viewport={VP}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
         >
-          {featuredProjects.map((project) => {
+          {featuredProjects.map((project, fi) => {
             const i = projectIndexMap.get(project.id) ?? 0;
             return (
-              <motion.div key={project.id} variants={item} className="h-full">
-                <PinterestCard project={project} i={i} isDark={isDark} />
+              <motion.div
+                key={project.id}
+                variants={item}
+                className={`h-full ${fi === 0 ? "lg:col-span-2" : ""}`}
+              >
+                <PinterestCard project={project} i={i} isDark={isDark} featured={fi === 0} />
               </motion.div>
             );
           })}
