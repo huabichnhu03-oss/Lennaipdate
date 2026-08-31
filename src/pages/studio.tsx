@@ -7,15 +7,14 @@ import projectsSeed from "@/data/projects.json";
 import { useContent } from "@/lib/use-content";
 import { FloatingDecor } from "@/components/FloatingDecor";
 import { SafeImage } from "@/components/SafeImage";
-import { FolderCard } from "@/components/FolderCard";
 import { LogoMarquee } from "@/components/LogoMarquee";
 import { StudioDecor } from "@/components/StudioDecor";
 import {
-  artworkStyleOf,
   collectMarqueeLogos,
   mergeStudio,
 } from "@/lib/studio-content";
 import type { GalleryImageEntry } from "@/lib/gallery-image";
+import { galleryImageSrc } from "@/lib/gallery-image";
 import type { Project, Studio } from "@/components/admin/types";
 
 const BLUE = "#1F67F1";
@@ -26,12 +25,6 @@ const SLIDE_SIZE = {
   md: "h-[22rem] sm:h-[28rem] md:h-[32rem]",
   lg: "h-[28rem] sm:h-[36rem] md:h-[42rem]",
   xl: "h-[32rem] sm:h-[42rem] md:h-[50rem]",
-} as const;
-
-const FOLDER_SIZE = {
-  md: "w-[17rem] sm:w-[19rem] h-[26rem] sm:h-[30rem]",
-  lg: "w-[19rem] sm:w-[22rem] md:w-[24rem] h-[32rem] sm:h-[38rem] md:h-[42rem]",
-  xl: "w-[21rem] sm:w-[24rem] md:w-[28rem] h-[36rem] sm:h-[44rem] md:h-[50rem]",
 } as const;
 
 type ArtworkOrientation = "portrait" | "landscape";
@@ -52,11 +45,24 @@ type GalleryItem = {
   linkLabel?: string;
   /** Optional override for slideshow card shape. Auto-detected from the cover when omitted. */
   orientation?: ArtworkOrientation;
-  cardStyle?: "slideshow" | "folder";
+  cardStyle?: "slideshow" | "tag" | "folder";
   stampImage?: string;
+  /** Accent behind the clipped image tag. Hex, e.g. #E07B39. */
   folderColor?: string;
   logo?: string;
 };
+
+function artworkImageSources(
+  coverImage: string,
+  images?: GalleryImageEntry[],
+): string[] {
+  const all = [coverImage, ...(images ?? []).map(galleryImageSrc)].filter(Boolean);
+  const unique: string[] = [];
+  for (const src of all) {
+    if (!unique.includes(src)) unique.push(src);
+  }
+  return unique;
+}
 
 /** Read width/height query params from CDN URLs (e.g. Framer) when present. */
 function orientationFromUrl(src: string): ArtworkOrientation | null {
@@ -169,6 +175,8 @@ function ArtworkModal({
     };
   }, [onClose]);
 
+  const imageSources = artworkImageSources(item.coverImage, item.images);
+
   return (
     <motion.div
       ref={containerRef}
@@ -202,14 +210,17 @@ function ArtworkModal({
           ✕
         </button>
 
-        {/* Left — image */}
-        <div className="bg-card flex items-center justify-center overflow-hidden md:max-h-[90vh]">
-          <SafeImage
-            src={item.coverImage}
-            alt={item.title}
-            className="w-full h-full object-cover md:object-contain max-h-[40vh] md:max-h-[90vh]"
-            fallbackAspect="16 / 5"
-          />
+        {/* Left — image gallery */}
+        <div className="bg-card flex flex-col gap-3 overflow-y-auto md:max-h-[90vh] p-3 md:p-4">
+          {imageSources.map((src, i) => (
+            <SafeImage
+              key={`${src}-${i}`}
+              src={src}
+              alt={i === 0 ? item.title : `${item.title} — image ${i + 1}`}
+              className="w-full h-auto object-contain rounded-lg"
+              fallbackAspect="4 / 5"
+            />
+          ))}
         </div>
 
         {/* Right — info */}
@@ -374,21 +385,15 @@ function ArtworksSlideshow({
   items,
   onOpen,
   cardSize,
-  defaultStyle,
 }: {
   items: GalleryItem[];
   onOpen: (item: GalleryItem) => void;
   cardSize: Studio["artworksCardSize"];
-  defaultStyle: Studio["artworksDefaultStyle"];
 }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0); // 0..1
-  const hasFolder = items.some(
-    (item) => artworkStyleOf(item, defaultStyle) === "folder",
-  );
 
-  // Track horizontal scroll progress so we can render a thin custom
-  // progress bar in place of the native scrollbar.
+  // Track horizontal scroll progress
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
@@ -466,43 +471,21 @@ function ArtworksSlideshow({
       <div
         ref={scrollerRef}
         data-fast-scroll-skip
-        className={`flex gap-8 overflow-x-auto pb-2 snap-x snap-mandatory scroll-smooth scrollbar-none ${
-          hasFolder ? "pt-24 md:pt-32 items-end" : "items-stretch"
-        }`}
+        className="flex gap-6 md:gap-8 overflow-x-auto overflow-y-hidden pb-2 pt-2 snap-x snap-mandatory scroll-smooth scrollbar-none items-stretch"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
         }}
       >
-        {items.map((item, idx) => {
-          const style = artworkStyleOf(item, defaultStyle);
-          if (style === "folder") {
-            return (
-              <FolderCard
-                key={item.id}
-                title={item.title}
-                role={item.role}
-                description={item.description}
-                coverImage={item.coverImage}
-                images={item.images}
-                stampImage={item.stampImage}
-                folderColor={item.folderColor}
-                index={idx}
-                sizeClass={FOLDER_SIZE[cardSize]}
-                onOpen={() => onOpen(item)}
-              />
-            );
-          }
-          return (
-            <ArtworkSlide
-              key={item.id}
-              item={item}
-              idx={idx}
-              onOpen={onOpen}
-              sizeClass={SLIDE_SIZE[cardSize]}
-            />
-          );
-        })}
+        {items.map((item, idx) => (
+          <ArtworkSlide
+            key={item.id}
+            item={item}
+            idx={idx}
+            onOpen={onOpen}
+            sizeClass={SLIDE_SIZE[cardSize]}
+          />
+        ))}
       </div>
 
       {/* Thin progress bar tracking horizontal scroll position */}
@@ -692,7 +675,7 @@ export default function Studio() {
         </section>
       )}
 
-      {/* ── Small Artworks (horizontal slideshow / folders) ── */}
+      {/* ── Small Artworks (horizontal slideshow) ── */}
       {smallItems.length > 0 && (
         <section className="flex flex-col gap-6 pt-4">
           <div className="flex items-end justify-between gap-6 flex-wrap">
@@ -716,7 +699,6 @@ export default function Studio() {
             items={smallItems}
             onOpen={setModalItem}
             cardSize={studio.artworksCardSize}
-            defaultStyle={studio.artworksDefaultStyle}
           />
         </section>
       )}

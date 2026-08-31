@@ -193,8 +193,15 @@ body {
 }
 
 /* ── Scrollbar ─────────────────────────────────────── */
-.scrollbar-none { scrollbar-width: none; }
-.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
 
 /* Thin, minimal scrollbar globally (Firefox + WebKit). Use !important to
    defeat any third-party UI library scrollbar styling (e.g. Radix, shadcn). */
@@ -386,23 +393,6 @@ html.dark .studio-grid-bg {
   background-image:
     linear-gradient(rgba(31, 103, 241, 0.09) 1px, transparent 1px),
     linear-gradient(90deg, rgba(31, 103, 241, 0.09) 1px, transparent 1px);
-}
-
-.folder-card {
-  overflow: visible;
-}
-.folder-card .folder-popout {
-  transform: var(--folder-pop-rest);
-  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.folder-card:hover .folder-popout,
-.folder-card:focus-visible .folder-popout {
-  transform: var(--folder-pop-hover);
-}
-@media (hover: none) {
-  .folder-card .folder-popout {
-    transform: var(--folder-pop-hover);
-  }
 }
 
 @keyframes logo-marquee-x {

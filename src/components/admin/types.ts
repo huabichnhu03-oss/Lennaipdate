@@ -135,10 +135,10 @@ export type GalleryItem = {
   /** Slideshow card shape. When omitted, public studio page detects from the cover image. */
   orientation?: "portrait" | "landscape";
   /** Artwork card treatment. When omitted, Studio Page default applies. */
-  cardStyle?: "slideshow" | "folder";
-  /** Small postage-stamp photo on the folder face. */
+  cardStyle?: "slideshow" | "tag" | "folder";
+  /** Optional stamp image (legacy folder field). */
   stampImage?: string;
-  /** Manila folder fill. Hex, e.g. #D4B483. */
+  /** Tag accent color behind the clipped image. Hex, e.g. #E07B39. */
   folderColor?: string;
   /** Square mark used in the studio logo marquee. */
   logo?: string;
@@ -226,7 +226,7 @@ export type Studio = {
   artworksHeading: string;
   artworksBlurb: string;
   artworksCardSize: "md" | "lg" | "xl";
-  artworksDefaultStyle: "slideshow" | "folder";
+  artworksDefaultStyle: "slideshow" | "tag" | "folder";
   showGrid: boolean;
   showDecor: boolean;
   showLogoMarquee: boolean;

@@ -216,46 +216,9 @@ export function GalleryEditor({
             </div>
             <span className="text-[#4A4540] text-[11px] font-sans">
               Big Projects appear in the masonry with a detail page; Artworks
-              appear below as folders or slideshow cards.
+              appear below in the horizontal slideshow.
             </span>
           </div>
-
-          {(item.kind ?? "big") === "small" && (
-            <div className="flex flex-col gap-2">
-              <label className="text-[#8A8278] text-xs uppercase tracking-widest">
-                Card treatment
-              </label>
-              <div className="flex gap-2 flex-wrap">
-                {(
-                  [
-                    { value: undefined, label: "Use Studio default" },
-                    { value: "folder" as const, label: "Hovering folder" },
-                    { value: "slideshow" as const, label: "Slideshow card" },
-                  ] as const
-                ).map(({ value, label }) => {
-                  const active = (item.cardStyle ?? undefined) === value;
-                  return (
-                    <button
-                      key={label}
-                      type="button"
-                      onClick={() => update(selectedIdx, { cardStyle: value })}
-                      className={`text-xs uppercase tracking-widest px-3 py-1.5 border transition-colors ${
-                        active
-                          ? "bg-[#C8A96E] text-[#0A0908] border-[#C8A96E]"
-                          : "text-[#8A8278] border-[#3A3530] hover:border-[#C8A96E]"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
-              <span className="text-[#4A4540] text-[11px] font-sans">
-                Folder: images pop out on hover (cover + extra images). Change
-                the Studio-page default under Studio Page.
-              </span>
-            </div>
-          )}
 
           {(item.kind ?? "big") === "small" && (
             <div className="flex flex-col gap-2">
@@ -441,53 +404,6 @@ export function GalleryEditor({
             )}
           </div>
 
-          {(item.kind ?? "big") === "small" && (
-            <div className="flex flex-col gap-3 border border-[#272421] rounded p-3">
-              <label className="text-[#8A8278] text-xs uppercase tracking-widest">
-                Folder look
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={item.folderColor || "#D4B483"}
-                  onChange={(e) => update(selectedIdx, { folderColor: e.target.value })}
-                  className="w-10 h-10 bg-transparent cursor-pointer"
-                  aria-label="Folder color"
-                />
-                <TextInput
-                  label="Folder color"
-                  value={item.folderColor ?? ""}
-                  onChange={(v) => update(selectedIdx, { folderColor: v })}
-                  placeholder="#D4B483"
-                />
-              </div>
-              <label className="text-[#8A8278] text-xs uppercase tracking-widest">
-                Stamp photo (optional)
-              </label>
-              <span className="text-[#4A4540] text-[11px] font-sans">
-                Small postage-stamp on the folder. Falls back to the cover image.
-              </span>
-              <input
-                type="text"
-                value={item.stampImage ?? ""}
-                onChange={(e) => update(selectedIdx, { stampImage: e.target.value })}
-                placeholder="Paste stamp URL"
-                className="bg-transparent border-b border-[#3A3530] text-[#F2EDE5] py-2 text-sm focus:outline-none focus:border-[#C8A96E] transition-colors"
-              />
-              <div className="flex items-center gap-2 flex-wrap">
-                <UploadToLibraryDashed
-                  label="↑ Upload stamp"
-                  accept="image/*"
-                  onUploaded={(url) => update(selectedIdx, { stampImage: url })}
-                />
-                <PickFromLibraryButton
-                  type="image"
-                  onPick={(url) => update(selectedIdx, { stampImage: url })}
-                />
-              </div>
-            </div>
-          )}
-
           {/* Additional images */}
           <div className="flex flex-col gap-3">
             <label className="text-[#8A8278] text-xs uppercase tracking-widest">
@@ -495,8 +411,8 @@ export function GalleryEditor({
             </label>
             {(item.kind ?? "big") === "small" && (
               <span className="text-[#4A4540] text-[11px] font-sans">
-                On hovering folders, extra images fan out behind the folder
-                with the cover (up to three).
+                Extra images appear on the artwork detail page and in the modal
+                gallery when opened.
               </span>
             )}
             {(item.kind ?? "big") === "big" && (

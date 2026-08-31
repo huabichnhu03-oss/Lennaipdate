@@ -32,7 +32,7 @@ export function StudioEditor({
         <div>
           <h2 className="font-serif text-2xl text-[#F2EDE5]">Studio page</h2>
           <p className="text-[#8A8278] text-sm mt-1">
-            Copy, card size, folder hover, and the looping logo strip on /studio.
+            Copy, card size, and the looping logo strip on /studio.
             Gallery items themselves are still edited under Gallery.
           </p>
         </div>
@@ -110,30 +110,6 @@ export function StudioEditor({
               </button>
             ))}
           </div>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label className="text-[#8A8278] text-xs uppercase tracking-widest">Default artwork style</label>
-          <div className="flex gap-2 flex-wrap">
-            {(["folder", "slideshow"] as const).map((style) => (
-              <button
-                key={style}
-                type="button"
-                onClick={() => patch({ artworksDefaultStyle: style })}
-                className={`text-xs uppercase tracking-widest px-3 py-1.5 border transition-colors ${
-                  data.artworksDefaultStyle === style
-                    ? "bg-[#C8A96E] text-[#0A0908] border-[#C8A96E]"
-                    : "text-[#8A8278] border-[#3A3530] hover:border-[#C8A96E]"
-                }`}
-              >
-                {style === "folder" ? "Hovering folder" : "Slideshow card"}
-              </button>
-            ))}
-          </div>
-          <span className="text-[#4A4540] text-[11px] font-sans">
-            Folder: images fan out on hover. Slideshow: large photo cards.
-            Override per artwork in Gallery.
-          </span>
         </div>
       </section>
 

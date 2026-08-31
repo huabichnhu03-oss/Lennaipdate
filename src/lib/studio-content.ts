@@ -4,7 +4,7 @@ export const DEFAULT_STUDIO: Studio = {
   eyebrow: "Studio · Archive",
   heading: "Studio",
   intro:
-    "A living scrapbook of art direction, illustration, photography, motion, and editorial work — full productions above, smaller pieces in folders below. Hover a folder and the work spills out.",
+    "A living scrapbook of art direction, illustration, photography, motion, and editorial work — full productions above, smaller pieces in the slideshow below.",
   bigEyebrow: "01 · Productions",
   bigHeading: "Big Projects",
   bigBlurb:
@@ -12,9 +12,9 @@ export const DEFAULT_STUDIO: Studio = {
   artworksEyebrow: "02 · Studies",
   artworksHeading: "Artworks",
   artworksBlurb:
-    "Smaller pieces, studies, and standalone artworks. Hover a folder to fan the images out, then click to open.",
+    "Smaller pieces, studies, and standalone artworks. Scroll horizontally or click a card to view details.",
   artworksCardSize: "lg",
-  artworksDefaultStyle: "folder",
+  artworksDefaultStyle: "slideshow",
   showGrid: true,
   showDecor: true,
   showLogoMarquee: true,
@@ -35,20 +35,12 @@ export function mergeStudio(live: Partial<Studio> | null | undefined): Studio {
     next.artworksCardSize = "lg";
   }
   if (next.artworksDefaultStyle !== "slideshow") {
-    next.artworksDefaultStyle = "folder";
+    next.artworksDefaultStyle = "slideshow";
   }
   if (typeof next.logoMarqueeSpeed !== "number" || next.logoMarqueeSpeed < 8) {
     next.logoMarqueeSpeed = DEFAULT_STUDIO.logoMarqueeSpeed;
   }
   return next;
-}
-
-export function artworkStyleOf(
-  item: GalleryItem,
-  fallback: Studio["artworksDefaultStyle"],
-): "slideshow" | "folder" {
-  if (item.cardStyle === "slideshow" || item.cardStyle === "folder") return item.cardStyle;
-  return fallback;
 }
 
 function asLogo(id: string, name: string, src?: string, href?: string): StudioLogo | null {
