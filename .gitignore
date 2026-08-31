@@ -49,3 +49,5 @@ Thumbs.db
 .local/
 .vercel
 .env*
+DEPLOY_NOTE.md
+deploy_note.md

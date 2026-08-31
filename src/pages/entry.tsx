@@ -7,6 +7,8 @@ import { Link } from "wouter";
 import projectsData from "@/data/projects.json";
 import galleryData from "@/data/gallery.json";
 import homepageSeed from "@/data/homepage.json";
+import identitySeed from "@/data/identity.json";
+import contactSeed from "@/data/contact.json";
 import { useContent } from "@/lib/use-content";
 import { CursorBlockField } from "@/components/CursorBlockField";
 import { SafeImage } from "@/components/SafeImage";
@@ -347,6 +349,8 @@ const ART_ACCENT    = BRAND.pink;
 export default function Entry() {
   const [hovered, setHovered] = useState<Side | null>(null);
   const homepageData = useContent("homepage", homepageSeed) as typeof homepageSeed;
+  const identityData = useContent("identity", identitySeed) as typeof identitySeed;
+  const contactData = useContent("contact", contactSeed) as typeof contactSeed;
   const hp = homepageData.entry;
   /* Resolve the Art & Creative block's floating previews from a random
      selection of Studio gallery items, locked in once per mount so the
@@ -435,7 +439,7 @@ export default function Entry() {
       </div>
 
       {/* ── Two card blocks ── */}
-      <div className="relative z-10 flex-1 flex items-center justify-center px-6 md:px-10">
+      <div className="relative z-10 flex-1 flex items-center justify-center px-6 md:px-10 pb-28 md:pb-24">
         <div className="flex flex-col md:flex-row items-stretch gap-4 md:gap-6 w-full max-w-6xl">
 
           {/* Product Design block */}
@@ -470,10 +474,10 @@ export default function Entry() {
         </div>
       </div>
 
-      {/* ── Bottom prompt ── */}
-      <div className="absolute bottom-6 left-0 right-0 flex justify-center z-20 pointer-events-none">
+      {/* ── Bottom identity + site links (finished-site chrome for visitors and ad crawlers) ── */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 px-6 md:px-14 pb-5 pt-4 flex flex-col items-center gap-3">
         <motion.span
-          className="text-sm uppercase tracking-[0.45em] font-sans"
+          className="text-sm uppercase tracking-[0.45em] font-sans pointer-events-none"
           style={{ color: COLORS.bottomPrompt }}
           initial={{ opacity: 0 }}
           animate={{ opacity: hovered ? 0 : 1 }}
@@ -481,6 +485,40 @@ export default function Entry() {
         >
           {hp.bottomPrompt}
         </motion.span>
+        <nav
+          aria-label="Site"
+          className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] uppercase tracking-[0.18em] font-sans"
+          style={{ color: "rgba(255,255,255,0.55)" }}
+        >
+          {[
+            { href: "/home", label: "Home" },
+            { href: "/work", label: "Work" },
+            { href: "/studio", label: "Studio" },
+            { href: "/about", label: "About" },
+            { href: "/contact", label: "Contact" },
+            { href: "/privacy", label: "Privacy" },
+          ].map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-sm"
+              style={{ ["--tw-ring-color" as string]: DESIGN_ACCENT }}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        {(identityData.role || contactData.email) && (
+          <p className="text-[11px] font-sans text-center" style={{ color: "rgba(255,255,255,0.4)" }}>
+            {identityData.role}
+            {identityData.role && contactData.email ? " · " : ""}
+            {contactData.email && (
+              <a href={`mailto:${contactData.email}`} className="hover:text-white transition-colors">
+                {contactData.email}
+              </a>
+            )}
+          </p>
+        )}
       </div>
     </main>
   );

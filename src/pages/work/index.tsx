@@ -221,11 +221,10 @@ export default function WorkIndex() {
           {filtered.length} project{filtered.length !== 1 ? "s" : ""} shown
           {filter !== "All" ? ` in ${filter}` : ""}
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
           <AnimatePresence mode="popLayout">
             {filtered.map((project, gi) => {
               const i = projectIndexMap.get(project.id) ?? 0;
-              const isFeatured = project.featured && filter === "All";
               return (
                 <motion.div
                   key={project.id}
@@ -238,14 +237,9 @@ export default function WorkIndex() {
                     delay: (gi % 6) * 0.07,
                     ease: BRAND_EASE,
                   }}
-                  className={`h-full ${isFeatured ? "sm:col-span-2" : ""}`}
+                  className="h-full"
                 >
-                  <PinterestCard
-                    project={project}
-                    i={i}
-                    isDark={isDark}
-                    featured={isFeatured}
-                  />
+                  <PinterestCard project={project} i={i} isDark={isDark} />
                 </motion.div>
               );
             })}

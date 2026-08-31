@@ -1,4 +1,5 @@
 import type { ReactElement } from "react";
+import { Link } from "wouter";
 import identitySeed from "@/data/identity.json";
 import contactSeed from "@/data/contact.json";
 import { useContent } from "@/lib/use-content";
@@ -72,11 +73,6 @@ export function Footer() {
             <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground/60 mb-1">
               Elsewhere
             </p>
-            {socials.length === 0 && (
-              <span className="text-sm text-muted-foreground/60 italic">
-                Coming soon
-              </span>
-            )}
             {socials.map((s): ReactElement => (
               <a
                 key={s.label}
@@ -89,15 +85,25 @@ export function Footer() {
                 <span aria-hidden className="opacity-0 -translate-x-1 group-hover:opacity-60 group-hover:translate-x-0 transition-all duration-300">↗</span>
               </a>
             ))}
+            {socials.length === 0 && contact.email?.trim() && (
+              <a href={`mailto:${contact.email}`} className={linkClass}>
+                <span className={underline}>{contact.email}</span>
+              </a>
+            )}
           </div>
         </div>
 
         {/* Baseline strip */}
         <div className="mt-12 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-muted-foreground/70">
           <span>© {year} {identity.name}. All rights reserved.</span>
-          <span className="tracking-[0.18em] uppercase">
-            Designed &amp; built with care
-          </span>
+          <nav aria-label="Legal" className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">
+              Terms of Use
+            </Link>
+          </nav>
         </div>
       </div>
     </footer>

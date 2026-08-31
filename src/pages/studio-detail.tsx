@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 import gallerySeed from "@/data/gallery.json";
 import { useContent } from "@/lib/use-content";
 import { SafeImage } from "@/components/SafeImage";
+import {
+  galleryImageColumns,
+  galleryImageSpanClass,
+  galleryImageSrc,
+  type GalleryImageEntry,
+} from "@/lib/gallery-image";
 
 type GalleryItem = {
   id: string;
@@ -15,8 +21,8 @@ type GalleryItem = {
   description?: string;
   tags?: string[];
   coverImage: string;
-  images?: string[];
-  imageColumns?: 1 | 2;
+  images?: GalleryImageEntry[];
+  imageColumns?: 1 | 2 | 3;
   order?: number;
   linkUrl?: string;
   linkLabel?: string;
@@ -125,8 +131,6 @@ export default function StudioDetail() {
       </div>
     );
   }
-
-  const allImages = [item.coverImage, ...(item.images ?? [])];
 
   return (
     <div className="w-full flex flex-col gap-16 md:gap-20 pb-24">
@@ -264,15 +268,20 @@ export default function StudioDetail() {
         />
       </motion.div>
 
-      {/* Additional images */}
+      {/* Additional images — width comes from admin (1 = full, 2 = half, 3 = third) */}
       {item.images && item.images.length > 0 && (
-        <div className={`grid grid-cols-1 ${(item.imageColumns ?? 2) === 2 ? "md:grid-cols-2" : ""} gap-6`}>
-          {item.images.map((src, i) => {
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
+          {item.images.map((entry, i) => {
+            const src = galleryImageSrc(entry);
+            if (!src) return null;
             const errored = erroredImages[i];
+            const spanClass = galleryImageSpanClass(
+              galleryImageColumns(entry, item.imageColumns),
+            );
             return (
               <motion.div
                 key={i}
-                className={`overflow-hidden rounded-xl bg-card ${errored ? "" : "cursor-zoom-in"}`}
+                className={`overflow-hidden rounded-xl bg-card ${spanClass} ${errored ? "" : "cursor-zoom-in"}`}
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}

@@ -11,10 +11,16 @@ import {
   resolveAssetUrl,
   formatDate,
 } from "./shared";
+import {
+  MAX_ASSET_BYTES,
+  maxAssetBytesForFileType,
+  formatMaxMb,
+} from "@/lib/asset-limits";
 
 // ── Constants ──────────────────────────────────────────────────────────
 
-export const MAX_ASSET_BYTES = 4 * 1024 * 1024;
+export { resolveAssetUrl } from "./shared";
+export { MAX_ASSET_BYTES } from "@/lib/asset-limits";
 
 // ── Asset helpers ──────────────────────────────────────────────────────
 
@@ -65,9 +71,10 @@ export async function uploadAssetFile(
   if (!/^image\//.test(file.type) && !/^video\//.test(file.type)) {
     throw new Error(`Unsupported file type: ${file.type || "unknown"}.`);
   }
-  if (file.size > MAX_ASSET_BYTES) {
+  const maxBytes = maxAssetBytesForFileType(file.type);
+  if (file.size > maxBytes) {
     throw new Error(
-      `"${file.name}" is too large (max ${MAX_ASSET_BYTES / 1024 / 1024} MB).`,
+      `"${file.name}" is too large (max ${formatMaxMb(maxBytes)} MB).`,
     );
   }
   const dims = await readAssetDimensions(file);
@@ -143,10 +150,10 @@ export function PickFromLibraryButton({
   label = "From library",
   size = "md",
 }: {
-  onPick: (url: string) => void;
+  onPick: (url: string, meta?: { mime?: string }) => void;
   type?: AssetType;
   label?: string;
-  size?: "sm" | "md";
+  size?: "md" | "sm";
 }) {
   const open = useAssetPicker();
   if (!open) return null;
@@ -218,7 +225,7 @@ export function UploadToLibraryDashed({
 }: {
   label: string;
   accept: string;
-  onUploaded: (url: string) => void;
+  onUploaded: (url: string, meta?: { mime?: string }) => void;
 }) {
   const upload = useAssetUpload();
   const [busy, setBusy] = useState(false);
@@ -247,7 +254,7 @@ export function UploadToLibraryDashed({
             setErr("");
             try {
               const url = await upload(f);
-              onUploaded(url);
+              onUploaded(url, { mime: f.type });
             } catch (e2) {
               setErr(e2 instanceof Error ? e2.message : "Upload failed.");
             } finally {

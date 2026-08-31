@@ -2,13 +2,39 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import gallerySeed from "@/data/gallery.json";
+import studioSeed from "@/data/studio.json";
+import projectsSeed from "@/data/projects.json";
 import { useContent } from "@/lib/use-content";
 import { FloatingDecor } from "@/components/FloatingDecor";
 import { SafeImage } from "@/components/SafeImage";
+import { FolderCard } from "@/components/FolderCard";
+import { LogoMarquee } from "@/components/LogoMarquee";
+import { StudioDecor } from "@/components/StudioDecor";
+import {
+  artworkStyleOf,
+  collectMarqueeLogos,
+  mergeStudio,
+} from "@/lib/studio-content";
+import type { GalleryImageEntry } from "@/lib/gallery-image";
+import type { Project, Studio } from "@/components/admin/types";
 
 const BLUE = "#1F67F1";
 
 const VP = { once: true, margin: "-60px" };
+
+const SLIDE_SIZE = {
+  md: "h-[22rem] sm:h-[28rem] md:h-[32rem]",
+  lg: "h-[28rem] sm:h-[36rem] md:h-[42rem]",
+  xl: "h-[32rem] sm:h-[42rem] md:h-[50rem]",
+} as const;
+
+const FOLDER_SIZE = {
+  md: "w-[17rem] sm:w-[19rem] h-[26rem] sm:h-[30rem]",
+  lg: "w-[19rem] sm:w-[22rem] md:w-[24rem] h-[32rem] sm:h-[38rem] md:h-[42rem]",
+  xl: "w-[21rem] sm:w-[24rem] md:w-[28rem] h-[36rem] sm:h-[44rem] md:h-[50rem]",
+} as const;
+
+type ArtworkOrientation = "portrait" | "landscape";
 
 type GalleryItem = {
   id: string;
@@ -20,11 +46,66 @@ type GalleryItem = {
   description?: string;
   tags?: string[];
   coverImage: string;
-  images?: string[];
+  images?: GalleryImageEntry[];
   order?: number;
   linkUrl?: string;
   linkLabel?: string;
+  /** Optional override for slideshow card shape. Auto-detected from the cover when omitted. */
+  orientation?: ArtworkOrientation;
+  cardStyle?: "slideshow" | "folder";
+  stampImage?: string;
+  folderColor?: string;
+  logo?: string;
 };
+
+/** Read width/height query params from CDN URLs (e.g. Framer) when present. */
+function orientationFromUrl(src: string): ArtworkOrientation | null {
+  try {
+    const u = new URL(src, "https://example.com");
+    const w = Number(u.searchParams.get("width"));
+    const h = Number(u.searchParams.get("height"));
+    if (w > 0 && h > 0) return w >= h ? "landscape" : "portrait";
+  } catch {
+    /* ignore malformed URLs */
+  }
+  return null;
+}
+
+function useCoverOrientation(
+  src: string,
+  override?: ArtworkOrientation,
+): ArtworkOrientation {
+  const [orientation, setOrientation] = useState<ArtworkOrientation>(
+    () => override ?? orientationFromUrl(src) ?? "portrait",
+  );
+
+  useEffect(() => {
+    if (override) {
+      setOrientation(override);
+      return;
+    }
+    const fromUrl = orientationFromUrl(src);
+    if (fromUrl) {
+      setOrientation(fromUrl);
+      return;
+    }
+    if (!src) return;
+    let cancelled = false;
+    const img = new Image();
+    img.onload = () => {
+      if (cancelled) return;
+      setOrientation(
+        img.naturalWidth >= img.naturalHeight ? "landscape" : "portrait",
+      );
+    };
+    img.src = src;
+    return () => {
+      cancelled = true;
+    };
+  }, [src, override]);
+
+  return orientation;
+}
 
 /* Studio is a long-scroll page; we boost wheel scrolling so the masonry
    feels notably snappier than the default browser rate (~2.5x). We
@@ -216,16 +297,95 @@ function ArtworkModal({
   );
 }
 
+/* ── Single artwork slide (portrait or landscape) ───── */
+function ArtworkSlide({
+  item,
+  idx,
+  onOpen,
+  sizeClass,
+}: {
+  item: GalleryItem;
+  idx: number;
+  onOpen: (item: GalleryItem) => void;
+  sizeClass: string;
+}) {
+  const orientation = useCoverOrientation(item.coverImage, item.orientation);
+  const isLandscape = orientation === "landscape";
+
+  return (
+    <motion.button
+      onClick={() => onOpen(item)}
+      initial={{ opacity: 0, x: 20 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={VP}
+      transition={{ delay: idx * 0.05, duration: 0.5 }}
+      // Shared height; width follows portrait (4/5) or landscape (16/10).
+      className={`snap-start flex-shrink-0 ${sizeClass} group cursor-pointer text-left rounded-xl overflow-hidden relative bg-card ${
+        isLandscape ? "aspect-[16/10]" : "aspect-[4/5]"
+      }`}
+      style={{
+        border: `2px solid ${BLUE}00`,
+        transition: "border-color 0.3s",
+      }}
+      onMouseEnter={(e) =>
+        (e.currentTarget.style.borderColor = BLUE + "aa")
+      }
+      onMouseLeave={(e) =>
+        (e.currentTarget.style.borderColor = BLUE + "00")
+      }
+    >
+      <div className="absolute inset-0 overflow-hidden">
+        <SafeImage
+          src={item.coverImage}
+          alt={item.title}
+          loading="lazy"
+          className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-[1.04] transition-all duration-700"
+          fallbackAspect={isLandscape ? "16 / 10" : "4 / 5"}
+        />
+      </div>
+      <div
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5"
+        style={{
+          background: `linear-gradient(to top, ${BLUE}dd 0%, transparent 60%)`,
+        }}
+      >
+        <h3 className="font-display font-black uppercase text-lg text-white leading-tight">
+          {item.title}
+        </h3>
+        <span
+          className="text-xs uppercase tracking-widest font-sans mt-1 px-2 py-0.5 rounded-full w-max"
+          style={{ background: "rgba(0,0,0,0.4)", color: "white" }}
+        >
+          {item.role}
+        </span>
+      </div>
+      <div
+        className="absolute top-3 left-3 w-7 h-7 rounded-full flex items-center justify-center text-xs font-display font-black"
+        style={{ background: BLUE, color: "#FFFFFF" }}
+      >
+        {String(idx + 1).padStart(2, "0")}
+      </div>
+    </motion.button>
+  );
+}
+
 /* ── Horizontal slideshow row ─────────────────────────── */
 function ArtworksSlideshow({
   items,
   onOpen,
+  cardSize,
+  defaultStyle,
 }: {
   items: GalleryItem[];
   onOpen: (item: GalleryItem) => void;
+  cardSize: Studio["artworksCardSize"];
+  defaultStyle: Studio["artworksDefaultStyle"];
 }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0); // 0..1
+  const hasFolder = items.some(
+    (item) => artworkStyleOf(item, defaultStyle) === "folder",
+  );
 
   // Track horizontal scroll progress so we can render a thin custom
   // progress bar in place of the native scrollbar.
@@ -238,8 +398,11 @@ function ArtworksSlideshow({
     };
     update();
     el.addEventListener("scroll", update, { passive: true });
+    // Observe the row and each slide so portrait→landscape size swaps
+    // recalculate scroll progress.
     const ro = new ResizeObserver(update);
     ro.observe(el);
+    for (const child of Array.from(el.children)) ro.observe(child);
     return () => {
       el.removeEventListener("scroll", update);
       ro.disconnect();
@@ -303,65 +466,43 @@ function ArtworksSlideshow({
       <div
         ref={scrollerRef}
         data-fast-scroll-skip
-        className="flex gap-6 overflow-x-auto pb-2 snap-x snap-mandatory scroll-smooth scrollbar-none"
+        className={`flex gap-8 overflow-x-auto pb-2 snap-x snap-mandatory scroll-smooth scrollbar-none ${
+          hasFolder ? "pt-24 md:pt-32 items-end" : "items-stretch"
+        }`}
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
         }}
       >
-        {items.map((item, idx) => (
-          <motion.button
-            key={item.id}
-            onClick={() => onOpen(item)}
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={VP}
-            transition={{ delay: idx * 0.05, duration: 0.5 }}
-            className="snap-start flex-shrink-0 w-[78vw] sm:w-[44vw] md:w-[32vw] lg:w-[24vw] group cursor-pointer text-left rounded-xl overflow-hidden relative bg-card"
-            style={{
-              border: `2px solid ${BLUE}00`,
-              transition: "border-color 0.3s",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.borderColor = BLUE + "aa")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.borderColor = BLUE + "00")
-            }
-          >
-            <div className="aspect-[4/5] overflow-hidden">
-              <SafeImage
-                src={item.coverImage}
-                alt={item.title}
-                loading="lazy"
-                className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-[1.04] transition-all duration-700"
-                fallbackAspect="16 / 5"
+        {items.map((item, idx) => {
+          const style = artworkStyleOf(item, defaultStyle);
+          if (style === "folder") {
+            return (
+              <FolderCard
+                key={item.id}
+                title={item.title}
+                role={item.role}
+                description={item.description}
+                coverImage={item.coverImage}
+                images={item.images}
+                stampImage={item.stampImage}
+                folderColor={item.folderColor}
+                index={idx}
+                sizeClass={FOLDER_SIZE[cardSize]}
+                onOpen={() => onOpen(item)}
               />
-            </div>
-            <div
-              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5"
-              style={{
-                background: `linear-gradient(to top, ${BLUE}dd 0%, transparent 60%)`,
-              }}
-            >
-              <h3 className="font-display font-black uppercase text-lg text-white leading-tight">
-                {item.title}
-              </h3>
-              <span
-                className="text-xs uppercase tracking-widest font-sans mt-1 px-2 py-0.5 rounded-full w-max"
-                style={{ background: "rgba(0,0,0,0.4)", color: "white" }}
-              >
-                {item.role}
-              </span>
-            </div>
-            <div
-              className="absolute top-3 left-3 w-7 h-7 rounded-full flex items-center justify-center text-xs font-display font-black"
-              style={{ background: BLUE, color: "#FFFFFF" }}
-            >
-              {String(idx + 1).padStart(2, "0")}
-            </div>
-          </motion.button>
-        ))}
+            );
+          }
+          return (
+            <ArtworkSlide
+              key={item.id}
+              item={item}
+              idx={idx}
+              onOpen={onOpen}
+              sizeClass={SLIDE_SIZE[cardSize]}
+            />
+          );
+        })}
       </div>
 
       {/* Thin progress bar tracking horizontal scroll position */}
@@ -390,14 +531,24 @@ function ArtworksSlideshow({
 export default function Studio() {
   useFastScroll(1);
   const galleryData = useContent("gallery", gallerySeed);
+  const studio = mergeStudio(useContent("studio", studioSeed as Studio));
+  const projects = useContent("projects", projectsSeed) as Project[];
   const all = galleryData as GalleryItem[];
   const bigItems = all.filter((i) => (i.kind ?? "big") === "big");
   const smallItems = all.filter((i) => i.kind === "small");
+  const marqueeItems = collectMarqueeLogos(studio, all, projects);
 
   const [modalItem, setModalItem] = useState<GalleryItem | null>(null);
 
+  const heading = studio.heading || "Studio";
+  const headingMid = Math.ceil(heading.length / 2);
+
   return (
-    <div className="w-full flex flex-col gap-20 pt-12 md:pt-24 pb-24">
+    <div
+      className={`w-full flex flex-col gap-16 md:gap-20 pt-12 md:pt-24 pb-24 ${
+        studio.showGrid ? "studio-grid-bg -mx-6 md:-mx-12 lg:-mx-16 px-6 md:px-12 lg:px-16" : ""
+      }`}
+    >
       <AnimatePresence>
         {modalItem && (
           <ArtworkModal item={modalItem} onClose={() => setModalItem(null)} />
@@ -405,8 +556,9 @@ export default function Studio() {
       </AnimatePresence>
 
       {/* ── Header ── */}
-      <section className="relative overflow-hidden">
-        <FloatingDecor opacity={0.4} />
+      <section className="relative overflow-x-clip min-h-[18rem] md:min-h-[22rem]">
+        <FloatingDecor opacity={0.28} />
+        {studio.showDecor && <StudioDecor />}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -421,22 +573,28 @@ export default function Studio() {
               border: `1px solid ${BLUE}44`,
             }}
           >
-            Studio · Archive
+            {studio.eyebrow}
           </span>
           <h1
             className="font-display font-black uppercase leading-[0.88] tracking-tight"
             style={{ fontSize: "clamp(3.5rem,10vw,9rem)" }}
           >
-            <span style={{ color: BLUE }}>Stu</span>
-            <span style={{ color: BLUE }}>dio</span>
+            <span style={{ color: BLUE }}>{heading.slice(0, headingMid)}</span>
+            <span style={{ color: BLUE }}>{heading.slice(headingMid)}</span>
           </h1>
           <p className="text-muted-foreground text-xl leading-relaxed font-light font-sans max-w-xl">
-            A continuous archive of art direction, illustration, photography,
-            motion, and editorial work — full projects up top, smaller
-            artworks in a side-scrolling reel below.
+            {studio.intro}
           </p>
         </motion.div>
       </section>
+
+      {studio.showLogoMarquee && marqueeItems.length > 0 && (
+        <LogoMarquee
+          items={marqueeItems}
+          speed={studio.logoMarqueeSpeed}
+          label={studio.logoMarqueeLabel}
+        />
+      )}
 
       {/* ── Big Projects (masonry) ── */}
       {bigItems.length > 0 && (
@@ -447,15 +605,14 @@ export default function Studio() {
                 className="text-xs uppercase tracking-[0.4em] font-sans font-bold w-max"
                 style={{ color: BLUE }}
               >
-                01 · Section
+                {studio.bigEyebrow}
               </span>
               <h2 className="font-display font-black uppercase tracking-tight text-3xl md:text-5xl">
-                Big Projects
+                {studio.bigHeading}
               </h2>
             </div>
             <p className="text-muted-foreground font-sans text-sm md:text-base max-w-md">
-              Full directorial and production projects — click any tile to
-              read the full project page.
+              {studio.bigBlurb}
             </p>
           </div>
 
@@ -535,7 +692,7 @@ export default function Studio() {
         </section>
       )}
 
-      {/* ── Small Artworks (horizontal slideshow) ── */}
+      {/* ── Small Artworks (horizontal slideshow / folders) ── */}
       {smallItems.length > 0 && (
         <section className="flex flex-col gap-6 pt-4">
           <div className="flex items-end justify-between gap-6 flex-wrap">
@@ -544,19 +701,23 @@ export default function Studio() {
                 className="text-xs uppercase tracking-[0.4em] font-sans font-bold w-max"
                 style={{ color: BLUE }}
               >
-                02 · Section
+                {studio.artworksEyebrow}
               </span>
               <h2 className="font-display font-black uppercase tracking-tight text-3xl md:text-5xl">
-                Artworks
+                {studio.artworksHeading}
               </h2>
             </div>
             <p className="text-muted-foreground font-sans text-sm md:text-base max-w-md">
-              Smaller pieces, studies, and standalone artworks — click any
-              card to open it in detail.
+              {studio.artworksBlurb}
             </p>
           </div>
 
-          <ArtworksSlideshow items={smallItems} onOpen={setModalItem} />
+          <ArtworksSlideshow
+            items={smallItems}
+            onOpen={setModalItem}
+            cardSize={studio.artworksCardSize}
+            defaultStyle={studio.artworksDefaultStyle}
+          />
         </section>
       )}
     </div>

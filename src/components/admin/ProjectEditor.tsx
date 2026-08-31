@@ -20,38 +20,189 @@ import {
 
 // ── Helpers ────────────────────────────────────────────────────────────
 
-function parseFileToProject(raw: string, filename: string): Partial<Project> {
-  if (filename.endsWith(".json")) {
-    try {
-      const parsed = JSON.parse(raw) as Partial<Project>;
+const SECTION_TYPES = new Set<SectionType>([
+  "text",
+  "image",
+  "video",
+  "problem-solution",
+  "embed",
+]);
+
+/** Normalize a sections array from JSON upload (full project or bare array). */
+function normalizeSections(raw: unknown): Section[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  return raw
+    .filter((s): s is Record<string, unknown> => !!s && typeof s === "object")
+    .map((s, i) => {
+      const type = SECTION_TYPES.has(s.type as SectionType)
+        ? (s.type as SectionType)
+        : "text";
+      const visibility =
+        s.visibility === "detail" || s.visibility === "always"
+          ? s.visibility
+          : undefined;
       return {
-        title: parsed.title ?? "",
-        slug: parsed.slug ?? parsed.title?.toLowerCase().replace(/\s+/g, "-") ?? "",
-        subtitle: parsed.subtitle ?? "",
-        type: parsed.type ?? "Product Design",
-        tags: Array.isArray(parsed.tags) ? parsed.tags : [],
-        description: parsed.description ?? "",
-        challenge: parsed.challenge ?? "",
-        solution: parsed.solution ?? "",
-        impact: parsed.impact ?? "",
-        coverImage: parsed.coverImage ?? "",
-        year: parsed.year ?? String(new Date().getFullYear()),
-        featured: parsed.featured ?? false,
-        archived: parsed.archived ?? false,
-        sections: Array.isArray(parsed.sections) ? parsed.sections : [],
-      };
-    } catch {
-      return {};
-    }
+        ...s,
+        id: typeof s.id === "string" && s.id ? s.id : `imported-${Date.now()}-${i}`,
+        type,
+        ...(visibility ? { visibility } : {}),
+      } as Section;
+    });
+}
+
+/**
+ * Merge legacy detailSections into one list with visibility flags.
+ * Prefer a single sections[] going forward — DB stays JSONB-safe either way.
+ */
+function mergeLegacyDetailSections(
+  sections: Section[],
+  detailSections?: Section[],
+): Section[] {
+  if (!detailSections?.length) return sections;
+  const seen = new Set(sections.map((s) => s.id));
+  const extras = detailSections
+    .filter((s) => !seen.has(s.id))
+    .map((s) => ({ ...s, visibility: s.visibility ?? ("detail" as const) }));
+  const withAlways = sections.map((s) => ({
+    ...s,
+    visibility: s.visibility ?? ("always" as const),
+  }));
+  // Interleave: keep detail order when it contains skim ids; else append extras.
+  const detailIds = new Set(detailSections.map((s) => s.id));
+  const skimOnly = withAlways.filter((s) => !detailIds.has(s.id));
+  if (skimOnly.length === withAlways.length) {
+    return [...withAlways, ...extras];
+  }
+  const byId = new Map(withAlways.map((s) => [s.id, s]));
+  return detailSections.map((d) => {
+    const skim = byId.get(d.id);
+    if (skim) return { ...d, ...skim, visibility: "always" as const };
+    return { ...d, visibility: d.visibility ?? ("detail" as const) };
+  });
+}
+
+type ParseResult =
+  | { ok: true; patch: Partial<Project> }
+  | { ok: false; error: string };
+
+/** Detect export scripts / READMEs mistakenly uploaded instead of case-study JSON. */
+function isNotCaseStudyContent(raw: string, filename: string): string | null {
+  const lower = filename.toLowerCase();
+  if (lower.endsWith(".mjs") || lower.endsWith(".js") || lower.endsWith(".ts")) {
+    return `“${filename}” is a script, not case-study data. Upload habiganize-case-study-upload.json from the exports folder.`;
+  }
+  if (
+    /\bimport\s+fs\b/.test(raw) ||
+    /\bfrom\s+["']node:/.test(raw) ||
+    /\bfs\.writeFileSync\b/.test(raw) ||
+    /\bfileURLToPath\b/.test(raw) ||
+    /export-habiganize-upload/.test(raw)
+  ) {
+    return `This file looks like the export script / generator, not the upload JSON. Use exports/habiganize-case-study-upload.json.`;
+  }
+  if (
+    /^#\s*Habiganize\s*[—\-]\s*Admin upload package/m.test(raw) ||
+    (/Admin upload package/.test(raw) && /Upload JSON \/ TXT/.test(raw) && !raw.trimStart().startsWith("{"))
+  ) {
+    return `That file is the README instructions. Upload the .json next to it: habiganize-case-study-upload.json.`;
+  }
+  return null;
+}
+
+function looksLikeCodeSnippet(value: string): boolean {
+  if (!value || value.length < 40) return false;
+  return /(?:\bh\.\w+\b|\.map\s*\(|detailOnlyTitles|writeFileSync|cardDescription\s*\?|fs\.mkdirSync)/.test(
+    value,
+  );
+}
+
+function parseJsonProject(raw: string): ParseResult {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return {
+      ok: false,
+      error: "Invalid JSON. Upload habiganize-case-study-upload.json (not the .mjs script or README).",
+    };
+  }
+
+  // Bare sections array → fill Sections tab only
+  if (Array.isArray(parsed)) {
+    const sections = normalizeSections(parsed);
+    return sections ? { ok: true, patch: { sections } } : { ok: false, error: "JSON array had no valid sections." };
+  }
+
+  if (!parsed || typeof parsed !== "object") {
+    return { ok: false, error: "JSON must be a project object or a sections array." };
+  }
+  const obj = parsed as Partial<Project> & { detailSections?: Section[] };
+
+  const importedSections = normalizeSections(obj.sections);
+  const legacyDetail = normalizeSections(obj.detailSections);
+  const sections =
+    importedSections != null
+      ? mergeLegacyDetailSections(importedSections, legacyDetail)
+      : legacyDetail
+        ? mergeLegacyDetailSections([], legacyDetail)
+        : undefined;
+
+  const patch: Partial<Project> = {};
+  if (typeof obj.title === "string") patch.title = obj.title;
+  if (typeof obj.slug === "string") patch.slug = obj.slug;
+  else if (typeof obj.title === "string") {
+    patch.slug = obj.title.toLowerCase().replace(/\s+/g, "-");
+  }
+  if (typeof obj.subtitle === "string") patch.subtitle = obj.subtitle;
+  if (typeof obj.cardDescription === "string") patch.cardDescription = obj.cardDescription;
+  if (typeof obj.type === "string") patch.type = obj.type;
+  if (typeof obj.users === "string") patch.users = obj.users;
+  if (typeof obj.methods === "string") patch.methods = obj.methods;
+  if (Array.isArray(obj.tags)) patch.tags = obj.tags;
+  if (typeof obj.description === "string") patch.description = obj.description;
+  if (Array.isArray(obj.bullets)) patch.bullets = obj.bullets;
+  if (typeof obj.challenge === "string") patch.challenge = obj.challenge;
+  if (typeof obj.solution === "string") patch.solution = obj.solution;
+  if (typeof obj.impact === "string") patch.impact = obj.impact;
+  if (typeof obj.coverImage === "string") patch.coverImage = obj.coverImage;
+  if (typeof obj.logo === "string") patch.logo = obj.logo;
+  if (typeof obj.year === "string") patch.year = obj.year;
+  if (typeof obj.period === "string") patch.period = obj.period;
+  if (typeof obj.featured === "boolean") patch.featured = obj.featured;
+  if (typeof obj.archived === "boolean") patch.archived = obj.archived;
+  if (sections) {
+    patch.sections = sections;
+    // Drop deprecated field on import so Save writes one list only
+    patch.detailSections = undefined;
+  }
+  if (Object.keys(patch).length === 0) {
+    return { ok: false, error: "JSON parsed but had no recognizable project fields." };
+  }
+  return { ok: true, patch };
+}
+
+function parseFileToProject(raw: string, filename: string): ParseResult {
+  const blocked = isNotCaseStudyContent(raw, filename);
+  if (blocked) return { ok: false, error: blocked };
+
+  const trimmed = raw.trimStart();
+  const lower = filename.toLowerCase();
+
+  // Prefer JSON whenever content or extension says so (avoids TXT scraping scripts/READMEs)
+  if (lower.endsWith(".json") || trimmed.startsWith("{") || trimmed.startsWith("[")) {
+    return parseJsonProject(raw);
   }
 
   const get = (label: string): string => {
-    const re = new RegExp(`${label}[:\\s]+([^\\n]+(?:\\n(?![A-Z][a-z]+:)[^\\n]+)*)`, "i");
+    const re = new RegExp(
+      `(?:^|\\n)\\s*${label}\\s*:\\s*([^\\n]+(?:\\n(?![A-Z][a-z]+\\s*:)[^\\n]+)*)`,
+      "i",
+    );
     const m = raw.match(re);
     return m ? m[1].trim() : "";
   };
 
-  return {
+  const patch: Partial<Project> = {
     title: get("title") || get("project name") || get("name"),
     subtitle: get("subtitle") || get("tagline"),
     description: get("description") || get("overview") || get("about"),
@@ -59,11 +210,89 @@ function parseFileToProject(raw: string, filename: string): Partial<Project> {
     solution: get("solution") || get("approach"),
     impact: get("impact") || get("outcome") || get("results"),
     type: get("type") || get("role") || "Product Design",
+    users: get("users") || get("audience"),
+    methods: get("methods") || get("process"),
     year: get("year") || String(new Date().getFullYear()),
   };
+
+  const suspect = [patch.title, patch.subtitle, patch.type, patch.year, patch.description].find(
+    (v) => typeof v === "string" && looksLikeCodeSnippet(v),
+  );
+  if (suspect) {
+    return {
+      ok: false,
+      error:
+        "TXT import looked like source code (e.g. h.subtitle / detail.map). Upload exports/habiganize-case-study-upload.json instead.",
+    };
+  }
+
+  if (!patch.title) {
+    return {
+      ok: false,
+      error: "Could not read project fields from that file. Use a .json case-study upload.",
+    };
+  }
+
+  return { ok: true, patch };
 }
 
 // ── SectionsEditor ─────────────────────────────────────────────────────
+
+function VisibilityToggle({
+  value,
+  onChange,
+}: {
+  value: "always" | "detail";
+  onChange: (v: "always" | "detail") => void;
+}) {
+  return (
+    <div className="flex items-center gap-2 flex-wrap">
+      <span className="text-[#8A8278] text-xs uppercase tracking-widest">Show in</span>
+      {(["always", "detail"] as const).map((opt) => (
+        <button
+          key={opt}
+          type="button"
+          onClick={() => onChange(opt)}
+          className={`text-[10px] uppercase tracking-widest px-2 py-1 border transition-colors ${
+            value === opt
+              ? "bg-[#C8A96E] text-[#0A0908] border-[#C8A96E]"
+              : "text-[#8A8278] border-[#3A3530] hover:border-[#C8A96E]"
+          }`}
+        >
+          {opt === "always" ? "Skim (default)" : "See more only"}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function MediaLinkFields({
+  href,
+  linkLabel,
+  onChange,
+}: {
+  href?: string;
+  linkLabel?: string;
+  onChange: (patch: { href?: string; linkLabel?: string }) => void;
+}) {
+  return (
+    <>
+      <TextInput
+        label="Product / CTA link (optional)"
+        value={href ?? ""}
+        onChange={(v) => onChange({ href: v })}
+      />
+      <TextInput
+        label="Link label (optional)"
+        value={linkLabel ?? ""}
+        onChange={(v) => onChange({ linkLabel: v })}
+      />
+      <p className="text-[#4A4540] text-xs leading-relaxed -mt-1">
+        Shows a “Click here to try the product →” style link under the media. Use https://… — no iframe.
+      </p>
+    </>
+  );
+}
 
 function SectionsEditor({
   sections,
@@ -75,10 +304,12 @@ function SectionsEditor({
   const addSection = (type: SectionType) => {
     const id = String(Date.now());
     let newSec: Section;
-    if (type === "text") newSec = { id, type, title: "", summary: "", body: "" };
-    else if (type === "image") newSec = { id, type, src: "", caption: "" };
-    else newSec = { id, type, problem: "", solution: "" };
-    onChange([...sections, newSec]);
+    if (type === "text") newSec = { id, type, visibility: "always", title: "", summary: "", body: "" };
+    else if (type === "image") newSec = { id, type, visibility: "always", src: "", caption: "", href: "", linkLabel: "" };
+    else if (type === "video") newSec = { id, type, visibility: "always", src: "", caption: "", title: "", href: "", linkLabel: "" };
+    else if (type === "embed") newSec = { id, type, visibility: "always", src: "", title: "", caption: "", height: 500 };
+    else newSec = { id, type, visibility: "always", problem: "", solution: "" };
+    onChange([newSec, ...sections]);
   };
 
   const update = (idx: number, patch: Partial<Section>) => {
@@ -95,12 +326,15 @@ function SectionsEditor({
     onChange(arr);
   };
 
+  const detailCount = sections.filter((s) => s.visibility === "detail").length;
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex gap-2 flex-wrap">
-        {(["text", "image", "problem-solution"] as SectionType[]).map((t) => (
+        {(["text", "image", "video", "problem-solution", "embed"] as SectionType[]).map((t) => (
           <button
             key={t}
+            type="button"
             onClick={() => addSection(t)}
             className="text-sm border border-[#C8A96E] text-[#C8A96E] px-3 py-1.5 hover:bg-[#C8A96E] hover:text-[#0A0908] transition-colors uppercase tracking-widest"
           >
@@ -108,39 +342,83 @@ function SectionsEditor({
           </button>
         ))}
       </div>
+      <p className="text-[#4A4540] text-xs leading-relaxed -mt-2">
+        New blocks land at the top — reorder with ↑ ↓. Mark blocks “See more only” for the expand button.
+        Upload JSON (full project or a bare sections array) to fill these fields automatically.
+        {detailCount > 0 ? ` ${detailCount} block(s) hidden until See more.` : ""}
+      </p>
 
       {sections.length === 0 && (
         <p className="text-[#4A4540] text-sm italic">
-          No sections yet. Add text, image, or problem-solution blocks above.
+          No sections yet. Add text, image, video, problem-solution, or embed — or Upload JSON / TXT.
         </p>
       )}
 
       {sections.map((sec, idx) => (
         <div key={sec.id} className="border border-[#272421] p-4 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
             <span className="text-[#C8A96E] text-sm uppercase tracking-widest">
               {sec.type}
+              {sec.visibility === "detail" ? (
+                <span className="ml-2 text-[10px] text-[#8A8278] normal-case tracking-normal">· see more</span>
+              ) : null}
             </span>
             <div className="flex items-center gap-3">
-              <button onClick={() => move(idx, -1)} className="text-[#4A4540] hover:text-[#F2EDE5] text-sm">↑</button>
-              <button onClick={() => move(idx, 1)} className="text-[#4A4540] hover:text-[#F2EDE5] text-sm">↓</button>
-              <button onClick={() => remove(idx)} className="text-[#4A4540] hover:text-red-400 text-sm">Remove</button>
+              <button type="button" onClick={() => move(idx, -1)} className="text-[#4A4540] hover:text-[#F2EDE5] text-sm">↑</button>
+              <button type="button" onClick={() => move(idx, 1)} className="text-[#4A4540] hover:text-[#F2EDE5] text-sm">↓</button>
+              <button type="button" onClick={() => remove(idx)} className="text-[#4A4540] hover:text-red-400 text-sm">Remove</button>
             </div>
           </div>
+
+          <VisibilityToggle
+            value={sec.visibility === "detail" ? "detail" : "always"}
+            onChange={(v) => update(idx, { visibility: v })}
+          />
 
           {sec.type === "text" && (
             <>
               <TextInput label="Section Title (left)" value={sec.title ?? ""} onChange={(v) => update(idx, { title: v })} />
               <TextInput label="Summary line (right)" value={sec.summary ?? ""} onChange={(v) => update(idx, { summary: v })} />
               <TextareaInput label="Body text (below)" value={sec.body ?? ""} onChange={(v) => update(idx, { body: v })} rows={4} />
+              <TextareaInput
+                label="Bullets (one per line, optional)"
+                value={(sec.bullets ?? []).join("\n")}
+                onChange={(v) =>
+                  update(idx, {
+                    bullets: v.split("\n").map((b) => b.trim()).filter(Boolean),
+                  })
+                }
+                rows={3}
+              />
+              <div className="border-t border-[#272421] pt-3 flex flex-col gap-3">
+                <p className="text-[#8A8278] text-[10px] uppercase tracking-widest">
+                  Expanded copy (optional — swaps in when See more is on)
+                </p>
+                <TextInput label="Title when expanded" value={sec.titleDetail ?? ""} onChange={(v) => update(idx, { titleDetail: v })} />
+                <TextInput label="Summary when expanded" value={sec.summaryDetail ?? ""} onChange={(v) => update(idx, { summaryDetail: v })} />
+                <TextareaInput label="Body when expanded" value={sec.bodyDetail ?? ""} onChange={(v) => update(idx, { bodyDetail: v })} rows={4} />
+                <TextareaInput
+                  label="Bullets when expanded (one per line)"
+                  value={(sec.bulletsDetail ?? []).join("\n")}
+                  onChange={(v) =>
+                    update(idx, {
+                      bulletsDetail: v.split("\n").map((b) => b.trim()).filter(Boolean),
+                    })
+                  }
+                  rows={3}
+                />
+              </div>
             </>
           )}
 
           {sec.type === "image" && (
             <>
+              <TextInput label="Title (optional)" value={sec.title ?? ""} onChange={(v) => update(idx, { title: v })} />
               <TextInput label="Image URL" value={sec.src ?? ""} onChange={(v) => update(idx, { src: v })} />
               <div className="flex items-center gap-2 flex-wrap">
                 <SectionImageUploader
+                  accept="image/*,.gif,.png,.jpg,.jpeg,.webp"
+                  label="↑ Upload image"
                   onPicked={(url) => update(idx, { src: url })}
                 />
                 <PickFromLibraryButton
@@ -149,16 +427,80 @@ function SectionsEditor({
                 />
               </div>
               <TextInput label="Caption (optional)" value={sec.caption ?? ""} onChange={(v) => update(idx, { caption: v })} />
+              <MediaLinkFields
+                href={sec.href}
+                linkLabel={sec.linkLabel}
+                onChange={(patch) => update(idx, patch)}
+              />
               {sec.src && (
                 <SafeImage src={sec.src} alt="" className="h-24 object-cover opacity-60 mt-1" />
               )}
             </>
           )}
 
+          {sec.type === "video" && (
+            <>
+              <TextInput label="Title (optional)" value={sec.title ?? ""} onChange={(v) => update(idx, { title: v })} />
+              <TextInput label="Video URL (.mp4 / .webm)" value={sec.src ?? ""} onChange={(v) => update(idx, { src: v })} />
+              <div className="flex items-center gap-2 flex-wrap">
+                <SectionImageUploader
+                  accept="video/mp4,video/webm,.mp4,.webm"
+                  label="↑ Upload video"
+                  onPicked={(url) => update(idx, { src: url })}
+                />
+                <PickFromLibraryButton
+                  type="video"
+                  onPick={(url) => update(idx, { src: url })}
+                />
+              </div>
+              <TextInput label="Caption (optional)" value={sec.caption ?? ""} onChange={(v) => update(idx, { caption: v })} />
+              <MediaLinkFields
+                href={sec.href}
+                linkLabel={sec.linkLabel}
+                onChange={(patch) => update(idx, patch)}
+              />
+              {sec.src && (
+                <video src={sec.src} muted playsInline className="h-24 object-cover opacity-60 mt-1 w-full bg-[#0A0908]" />
+              )}
+              <p className="text-[#4A4540] text-xs">Plays with controls on the case study (no autoplay) so the page stays stable.</p>
+            </>
+          )}
+
           {sec.type === "problem-solution" && (
             <>
+              <TextInput label="Title (optional)" value={sec.title ?? ""} onChange={(v) => update(idx, { title: v })} />
               <TextareaInput label="Problem" value={sec.problem ?? ""} onChange={(v) => update(idx, { problem: v })} rows={3} />
               <TextareaInput label="Solution" value={sec.solution ?? ""} onChange={(v) => update(idx, { solution: v })} rows={3} />
+              <div className="border-t border-[#272421] pt-3 flex flex-col gap-3">
+                <p className="text-[#8A8278] text-[10px] uppercase tracking-widest">
+                  Expanded copy (optional — swaps in when See more is on)
+                </p>
+                <TextareaInput label="Problem when expanded" value={sec.problemDetail ?? ""} onChange={(v) => update(idx, { problemDetail: v })} rows={3} />
+                <TextareaInput label="Solution when expanded" value={sec.solutionDetail ?? ""} onChange={(v) => update(idx, { solutionDetail: v })} rows={3} />
+              </div>
+            </>
+          )}
+
+          {sec.type === "embed" && (
+            <>
+              <TextInput label="Title (optional)" value={sec.title ?? ""} onChange={(v) => update(idx, { title: v })} />
+              <TextInput
+                label="Embed URL (online.pubhtml5.com only)"
+                value={sec.src ?? ""}
+                onChange={(v) => update(idx, { src: v })}
+              />
+              <TextInput
+                label="Height (px)"
+                value={String(sec.height ?? 500)}
+                onChange={(v) => {
+                  const n = parseInt(v, 10);
+                  update(idx, { height: Number.isFinite(n) && n > 0 ? n : 500 });
+                }}
+              />
+              <TextInput label="Caption (optional)" value={sec.caption ?? ""} onChange={(v) => update(idx, { caption: v })} />
+              <p className="text-[#4A4540] text-xs leading-relaxed">
+                PubHTML5 viewer URLs only. For live products, use Image/Video + Product CTA link instead of an iframe.
+              </p>
             </>
           )}
         </div>
@@ -166,6 +508,7 @@ function SectionsEditor({
     </div>
   );
 }
+
 
 // ── ProjectsEditor ─────────────────────────────────────────────────────
 
@@ -220,7 +563,10 @@ export function ProjectsEditor({
       slug: "new-project",
       title: "New Project",
       subtitle: "",
+      cardDescription: "",
       type: "Product Design",
+      users: "",
+      methods: "",
       tags: [],
       description: "",
       challenge: "",
@@ -248,10 +594,22 @@ export function ProjectsEditor({
     const reader = new FileReader();
     reader.onload = (ev) => {
       const raw = ev.target?.result as string;
-      const patch = parseFileToProject(raw, file.name);
-      if (Object.keys(patch).length > 0) {
-        updateProject(selectedIdx, patch);
+      const result = parseFileToProject(raw, file.name);
+      if (!result.ok) {
+        window.alert(result.error);
+        return;
       }
+      const { patch } = result;
+      if (Object.keys(patch).length === 0) return;
+      const current = data[selectedIdx];
+      if (!current) return;
+      const next: Project = { ...current, ...patch };
+      // Explicitly drop deprecated dual-list field after a sections import
+      if ("sections" in patch) {
+        delete next.detailSections;
+      }
+      onChange(data.map((p, i) => (i === selectedIdx ? next : p)));
+      if (patch.sections?.length) setSubTab("sections");
     };
     reader.readAsText(file);
     e.target.value = "";
@@ -378,7 +736,7 @@ export function ProjectsEditor({
                 Upload JSON / TXT
                 <input
                   type="file"
-                  accept=".json,.txt,.md"
+                  accept=".json,application/json,.txt"
                   className="hidden"
                   onChange={handleFileUpload}
                 />
@@ -395,20 +753,70 @@ export function ProjectsEditor({
           {subTab === "details" && (
             <div className="flex flex-col gap-5">
               <TextInput label="Title" value={project.title} onChange={(v) => updateProject(selectedIdx, { title: v })} />
-              <TextInput label="Slug (URL path)" value={project.slug} onChange={(v) => updateProject(selectedIdx, { slug: v })} />
-              <TextInput label="Subtitle" value={project.subtitle} onChange={(v) => updateProject(selectedIdx, { subtitle: v })} />
-              <TextInput label="Card Description (short preview)" value={(project as any).cardDescription || ""} onChange={(v) => updateProject(selectedIdx, { cardDescription: v })} />
-              <TextInput label="Type" value={project.type} onChange={(v) => updateProject(selectedIdx, { type: v })} />
-              <TextInput label="Year" value={project.year} onChange={(v) => updateProject(selectedIdx, { year: v })} />
+              <TextInput
+                label="Slug (URL path)"
+                value={project.slug}
+                onChange={(v) => updateProject(selectedIdx, { slug: v })}
+                hint="Used in the URL: /work/your-slug"
+              />
+
+              <div className="border border-[#272421] p-4 flex flex-col gap-4">
+                <p className="text-[#C8A96E] text-xs uppercase tracking-widest">Case study hero</p>
+                <TextInput
+                  label="Subtitle"
+                  value={project.subtitle}
+                  onChange={(v) => updateProject(selectedIdx, { subtitle: v })}
+                  hint="One-line pitch under the title on the case study page."
+                  placeholder="e.g. Restructured IA to help riders find trip info faster"
+                />
+                <TextInput
+                  label="Card description"
+                  value={project.cardDescription || ""}
+                  onChange={(v) => updateProject(selectedIdx, { cardDescription: v })}
+                  hint="Short text on Work page cards on hover. Leave blank to reuse the subtitle."
+                  placeholder="Optional — shown on Work cards only"
+                />
+              </div>
+
+              <div className="border border-[#272421] p-4 flex flex-col gap-4">
+                <p className="text-[#C8A96E] text-xs uppercase tracking-widest">Metadata strip (Role · Users · Methods)</p>
+                <p className="text-[#4A4540] text-xs leading-relaxed -mt-2">
+                  These three fields appear under the title on the case study page.
+                </p>
+                <TextInput
+                  label="Role"
+                  value={project.type}
+                  onChange={(v) => updateProject(selectedIdx, { type: v })}
+                  hint="Your role on this project (also the badge on Work cards)."
+                  placeholder="e.g. UX Designer"
+                />
+                <TextInput
+                  label="Users"
+                  value={project.users || ""}
+                  onChange={(v) => updateProject(selectedIdx, { users: v })}
+                  hint="Who you designed for."
+                  placeholder="e.g. TTC riders (task-based usability testing)"
+                />
+                <TextInput
+                  label="Methods"
+                  value={project.methods || ""}
+                  onChange={(v) => updateProject(selectedIdx, { methods: v })}
+                  hint="Research and design methods used."
+                  placeholder="e.g. IA audit, usability testing, wireframes"
+                />
+                <TextInput label="Year" value={project.year} onChange={(v) => updateProject(selectedIdx, { year: v })} />
+              </div>
+
               {/* Cover image / video upload */}
               <div className="flex flex-col gap-2">
                 <label className="text-[#8A8278] text-xs uppercase tracking-widest">Cover Image / Video</label>
+                <p className="text-[#4A4540] text-xs leading-relaxed">Hero media at the top of the case study and on Work cards.</p>
                 <input
                   type="text"
                   value={project.coverImage}
                   onChange={(e) => updateProject(selectedIdx, { coverImage: e.target.value })}
                   placeholder="Paste URL (jpg, png, gif, mp4…)"
-                  className="bg-transparent border-b border-[#3A3530] text-[#F2EDE5] py-2 text-sm focus:outline-none focus:border-[#C8A96E] transition-colors"
+                  className="bg-transparent border-b border-[#3A3530] text-[#F2EDE5] py-2 text-sm focus:outline-none focus:border-[#C8A96E] transition-colors placeholder:text-[#3A3530]"
                 />
                 <div className="flex items-center gap-2 flex-wrap">
                   <UploadToLibraryDashed
@@ -432,16 +840,75 @@ export function ProjectsEditor({
                   </div>
                 )}
               </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[#8A8278] text-xs uppercase tracking-widest">Logo (Studio marquee)</label>
+                <p className="text-[#4A4540] text-xs leading-relaxed">
+                  Square mark for the looping logo strip on /studio. Leave blank to skip this project.
+                </p>
+                <input
+                  type="text"
+                  value={project.logo ?? ""}
+                  onChange={(e) => updateProject(selectedIdx, { logo: e.target.value })}
+                  placeholder="Paste logo URL"
+                  className="bg-transparent border-b border-[#3A3530] text-[#F2EDE5] py-2 text-sm focus:outline-none focus:border-[#C8A96E] transition-colors placeholder:text-[#3A3530]"
+                />
+                <div className="flex items-center gap-2 flex-wrap">
+                  <UploadToLibraryDashed
+                    label="↑ Upload logo"
+                    accept="image/*"
+                    onUploaded={(url) => updateProject(selectedIdx, { logo: url })}
+                  />
+                  <PickFromLibraryButton
+                    type="image"
+                    onPick={(url) => updateProject(selectedIdx, { logo: url })}
+                  />
+                </div>
+                {project.logo && (
+                  <SafeImage src={project.logo} alt="logo preview" className="h-12 w-auto object-contain" fallbackAspect="1 / 1" />
+                )}
+              </div>
               <TagsInput
                 label="Tags"
                 tags={project.tags ?? []}
                 suggestions={tagSuggestions}
                 onChange={(tags) => updateProject(selectedIdx, { tags })}
               />
-              <TextareaInput label="Description / Overview" value={project.description} onChange={(v) => updateProject(selectedIdx, { description: v })} />
-              <TextareaInput label="Challenge / Problem" value={project.challenge} onChange={(v) => updateProject(selectedIdx, { challenge: v })} />
-              <TextareaInput label="Solution / Approach" value={project.solution} onChange={(v) => updateProject(selectedIdx, { solution: v })} />
-              <TextareaInput label="Impact / Outcomes" value={project.impact} onChange={(v) => updateProject(selectedIdx, { impact: v })} />
+
+              <div className="border border-[#272421] p-4 flex flex-col gap-4">
+                <p className="text-[#C8A96E] text-xs uppercase tracking-widest">Case study body (Overview · Problem · Solution · Impact)</p>
+                <p className="text-[#4A4540] text-xs leading-relaxed -mt-2">
+                  These blocks render above your custom sections on the case study page. Scroll past the cover image to see them. Empty fields are hidden.
+                </p>
+                <TextareaInput
+                  label="Overview"
+                  value={project.description}
+                  onChange={(v) => updateProject(selectedIdx, { description: v })}
+                  hint="Main project summary — the Overview section under the cover."
+                  rows={4}
+                />
+                <TextareaInput
+                  label="Problem"
+                  value={project.challenge}
+                  onChange={(v) => updateProject(selectedIdx, { challenge: v })}
+                  hint="Left card under Overview — the challenge you tackled."
+                  rows={3}
+                />
+                <TextareaInput
+                  label="Solution"
+                  value={project.solution}
+                  onChange={(v) => updateProject(selectedIdx, { solution: v })}
+                  hint="Right card under Overview — your approach."
+                  rows={3}
+                />
+                <TextareaInput
+                  label="Impact"
+                  value={project.impact}
+                  onChange={(v) => updateProject(selectedIdx, { impact: v })}
+                  hint="Results / outcomes block below Problem & Solution."
+                  rows={3}
+                />
+              </div>
+
               <CheckboxInput label="★ Show on homepage Selected Work" checked={project.featured} onChange={(v) => updateProject(selectedIdx, { featured: v })} />
               <CheckboxInput
                 label="Archive (hide from public site)"

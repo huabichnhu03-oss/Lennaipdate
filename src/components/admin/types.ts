@@ -1,37 +1,85 @@
 /** Shared types for the admin panel components. */
 
-export type SectionType = "text" | "image" | "problem-solution";
+import type { GalleryImageColumns, GalleryImageEntry } from "@/lib/gallery-image";
+
+export type {
+  GalleryImage,
+  GalleryImageColumns,
+  GalleryImageEntry,
+} from "@/lib/gallery-image";
+
+export type SectionType = "text" | "image" | "video" | "problem-solution" | "embed";
+
+/** Skim vs expanded: "always" shows by default; "detail" only after See more. */
+export type SectionVisibility = "always" | "detail";
 
 export type Section = {
   id: string;
   type: SectionType;
+  /** Default "always". Detail blocks are hidden until See more. */
+  visibility?: SectionVisibility;
   title?: string;
   summary?: string;
   body?: string;
+  bullets?: string[];
+  body2?: string;
+  bullets2?: string[];
+  /** Fuller copy shown when See more is on (same block, text swaps). */
+  titleDetail?: string;
+  summaryDetail?: string;
+  bodyDetail?: string;
+  bulletsDetail?: string[];
   src?: string;
   caption?: string;
   problem?: string;
   solution?: string;
+  problemDetail?: string;
+  solutionDetail?: string;
+  /** Optional CTA link under image/video (e.g. try the live product). */
+  href?: string;
+  /** CTA button/link label. Defaults to "Click here to try the product →". */
+  linkLabel?: string;
+  /** Embed iframe height in px (default 500). PubHTML5 only. */
+  height?: number;
 };
 
 export type Project = {
   id: string;
   slug: string;
   title: string;
+  /** Shown under the title on the case study hero. */
   subtitle: string;
+  /** Short hover text on Work page cards (falls back to subtitle). */
+  cardDescription?: string;
+  /** Shown as "Role" in the case study metadata strip. */
   type: string;
+  /** Shown as "Users" in the case study metadata strip. */
+  users?: string;
+  /** Shown as "Methods" in the case study metadata strip. */
+  methods?: string;
   tags: string[];
+  /** Overview paragraph on the case study page. */
   description: string;
   bullets?: string[];
+  /** "Problem" card on the case study page. */
   challenge: string;
+  /** "Solution" card on the case study page. */
   solution: string;
+  /** "Impact" block on the case study page. */
   impact: string;
   coverImage: string;
+  /** Square mark for the studio logo marquee. */
+  logo?: string;
   year: string;
   period?: string;
   featured: boolean;
   archived?: boolean;
   sections: Section[];
+  /**
+   * @deprecated Prefer sections[].visibility. Kept so older DB rows still load.
+   * Admin / case study merge this into the visible expand path when present.
+   */
+  detailSections?: Section[];
 };
 
 export type SkillGroup = {
@@ -42,6 +90,11 @@ export type SkillGroup = {
 export type About = {
   bio: string[];
   skills: SkillGroup[];
+  /** Portrait / headshot shown on the About page */
+  photo?: string;
+  /** Display value for years of experience, e.g. "3+" or "4+" */
+  yearsExperience?: string;
+  community?: string;
 };
 
 export type ExperienceItem = {
@@ -70,10 +123,25 @@ export type GalleryItem = {
   description?: string;
   tags?: string[];
   coverImage: string;
-  images?: string[];
+  images?: GalleryImageEntry[];
+  /**
+   * Default width for additional images that do not set their own columns.
+   * 1 = full row, 2 = half, 3 = one third. Defaults to 2.
+   */
+  imageColumns?: GalleryImageColumns;
   order?: number;
   linkUrl?: string;
   linkLabel?: string;
+  /** Slideshow card shape. When omitted, public studio page detects from the cover image. */
+  orientation?: "portrait" | "landscape";
+  /** Artwork card treatment. When omitted, Studio Page default applies. */
+  cardStyle?: "slideshow" | "folder";
+  /** Small postage-stamp photo on the folder face. */
+  stampImage?: string;
+  /** Manila folder fill. Hex, e.g. #D4B483. */
+  folderColor?: string;
+  /** Square mark used in the studio logo marquee. */
+  logo?: string;
 };
 
 export type Identity = {
@@ -122,6 +190,12 @@ export type Homepage = {
   home: {
     heroEyebrow: string;
     heroIntro: string;
+    /** Optional hero image or video (library URL). Empty = no hero media on the live site. */
+    heroMedia?: string;
+    /** Accessibility label when heroMedia is set. */
+    heroMediaAlt?: string;
+    /** MIME from library upload/pick — helps render /api/assets URLs without extensions. */
+    heroMediaMime?: string;
     primaryCtaLabel: string;
     primaryCtaHref: string;
     secondaryCtaLabel: string;
@@ -134,6 +208,53 @@ export type Homepage = {
   };
 };
 
+export type StudioLogo = {
+  id: string;
+  name: string;
+  src?: string;
+  href?: string;
+};
+
+export type Studio = {
+  eyebrow: string;
+  heading: string;
+  intro: string;
+  bigEyebrow: string;
+  bigHeading: string;
+  bigBlurb: string;
+  artworksEyebrow: string;
+  artworksHeading: string;
+  artworksBlurb: string;
+  artworksCardSize: "md" | "lg" | "xl";
+  artworksDefaultStyle: "slideshow" | "folder";
+  showGrid: boolean;
+  showDecor: boolean;
+  showLogoMarquee: boolean;
+  /** Seconds for one full loop. */
+  logoMarqueeSpeed: number;
+  logoMarqueeLabel: string;
+  /** Also pick up logos/titles from gallery items and work projects. */
+  logoMarqueeAuto: boolean;
+  logos: StudioLogo[];
+};
+
+export type AppearancePreset =
+  | "current"
+  | "editorial"
+  | "geometric"
+  | "scrapbook"
+  | "poster"
+  | "custom";
+
+export type Appearance = {
+  preset: AppearancePreset;
+  displayFont: string;
+  sansFont: string;
+  serifFont: string;
+  /** Google Fonts CSS2 family fragments, e.g. "Syne:wght@700;800". */
+  googleFamilies: string[];
+};
+
 export type ContentData = {
   projects: Project[];
   about: About;
@@ -144,6 +265,8 @@ export type ContentData = {
   contact: Contact;
   files: Files;
   homepage: Homepage;
+  studio: Studio;
+  appearance: Appearance;
 };
 
 export type Asset = {
@@ -182,8 +305,9 @@ export type PreflightInfo = {
 };
 
 export type PickerOpts = { type?: AssetType };
+export type AssetPickMeta = { mime?: string };
 export type AssetPickerFn = (
-  onPick: (url: string) => void,
+  onPick: (url: string, meta?: AssetPickMeta) => void,
   opts?: PickerOpts,
 ) => void;
 export type AssetUploadFn = (file: File) => Promise<string>;

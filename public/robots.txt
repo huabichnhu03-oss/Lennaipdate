@@ -1,2 +1,17 @@
+# Public pages — AdsBot-Google and Googlebot may crawl these.
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api/
+
+User-agent: AdsBot-Google
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+User-agent: AdsBot-Google-Mobile
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: https://www.lennahua.ca/sitemap.xml

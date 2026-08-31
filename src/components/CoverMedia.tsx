@@ -1,8 +1,14 @@
 import React from "react";
 import { SafeImage } from "@/components/SafeImage";
 
-export function isVideo(src: string): boolean {
-  return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(src) || src.startsWith("data:video");
+/** Detect video URLs — extension, data URI, Cloudinary, or stored mime hint. */
+export function isVideo(src: string, mimeHint?: string): boolean {
+  if (!src) return false;
+  if (mimeHint?.startsWith("video/")) return true;
+  if (src.startsWith("data:video")) return true;
+  if (/\.(mp4|webm|ogg|mov)(\?|$)/i.test(src)) return true;
+  if (/res\.cloudinary\.com/i.test(src) && /\/video\/upload\//i.test(src)) return true;
+  return false;
 }
 
 interface CoverMediaProps {
@@ -11,10 +17,19 @@ interface CoverMediaProps {
   className?: string;
   style?: React.CSSProperties;
   loading?: "lazy" | "eager";
+  /** When the URL has no extension (e.g. /api/assets/…), use stored mime from the library. */
+  mimeHint?: string;
 }
 
-export function CoverMedia({ src, alt, className, style, loading = "lazy" }: CoverMediaProps) {
-  if (isVideo(src)) {
+export function CoverMedia({
+  src,
+  alt,
+  className,
+  style,
+  loading = "lazy",
+  mimeHint,
+}: CoverMediaProps) {
+  if (isVideo(src, mimeHint)) {
     return (
       <video
         src={src}

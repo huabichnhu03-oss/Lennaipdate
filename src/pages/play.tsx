@@ -139,7 +139,7 @@ function getFunMessage(score: number): string {
   if (score >= 95) return "You have the eye.";
   if (score >= 85) return "Sharp kerning.";
   if (score >= 70) return "Getting there.";
-  if (score >= 50) return "Not bad for a first draft.";
+  if (score >= 50) return "Not bad — keep going.";
   return "Keep adjusting.";
 }
 

@@ -3,6 +3,7 @@
  */
 import type { ContentData, GalleryItem, PreflightInfo } from "./types";
 import { formatBytes } from "./shared";
+import { galleryImageSrc } from "@/lib/gallery-image";
 
 export const SECTION_WARN_BYTES = 3.5 * 1024 * 1024; // 3.5 MB warn threshold
 
@@ -17,8 +18,8 @@ function findInlineMediaInGallery(items: GalleryItem[]): {
     }
     const imgs = item.images ?? [];
     for (let i = 0; i < imgs.length; i += 1) {
-      const src = imgs[i];
-      if (typeof src === "string" && src.startsWith("data:")) {
+      const src = galleryImageSrc(imgs[i]);
+      if (src.startsWith("data:")) {
         return { itemLabel: label, field: `images[${i}]` };
       }
     }
@@ -35,9 +36,15 @@ function findAllInlineMedia(data: ContentData): { section: string; itemLabel: st
     if (typeof item.coverImage === "string" && item.coverImage.startsWith("data:")) {
       found.push({ section: "gallery", itemLabel: label, field: "coverImage" });
     }
+    if (typeof item.logo === "string" && item.logo.startsWith("data:")) {
+      found.push({ section: "gallery", itemLabel: label, field: "logo" });
+    }
+    if (typeof item.stampImage === "string" && item.stampImage.startsWith("data:")) {
+      found.push({ section: "gallery", itemLabel: label, field: "stampImage" });
+    }
     for (let i = 0; i < (item.images ?? []).length; i += 1) {
-      const src = item.images![i];
-      if (typeof src === "string" && src.startsWith("data:")) {
+      const src = galleryImageSrc(item.images![i]);
+      if (src.startsWith("data:")) {
         found.push({ section: "gallery", itemLabel: label, field: `images[${i}]` });
       }
     }
@@ -48,11 +55,41 @@ function findAllInlineMedia(data: ContentData): { section: string; itemLabel: st
     if (typeof proj.coverImage === "string" && proj.coverImage.startsWith("data:")) {
       found.push({ section: "projects", itemLabel: label, field: "coverImage" });
     }
-    for (const sec of proj.sections ?? []) {
+    if (typeof proj.logo === "string" && proj.logo.startsWith("data:")) {
+      found.push({ section: "projects", itemLabel: label, field: "logo" });
+    }
+    const allSecs = [
+      ...(proj.sections ?? []),
+      ...(proj.detailSections ?? []),
+    ];
+    for (const sec of allSecs) {
       if (typeof sec.src === "string" && sec.src.startsWith("data:")) {
-        found.push({ section: "projects", itemLabel: label, field: `section "${sec.title || sec.id}"` });
+        found.push({
+          section: "projects",
+          itemLabel: label,
+          field: `section "${sec.title || sec.id}"`,
+        });
       }
     }
+  }
+
+  for (const logo of data.studio?.logos ?? []) {
+    if (typeof logo.src === "string" && logo.src.startsWith("data:")) {
+      found.push({
+        section: "studio",
+        itemLabel: logo.name?.trim() || logo.id,
+        field: "src",
+      });
+    }
+  }
+
+  const heroMedia = data.homepage?.home?.heroMedia;
+  if (typeof heroMedia === "string" && heroMedia.startsWith("data:")) {
+    found.push({
+      section: "homepage",
+      itemLabel: "Home page",
+      field: "heroMedia",
+    });
   }
 
   return found;
@@ -64,6 +101,7 @@ export function computePreflight(data: ContentData, storageBackend: string): Pre
   const sectionsToCheck: (keyof ContentData)[] = [
     "projects", "about", "experience", "education",
     "gallery", "identity", "contact", "files", "homepage",
+    "studio", "appearance",
   ];
 
   const sectionSizes = sectionsToCheck.map((name) => {

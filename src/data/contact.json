@@ -1,8 +1,11 @@
 {
   "email": "lenna.huawork@gmail.com",
   "phone": "416-316-5827",
-  "location": "Toronto, Ontario, Canada",
   "socials": [
-    { "label": "LinkedIn", "href": "https://www.linkedin.com/in/lennahua/" }
-  ]
+    {
+      "href": "https://www.linkedin.com/in/lennahua/",
+      "label": "LinkedIn"
+    }
+  ],
+  "location": "Toronto, Ontario, Canada"
 }

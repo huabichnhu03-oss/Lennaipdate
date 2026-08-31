@@ -8,6 +8,8 @@ import identityDataRaw from "@/data/identity.json";
 import contactDataRaw from "@/data/contact.json";
 import filesDataRaw from "@/data/files.json";
 import homepageDataRaw from "@/data/homepage.json";
+import studioDataRaw from "@/data/studio.json";
+import appearanceDataRaw from "@/data/appearance.json";
 
 // ── Extracted component imports ────────────────────────────────────────
 import type {
@@ -20,6 +22,8 @@ import type {
   Contact,
   Files,
   Homepage,
+  Studio,
+  Appearance,
   ContentData,
   ContactMessage,
   Asset,
@@ -28,6 +32,7 @@ import type {
   AssetUploadFn,
   PreflightInfo,
 } from "@/components/admin/types";
+import { galleryImageSrc, withGalleryImageSrc } from "@/lib/gallery-image";
 
 import {
   formatBytes,
@@ -49,18 +54,25 @@ import {
   resolveAssetUrl,
   MAX_ASSET_BYTES,
 } from "@/components/admin/AssetLibrary";
+import { maxAssetBytesForFileType, formatMaxMb } from "@/lib/asset-limits";
 import { AboutEditor } from "@/components/admin/AboutEditor";
 import { ExperienceEditor } from "@/components/admin/ExperienceEditor";
 import { EducationEditor } from "@/components/admin/EducationEditor";
 import { IdentityContactEditor } from "@/components/admin/IdentityContactEditor";
 import { FilesEditor } from "@/components/admin/FilesEditor";
 import { HomepageEditor } from "@/components/admin/HomepageEditor";
+import { StudioEditor } from "@/components/admin/StudioEditor";
+import { AppearanceEditor } from "@/components/admin/AppearanceEditor";
+import { mergeStudio } from "@/lib/studio-content";
+import { mergeAppearance } from "@/lib/fonts";
 
 // ── Constants ──────────────────────────────────────────────────────────
 
 const STORAGE_KEY = "lenna_admin_draft";
 const AUTH_KEY = "lenna_admin_auth";
 const TOKEN_KEY = "lenna_admin_token";
+/** Legacy key that used to store the raw password — never store passwords client-side. */
+const LEGACY_PASSWORD_KEY = "lenna_admin_pw";
 
 const memoryStore: Record<string, string> = {};
 
@@ -114,6 +126,34 @@ const safeSession = {
   },
 };
 
+/** Clear any leftover raw-password storage from older admin builds. */
+function clearLegacyPasswordStorage() {
+  safeSession.removeItem(LEGACY_PASSWORD_KEY);
+  safeStorage.removeItem(LEGACY_PASSWORD_KEY);
+  safeStorage.removeItem(AUTH_KEY);
+}
+
+/**
+ * Read a still-valid admin session token from this browser's localStorage.
+ * Tokens are machine-local: other computers / browsers never see them.
+ * Signature is verified only on the server; here we only check shape + expiry.
+ */
+function readStoredAdminToken(): string {
+  const stored = safeStorage.getItem(TOKEN_KEY);
+  if (!stored) return "";
+  const parts = stored.split(".");
+  if (parts.length !== 3 || parts[0] !== "admin") {
+    safeStorage.removeItem(TOKEN_KEY);
+    return "";
+  }
+  const exp = Number(parts[1]);
+  if (!Number.isFinite(exp) || exp < Date.now()) {
+    safeStorage.removeItem(TOKEN_KEY);
+    return "";
+  }
+  return stored;
+}
+
 // ── Data loading ───────────────────────────────────────────────────────
 
 const defaultData: ContentData = {
@@ -126,6 +166,8 @@ const defaultData: ContentData = {
   contact: contactDataRaw as Contact,
   files: filesDataRaw as Files,
   homepage: homepageDataRaw as Homepage,
+  studio: studioDataRaw as Studio,
+  appearance: appearanceDataRaw as Appearance,
 };
 
 function loadDraft(): ContentData {
@@ -245,8 +287,8 @@ function findInlineMediaInGallery(items: GalleryItem[]): {
     }
     const imgs = item.images ?? [];
     for (let i = 0; i < imgs.length; i += 1) {
-      const src = imgs[i];
-      if (typeof src === "string" && src.startsWith("data:")) {
+      const src = galleryImageSrc(imgs[i]);
+      if (src.startsWith("data:")) {
         return { itemLabel: label, field: `images[${i}]` };
       }
     }
@@ -257,10 +299,12 @@ function findInlineMediaInGallery(items: GalleryItem[]): {
 // ── Main Admin component ───────────────────────────────────────────────
 
 export default function Admin() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Restore from localStorage synchronously so navigating away and back on the
+  // same computer stays logged in (no password flash). New machines have no token.
+  const [sessionToken, setSessionToken] = useState(readStoredAdminToken);
   const [password, setPassword] = useState("");
-  const [sessionPassword, setSessionPassword] = useState("");
   const [error, setError] = useState("");
+  const isAuthenticated = Boolean(sessionToken);
   const [activeTab, setActiveTab] = useState<
     keyof ContentData | "inbox" | "assets" | "tags"
   >("projects");
@@ -286,6 +330,12 @@ export default function Admin() {
   const [pickerType, setPickerType] = useState<AssetType>("all");
   const pickerCallbackRef = useRef<((url: string) => void) | null>(null);
 
+  const handleLogout = () => {
+    safeStorage.removeItem(TOKEN_KEY);
+    clearLegacyPasswordStorage();
+    setSessionToken("");
+  };
+
   const fetchMessages = async (token: string) => {
     if (!token) return;
     setMessagesLoading(true);
@@ -300,6 +350,10 @@ export default function Admin() {
         error?: string;
       };
       if (!res.ok) {
+        if (res.status === 401) {
+          handleLogout();
+          return;
+        }
         setMessagesError(body.error ?? `Failed to load (${res.status})`);
         return;
       }
@@ -312,9 +366,9 @@ export default function Admin() {
   };
 
   useEffect(() => {
-    if (sessionPassword) void fetchMessages(sessionPassword);
+    if (sessionToken) void fetchMessages(sessionToken);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionPassword]);
+  }, [sessionToken]);
 
   const fetchAssets = async (
     token: string,
@@ -340,6 +394,10 @@ export default function Admin() {
         error?: string;
       };
       if (!res.ok) {
+        if (res.status === 401) {
+          handleLogout();
+          return;
+        }
         setAssetsError(body.error ?? `Failed to load (${res.status})`);
         return;
       }
@@ -353,27 +411,27 @@ export default function Admin() {
   };
 
   useEffect(() => {
-    if (!sessionPassword) return;
+    if (!sessionToken) return;
     const handle = setTimeout(() => {
-      void fetchAssets(sessionPassword, {
+      void fetchAssets(sessionToken, {
         search: assetSearch,
         type: assetType,
       });
     }, 200);
     return () => clearTimeout(handle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionPassword, assetSearch, assetType]);
+  }, [sessionToken, assetSearch, assetType]);
 
   const handleAssetUpload = async (files: File[]) => {
     const errors: string[] = [];
     for (const file of files) {
       try {
-        await uploadAssetFile(file, sessionPassword);
+        await uploadAssetFile(file, sessionToken);
       } catch (e) {
         errors.push(e instanceof Error ? e.message : `Failed: ${file.name}`);
       }
     }
-    await fetchAssets(sessionPassword);
+    await fetchAssets(sessionToken);
     if (errors.length > 0) throw new Error(errors.join(" • "));
   };
 
@@ -383,7 +441,7 @@ export default function Admin() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${sessionPassword}`,
+        Authorization: `Bearer ${sessionToken}`,
       },
       body: JSON.stringify({ filename }),
     });
@@ -403,7 +461,7 @@ export default function Admin() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${sessionPassword}`,
+        Authorization: `Bearer ${sessionToken}`,
       },
     });
     if (!res.ok) {
@@ -418,9 +476,10 @@ export default function Admin() {
     if (!/^image\//.test(file.type) && !/^video\//.test(file.type)) {
       throw new Error(`Unsupported file type: ${file.type || "unknown"}.`);
     }
-    if (file.size > MAX_ASSET_BYTES) {
+    const maxBytes = maxAssetBytesForFileType(file.type);
+    if (file.size > maxBytes) {
       throw new Error(
-        `File too large (max ${MAX_ASSET_BYTES / 1024 / 1024} MB).`,
+        `File too large (max ${formatMaxMb(maxBytes)} MB).`,
       );
     }
     const dims = await readAssetDimensions(file);
@@ -431,7 +490,7 @@ export default function Admin() {
     const url = `${import.meta.env.BASE_URL}api/admin/assets/${encodeURIComponent(id)}/replace`;
     const res = await fetch(url, {
       method: "POST",
-      headers: { Authorization: `Bearer ${sessionPassword}` },
+      headers: { Authorization: `Bearer ${sessionToken}` },
       body: fd,
     });
     const body = (await res.json().catch(() => ({}))) as {
@@ -445,8 +504,8 @@ export default function Admin() {
   };
 
   const handleLibraryUpload: AssetUploadFn = async (file) => {
-    const asset = await uploadAssetFile(file, sessionPassword);
-    void fetchAssets(sessionPassword, {
+    const asset = await uploadAssetFile(file, sessionToken);
+    void fetchAssets(sessionToken, {
       search: assetSearch,
       type: assetType,
     });
@@ -458,22 +517,15 @@ export default function Admin() {
     setPickerType(opts?.type ?? "all");
     setPickerSearch("");
     setPickerOpen(true);
-    if (sessionPassword) {
-      void fetchAssets(sessionPassword, { search: "", type: opts?.type ?? "all" });
+    if (sessionToken) {
+      void fetchAssets(sessionToken, { search: "", type: opts?.type ?? "all" });
     }
   };
 
   const unreadCount = messages.reduce((n, m) => (m.readAt ? n : n + 1), 0);
 
   useEffect(() => {
-    const stored = safeStorage.getItem(TOKEN_KEY);
-    if (stored) {
-      setSessionPassword(stored);
-      setIsAuthenticated(true);
-    }
-    safeSession.removeItem("lenna_admin_pw");
-    safeStorage.removeItem("lenna_admin_pw");
-    safeStorage.removeItem(AUTH_KEY);
+    clearLegacyPasswordStorage();
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -494,22 +546,13 @@ export default function Admin() {
         setError(body.error ?? "Incorrect password");
         return;
       }
+      // Persist signed token on this browser only — never the password.
       safeStorage.setItem(TOKEN_KEY, body.token);
-      setSessionPassword(body.token);
-      setIsAuthenticated(true);
+      setSessionToken(body.token);
       setPassword("");
     } catch {
       setError("Couldn't reach the server. Try again.");
     }
-  };
-
-  const handleLogout = () => {
-    safeStorage.removeItem(TOKEN_KEY);
-    safeStorage.removeItem(AUTH_KEY);
-    safeStorage.removeItem("lenna_admin_pw");
-    safeSession.removeItem("lenna_admin_pw");
-    setIsAuthenticated(false);
-    setSessionPassword("");
   };
 
   const handleRunPreflight = async () => {
@@ -547,8 +590,8 @@ export default function Admin() {
           items.push({ label, field: "coverImage", fileName: file.name, sizeFormatted: formatBytes(file.size) });
         }
         for (let imageIdx = 0; imageIdx < (item.images ?? []).length; imageIdx += 1) {
-          const src = item.images![imageIdx];
-          if (typeof src !== "string" || !src.startsWith("data:")) continue;
+          const src = galleryImageSrc(item.images![imageIdx]);
+          if (!src.startsWith("data:")) continue;
           const optimized = await shrinkImageDataUrlToFit(src, MAX_ASSET_BYTES);
           const file = await dataUrlToFile(optimized, `${item.slug || item.id || `item-${idx + 1}`}-image-${imageIdx + 1}`);
           items.push({ label, field: `images[${imageIdx}]`, fileName: file.name, sizeFormatted: formatBytes(file.size) });
@@ -570,7 +613,7 @@ export default function Admin() {
   };
 
   const handleMigrateInlineGalleryMedia = async () => {
-    if (!sessionPassword) {
+    if (!sessionToken) {
       handleLogout();
       setSavedMsg("Session expired — please log in again.");
       setTimeout(() => setSavedMsg(""), 4000);
@@ -591,7 +634,7 @@ export default function Admin() {
           if (file.size > MAX_ASSET_BYTES) {
             throw new Error(`"${file.name}" is too large after optimization (max ${MAX_ASSET_BYTES / 1024 / 1024} MB). Please replace it manually in Gallery.`);
           }
-          const uploaded = await uploadAssetFile(file, sessionPassword);
+          const uploaded = await uploadAssetFile(file, sessionToken);
           nextItem = { ...nextItem, coverImage: resolveAssetUrl(uploaded.url) };
           converted += 1;
         }
@@ -601,15 +644,18 @@ export default function Admin() {
           const nextImages = [...images];
           let changedImages = false;
           for (let imageIdx = 0; imageIdx < images.length; imageIdx += 1) {
-            const src = images[imageIdx];
-            if (typeof src !== "string" || !src.startsWith("data:")) continue;
+            const src = galleryImageSrc(images[imageIdx]);
+            if (!src.startsWith("data:")) continue;
             const optimized = await shrinkImageDataUrlToFit(src, MAX_ASSET_BYTES);
             const file = await dataUrlToFile(optimized, `${item.slug || item.id || `item-${idx + 1}`}-image-${imageIdx + 1}`);
             if (file.size > MAX_ASSET_BYTES) {
               throw new Error(`"${file.name}" is too large after optimization (max ${MAX_ASSET_BYTES / 1024 / 1024} MB). Please replace it manually in Gallery.`);
             }
-            const uploaded = await uploadAssetFile(file, sessionPassword);
-            nextImages[imageIdx] = resolveAssetUrl(uploaded.url);
+            const uploaded = await uploadAssetFile(file, sessionToken);
+            nextImages[imageIdx] = withGalleryImageSrc(
+              images[imageIdx] ?? "",
+              resolveAssetUrl(uploaded.url),
+            );
             converted += 1;
             changedImages = true;
           }
@@ -628,7 +674,7 @@ export default function Admin() {
       const nextData = { ...data, gallery: migratedGallery };
       setData(nextData);
       safeStorage.setItem(STORAGE_KEY, JSON.stringify(nextData));
-      void fetchAssets(sessionPassword, { search: assetSearch, type: assetType });
+      void fetchAssets(sessionToken, { search: assetSearch, type: assetType });
       setSavedMsg(
         `Migrated ${converted} inline gallery media file(s) to hosted URLs. Click Save to Site.`,
       );
@@ -691,7 +737,7 @@ export default function Admin() {
       setTimeout(() => setSavedMsg(""), 5000);
       return;
     }
-    if (!sessionPassword) {
+    if (!sessionToken) {
       handleLogout();
       setSavedMsg("Session expired — please log in again.");
       setTimeout(() => setSavedMsg(""), 4000);
@@ -718,6 +764,8 @@ export default function Admin() {
         "contact",
         "files",
         "homepage",
+        "studio",
+        "appearance",
       ];
       const savedSections: string[] = [];
       for (const section of sectionsToSave) {
@@ -726,7 +774,7 @@ export default function Admin() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionPassword}`,
+            Authorization: `Bearer ${sessionToken}`,
           },
           body: JSON.stringify({
             data: normalizedData[section],
@@ -793,6 +841,18 @@ export default function Admin() {
     setData((prev) => ({ ...prev, [key]: value }));
   };
 
+  const openDraftPreview = (path: string, aboutOverride?: About) => {
+    const snapshot = aboutOverride
+      ? { ...data, about: aboutOverride }
+      : data;
+    safeStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+    const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+    const url = `${window.location.origin}${base}${path}?preview=1`;
+    window.open(url, "_blank", "noopener,noreferrer");
+    setSavedMsg("Draft preview opened — yellow banner means not published yet");
+    setTimeout(() => setSavedMsg(""), 4000);
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -833,6 +893,8 @@ export default function Admin() {
     "identity",
     "files",
     "homepage",
+    "studio",
+    "appearance",
     "assets",
     "inbox",
   ];
@@ -843,6 +905,8 @@ export default function Admin() {
     if (tab === "identity") return "Identity & Contact";
     if (tab === "files") return "Files";
     if (tab === "homepage") return "Home & Entry";
+    if (tab === "studio") return "Studio Page";
+    if (tab === "appearance") return "Fonts & Look";
     if (tab === "inbox") return "Inbox";
     if (tab === "assets") return "Assets";
     if (tab === "tags") return "Tags";
@@ -1003,15 +1067,15 @@ export default function Admin() {
         search={pickerSearch}
         setSearch={(s) => {
           setPickerSearch(s);
-          if (sessionPassword) {
-            void fetchAssets(sessionPassword, { search: s, type: pickerType });
+          if (sessionToken) {
+            void fetchAssets(sessionToken, { search: s, type: pickerType });
           }
         }}
         type={pickerType}
         setType={(t) => {
           setPickerType(t);
-          if (sessionPassword) {
-            void fetchAssets(sessionPassword, {
+          if (sessionToken) {
+            void fetchAssets(sessionToken, {
               search: pickerSearch,
               type: t,
             });
@@ -1021,15 +1085,15 @@ export default function Admin() {
           const cb = pickerCallbackRef.current;
           pickerCallbackRef.current = null;
           setPickerOpen(false);
-          if (cb) cb(resolveAssetUrl(a.url));
+          if (cb) cb(resolveAssetUrl(a.url), { mime: a.mime });
         }}
         onClose={() => {
           pickerCallbackRef.current = null;
           setPickerOpen(false);
         }}
         onRefresh={() => {
-          if (sessionPassword) {
-            void fetchAssets(sessionPassword, {
+          if (sessionToken) {
+            void fetchAssets(sessionToken, {
               search: pickerSearch,
               type: pickerType,
             });
@@ -1053,7 +1117,12 @@ export default function Admin() {
           />
         )}
         {activeTab === "about" && (
-          <AboutEditor data={data.about} onChange={(d) => updateSection("about", d)} />
+          <AboutEditor
+            data={data.about}
+            onChange={(d) => updateSection("about", d)}
+            onPreviewHome={(about) => openDraftPreview("/home", about)}
+            onPreviewAbout={(about) => openDraftPreview("/about", about)}
+          />
         )}
         {activeTab === "experience" && (
           <ExperienceEditor
@@ -1086,18 +1155,32 @@ export default function Admin() {
           <FilesEditor
             data={data.files}
             onChange={(d) => updateSection("files", d)}
-            sessionToken={sessionPassword}
+            sessionToken={sessionToken}
           />
         )}
         {activeTab === "homepage" && (
           <HomepageEditor
             data={data.homepage}
             onChange={(d) => updateSection("homepage", d)}
+            onPreview={() => openDraftPreview("/home")}
+          />
+        )}
+        {activeTab === "studio" && (
+          <StudioEditor
+            data={mergeStudio(data.studio)}
+            onChange={(d) => updateSection("studio", d)}
+            onPreview={() => openDraftPreview("/studio")}
+          />
+        )}
+        {activeTab === "appearance" && (
+          <AppearanceEditor
+            data={mergeAppearance(data.appearance)}
+            onChange={(d) => updateSection("appearance", d)}
           />
         )}
         {activeTab === "assets" && (
           <AssetsEditor
-            sessionToken={sessionPassword}
+            sessionToken={sessionToken}
             assets={assets}
             total={assetsTotal}
             loading={assetsLoading}
@@ -1107,7 +1190,7 @@ export default function Admin() {
             type={assetType}
             setType={setAssetType}
             onRefresh={() =>
-              void fetchAssets(sessionPassword, {
+              void fetchAssets(sessionToken, {
                 search: assetSearch,
                 type: assetType,
               })
@@ -1120,11 +1203,11 @@ export default function Admin() {
         )}
         {activeTab === "inbox" && (
           <InboxEditor
-            sessionToken={sessionPassword}
+            sessionToken={sessionToken}
             messages={messages}
             loading={messagesLoading}
             error={messagesError}
-            onRefresh={() => void fetchMessages(sessionPassword)}
+            onRefresh={() => void fetchMessages(sessionToken)}
             onUpdate={(m) =>
               setMessages((prev) => prev.map((x) => (x.id === m.id ? m : x)))
             }

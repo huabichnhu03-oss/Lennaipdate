@@ -65,19 +65,28 @@ export function TextInput({
   label,
   value,
   onChange,
+  hint,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
+  /** Small helper under the label — where this field appears on the site. */
+  hint?: string;
+  placeholder?: string;
 }) {
   return (
     <div className="flex flex-col gap-1">
       <label className="text-[#8A8278] text-sm uppercase tracking-widest">{label}</label>
+      {hint && (
+        <p className="text-[#4A4540] text-xs leading-relaxed -mt-0.5 mb-0.5">{hint}</p>
+      )}
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="bg-transparent border-b border-[#3A3530] text-[#F2EDE5] py-2 text-sm focus:outline-none focus:border-[#C8A96E] transition-colors"
+        placeholder={placeholder}
+        className="bg-transparent border-b border-[#3A3530] text-[#F2EDE5] py-2 text-sm focus:outline-none focus:border-[#C8A96E] transition-colors placeholder:text-[#3A3530]"
       />
     </div>
   );
@@ -88,20 +97,28 @@ export function TextareaInput({
   value,
   onChange,
   rows = 3,
+  hint,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   rows?: number;
+  hint?: string;
+  placeholder?: string;
 }) {
   return (
     <div className="flex flex-col gap-1">
       <label className="text-[#8A8278] text-sm uppercase tracking-widest">{label}</label>
+      {hint && (
+        <p className="text-[#4A4540] text-xs leading-relaxed -mt-0.5 mb-0.5">{hint}</p>
+      )}
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={rows}
-        className="bg-[#0A0908] border border-[#3A3530] text-[#F2EDE5] py-2 px-3 text-sm focus:outline-none focus:border-[#C8A96E] transition-colors resize-y"
+        placeholder={placeholder}
+        className="bg-[#0A0908] border border-[#3A3530] text-[#F2EDE5] py-2 px-3 text-sm focus:outline-none focus:border-[#C8A96E] transition-colors resize-y placeholder:text-[#3A3530]"
       />
     </div>
   );

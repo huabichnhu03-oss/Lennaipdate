@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { Link } from "wouter";
 import { FloatingDecor } from "@/components/FloatingDecor";
 import contactSeed from "@/data/contact.json";
 import { useContent } from "@/lib/use-content";
@@ -304,6 +305,13 @@ export default function Contact() {
               >
                 {status === "sending" ? "Sending…" : "Send Message ✦"}
               </button>
+              <p className="text-xs text-muted-foreground font-sans leading-relaxed -mt-2">
+                Your name, email, and message are used only to reply to this inquiry. See the{" "}
+                <Link href="/privacy" className="underline underline-offset-4" style={{ color: BLUE }}>
+                  Privacy Policy
+                </Link>
+                .
+              </p>
             </form>
           )}
         </motion.div>

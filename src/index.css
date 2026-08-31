@@ -37,6 +37,7 @@
   --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-serif);
   --font-mono: var(--app-font-mono);
+  --font-display: var(--app-font-display);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -81,6 +82,7 @@
   --app-font-sans: 'Inter', sans-serif;
   --app-font-serif: 'Cormorant Garamond', serif;
   --app-font-mono: Menlo, monospace;
+  --app-font-display: 'Big Shoulders Display', sans-serif;
   --radius: 0.5rem;
 
   /* Brand tokens — see `src/lib/brand.ts`. */
@@ -369,7 +371,65 @@ html.dark .grain-overlay { opacity: 0.035; }
 
 /* ── Display Font Utility ────────────────────────────── */
 .font-display {
-  font-family: 'Big Shoulders Display', sans-serif;
+  font-family: var(--app-font-display);
+}
+
+/* ── Studio scrapbook ────────────────────────────────── */
+.studio-grid-bg {
+  background-image:
+    linear-gradient(rgba(31, 103, 241, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 103, 241, 0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: center top;
+}
+html.dark .studio-grid-bg {
+  background-image:
+    linear-gradient(rgba(31, 103, 241, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 103, 241, 0.09) 1px, transparent 1px);
+}
+
+.folder-card {
+  overflow: visible;
+}
+.folder-card .folder-popout {
+  transform: var(--folder-pop-rest);
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.folder-card:hover .folder-popout,
+.folder-card:focus-visible .folder-popout {
+  transform: var(--folder-pop-hover);
+}
+@media (hover: none) {
+  .folder-card .folder-popout {
+    transform: var(--folder-pop-hover);
+  }
+}
+
+@keyframes logo-marquee-x {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.logo-marquee-track {
+  animation: logo-marquee-x 32s linear infinite;
+}
+.logo-marquee:hover .logo-marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes studio-decor-swing {
+  0%, 100% { transform: rotate(-3deg); }
+  50%      { transform: rotate(3deg); }
+}
+.studio-decor-swing {
+  transform-origin: top center;
+  animation: studio-decor-swing 4.5s ease-in-out infinite;
+}
+@keyframes studio-decor-float {
+  0%, 100% { transform: translate(0, 0) rotate(-12deg); }
+  50%      { transform: translate(6px, -8px) rotate(-6deg); }
+}
+.studio-decor-float {
+  animation: studio-decor-float 6s ease-in-out infinite;
 }
 
 /* ── Rounded corner overrides ────────────────────────── */
@@ -426,7 +486,13 @@ html:not(.dark) .card-glass {
   }
   .orbit-ring,
   .orbit-item,
-  .reveal-up {
+  .reveal-up,
+  .logo-marquee-track,
+  .studio-decor-swing,
+  .studio-decor-float {
     animation: none !important;
   }
 }
+
+/* ── Visual redesign preview (isolated route) ─────── */
+/* Preview uses the same grain/cursor as the live site — only the banner differs. */

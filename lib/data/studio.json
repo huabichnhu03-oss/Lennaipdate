@@ -1,0 +1,20 @@
+{
+  "eyebrow": "Studio · Archive",
+  "heading": "Studio",
+  "intro": "A living scrapbook of art direction, illustration, photography, motion, and editorial work — full productions above, smaller pieces in folders below. Hover a folder and the work spills out.",
+  "bigEyebrow": "01 · Productions",
+  "bigHeading": "Big Projects",
+  "bigBlurb": "Full directorial and production projects — click any tile to read the full project page.",
+  "artworksEyebrow": "02 · Studies",
+  "artworksHeading": "Artworks",
+  "artworksBlurb": "Smaller pieces, studies, and standalone artworks. Hover a folder to fan the images out, then click to open.",
+  "artworksCardSize": "lg",
+  "artworksDefaultStyle": "folder",
+  "showGrid": true,
+  "showDecor": true,
+  "showLogoMarquee": true,
+  "logoMarqueeSpeed": 32,
+  "logoMarqueeLabel": "Marks & projects",
+  "logoMarqueeAuto": true,
+  "logos": []
+}

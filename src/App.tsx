@@ -9,6 +9,9 @@ import { Footer } from "@/components/layout/Footer";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { Y2KBackdrop } from "@/components/layout/Y2KBackdrop";
+import { SiteMeta } from "@/components/SiteMeta";
+import { FontApplier } from "@/components/FontApplier";
+import { HrAssistant } from "@/components/HrAssistant";
 
 // Lazy load all route-level pages for code splitting
 const Entry = lazy(() => import("@/pages/entry"));
@@ -20,8 +23,11 @@ const Studio = lazy(() => import("@/pages/studio"));
 const StudioDetail = lazy(() => import("@/pages/studio-detail"));
 const Contact = lazy(() => import("@/pages/contact"));
 const Play = lazy(() => import("@/pages/play"));
+const Privacy = lazy(() => import("@/pages/privacy"));
+const Terms = lazy(() => import("@/pages/terms"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Admin = lazy(() => import("@/pages/admin"));
+const VisualRedesignPreview = lazy(() => import("@/pages/preview/visual-redesign"));
 
 function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null);
@@ -197,8 +203,17 @@ function AppRoutes() {
       <Route path="/play">
         <WithLayout><PageTransition><Suspense fallback={<PageLoading />}><Play /></Suspense></PageTransition></WithLayout>
       </Route>
+      <Route path="/privacy">
+        <WithLayout><PageTransition><Suspense fallback={<PageLoading />}><Privacy /></Suspense></PageTransition></WithLayout>
+      </Route>
+      <Route path="/terms">
+        <WithLayout><PageTransition><Suspense fallback={<PageLoading />}><Terms /></Suspense></PageTransition></WithLayout>
+      </Route>
       <Route path="/admin">
         <WithLayout showBottomNav={false}><PageTransition><Suspense fallback={<PageLoading />}><Admin /></Suspense></PageTransition></WithLayout>
+      </Route>
+      <Route path="/preview/visual-redesign">
+        <WithLayout showBottomNav={false}><PageTransition><Suspense fallback={<PageLoading />}><VisualRedesignPreview /></Suspense></PageTransition></WithLayout>
       </Route>
       <Route>
         <WithLayout><PageTransition><Suspense fallback={<PageLoading />}><NotFound /></Suspense></PageTransition></WithLayout>
@@ -213,11 +228,14 @@ function App() {
       <ContentProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
           <ScrollManager />
+          <SiteMeta />
+          <FontApplier />
           <div className="grain-overlay" />
           <CustomCursor />
           <AppRoutes />
         </WouterRouter>
         <Toaster />
+        <HrAssistant />
       </ContentProvider>
     </ThemeProvider>
   );

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.lennahua.ca/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.lennahua.ca/home</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.lennahua.ca/work</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.lennahua.ca/studio</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.lennahua.ca/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.lennahua.ca/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.lennahua.ca/play</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://www.lennahua.ca/privacy</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.lennahua.ca/terms</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.lennahua.ca/work/ttc-ux-redesign</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.lennahua.ca/work/freshii-moderated-study</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.lennahua.ca/work/kijiji-trust-safety</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.lennahua.ca/work/beaverbuild</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.lennahua.ca/work/best-buy-analysis</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.lennahua.ca/work/duolingo-behavior</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.lennahua.ca/work/habiganize</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.lennahua.ca/work/quiet-circle</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+</urlset>

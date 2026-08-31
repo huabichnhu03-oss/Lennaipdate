@@ -55,13 +55,19 @@ for (const item of items) {
     replaced++;
   }
 
-  // Clean images array
+  // Clean images array (legacy URL strings or { src, columns } objects)
   if (Array.isArray(item.images)) {
     for (let i = 0; i < item.images.length; i++) {
-      if (typeof item.images[i] === "string" && item.images[i].startsWith("data:")) {
+      const entry = item.images[i];
+      const src = typeof entry === "string" ? entry : entry?.src;
+      if (typeof src === "string" && src.startsWith("data:")) {
         const placeholder = `/api/assets/${item.slug || item.id || "item"}-image-${i + 1}`;
         console.log(`  [images[${i}]] ${label}: base64 → ${placeholder}`);
-        item.images[i] = placeholder;
+        if (typeof entry === "string") {
+          item.images[i] = placeholder;
+        } else {
+          item.images[i] = { ...entry, src: placeholder };
+        }
         replaced++;
       }
     }

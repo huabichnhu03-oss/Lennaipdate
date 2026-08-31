@@ -3,13 +3,20 @@
  */
 import type { Homepage } from "./types";
 import { TextInput, TextareaInput } from "./shared";
+import {
+  UploadToLibraryDashed,
+  PickFromLibraryButton,
+} from "./AssetLibrary";
+import { CoverMedia } from "@/components/CoverMedia";
 
 export function HomepageEditor({
   data,
   onChange,
+  onPreview,
 }: {
   data: Homepage;
   onChange: (next: Homepage) => void;
+  onPreview?: () => void;
 }) {
   const updateEntry = (patch: Partial<Homepage["entry"]>) =>
     onChange({ ...data, entry: { ...data.entry, ...patch } });
@@ -20,8 +27,34 @@ export function HomepageEditor({
   const updateHome = (patch: Partial<Homepage["home"]>) =>
     onChange({ ...data, home: { ...data.home, ...patch } });
 
+  const heroMedia = data.home.heroMedia?.trim() ?? "";
+  const heroMediaAlt = data.home.heroMediaAlt ?? "";
+  const heroMediaMime = data.home.heroMediaMime ?? "";
+
+  const setHeroMedia = (url: string, mime?: string) => {
+    updateHome({
+      heroMedia: url,
+      ...(mime ? { heroMediaMime: mime } : {}),
+    });
+  };
+
+  const clearHeroMedia = () => {
+    updateHome({ heroMedia: "", heroMediaAlt: "", heroMediaMime: "" });
+  };
+
   return (
     <div className="flex flex-col gap-10 max-w-3xl">
+      {onPreview && (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={onPreview}
+            className="text-sm border border-[#3A3530] text-[#8A8278] px-3 py-1.5 hover:border-[#C8A96E] hover:text-[#C8A96E] uppercase tracking-widest"
+          >
+            Preview /home
+          </button>
+        </div>
+      )}
       <section className="flex flex-col gap-5">
         <h2 className="font-serif text-2xl text-[#F2EDE5]">Entry / Splash Page</h2>
         <p className="text-[#8A8278] text-sm">
@@ -89,6 +122,66 @@ export function HomepageEditor({
           onChange={(v) => updateHome({ heroIntro: v })}
           rows={4}
         />
+
+        <div className="border border-[#272421] p-4 flex flex-col gap-3">
+          <span className="text-[#C8A96E] text-sm uppercase tracking-widest">Hero media (optional)</span>
+          <p className="text-[#8A8278] text-xs">
+            Image or video shown below the intro. Leave empty to keep the current text-only hero on the live site.
+          </p>
+          <input
+            type="text"
+            value={heroMedia}
+            onChange={(e) => updateHome({ heroMedia: e.target.value, heroMediaMime: "" })}
+            placeholder="Paste URL or upload / pick from library"
+            className="bg-transparent border-b border-[#3A3530] text-[#F2EDE5] py-2 text-sm focus:outline-none focus:border-[#C8A96E] transition-colors"
+          />
+          <div className="flex items-center gap-2 flex-wrap">
+            <UploadToLibraryDashed
+              label="↑ Upload hero media"
+              accept="image/*,video/mp4,video/webm,.gif,.mp4,.webm"
+              onUploaded={(url, meta) => setHeroMedia(url, meta?.mime)}
+            />
+            <PickFromLibraryButton
+              type="all"
+              label="From library"
+              onPick={(url, meta) => setHeroMedia(url, meta?.mime)}
+            />
+            {heroMedia && (
+              <button
+                type="button"
+                onClick={clearHeroMedia}
+                className="text-sm text-[#4A4540] hover:text-red-400 transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          {heroMedia && (
+            <TextInput
+              label="Alt text (accessibility)"
+              value={heroMediaAlt}
+              onChange={(v) => updateHome({ heroMediaAlt: v })}
+            />
+          )}
+          {heroMedia ? (
+            <div
+              className="rounded overflow-hidden border border-[#3A3530] mt-1"
+              style={{ maxWidth: "480px", aspectRatio: "16 / 9" }}
+            >
+              <CoverMedia
+                src={heroMedia}
+                alt={heroMediaAlt || "Hero media preview"}
+                mimeHint={heroMediaMime}
+                className="w-full h-full object-cover bg-[#0A0908]"
+                loading="eager"
+              />
+            </div>
+          ) : (
+            <p className="text-[#4A4540] text-xs">
+              No hero media set — visitors see the same layout as today.
+            </p>
+          )}
+        </div>
 
         <div className="border border-[#272421] p-4 flex flex-col gap-3">
           <span className="text-[#C8A96E] text-sm uppercase tracking-widest">Hero buttons</span>

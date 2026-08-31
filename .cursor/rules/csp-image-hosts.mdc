@@ -1,0 +1,35 @@
+---
+description: Never break portfolio images via CSP — always allow Framer and other used img hosts before deploy
+alwaysApply: true
+---
+
+# CSP image hosts (do not repeat Aug 2026 outage)
+
+## Incident
+
+A Habiganize production deploy tightened `Content-Security-Policy` in `vercel.json` and **omitted** `https://framerusercontent.com`. Almost all case-study images use that host. Browsers blocked them; `SafeImage` showed **UNDER CONSTRUCTION** site-wide. Images were not deleted — CSP blocked them.
+
+## Rules
+
+1. **Before changing `img-src` (or any CSP) in `vercel.json`**, scan real image URLs in:
+   - `src/data/projects.json`
+   - `lib/data/projects.json`
+   - studio / gallery / about content sources
+   - any new case-study assets (`public/`, Cloudinary, product CDNs)
+2. **Every host that appears in `src` / `coverImage` / media URLs must stay in `img-src`.** Never remove a host unless you have migrated every URL off it.
+3. **Required hosts for this portfolio** (keep all unless proven unused):
+   - `'self'` `data:` `blob:`
+   - `https://framerusercontent.com` (legacy Framer case-study images)
+   - `https://res.cloudinary.com` (admin uploads)
+   - `https://habitganizer.tech` and `https://habiganize-api.onrender.com` (Habiganize assets)
+4. When adding a **new** image domain, update CSP in the **same change** as the content that references it — then verify after deploy.
+5. After any CSP/deploy change: hard-refresh a case study that uses Framer images (e.g. Best Buy / Service Blueprint) and confirm real images load, not `SafeImage` fallbacks.
+
+## Bad vs good
+
+```text
+❌ img-src 'self' data: blob: https://res.cloudinary.com https://habitganizer.tech;
+✅ img-src 'self' data: blob: https://res.cloudinary.com https://framerusercontent.com https://habitganizer.tech https://habiganize-api.onrender.com;
+```
+
+If images look "removed" after deploy, check CSP/`img-src` first — do not assume assets were deleted.

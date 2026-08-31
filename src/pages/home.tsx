@@ -9,6 +9,7 @@ import homepageSeed from "@/data/homepage.json";
 import { useContent } from "@/lib/use-content";
 import { FloatingDecor } from "@/components/FloatingDecor";
 import { PinterestCard } from "@/components/PinterestCard";
+import { CoverMedia } from "@/components/CoverMedia";
 import { useTheme } from "@/context/ThemeContext";
 
 type Project = (typeof projectsSeed)[number] & { archived?: boolean };
@@ -22,9 +23,10 @@ function splitName(full: string): [string, string] {
   return [trimmed.slice(0, idx), trimmed.slice(idx + 1)];
 }
 
-function buildStats(location: string) {
+function buildStats(location: string, yearsExperience = "3+") {
+  const years = (yearsExperience || "3+").trim() || "3+";
   const stats = [
-    { label: "3+",  sub: "Years",    color: BLUE },
+    { label: years, sub: "Years",    color: BLUE },
     { label: "20+", sub: "Projects", color: BLUE },
     { label: "8+",  sub: "Studies",  color: BLUE },
   ];
@@ -55,6 +57,7 @@ export default function Home() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const hp = homepageData.home;
+  const heroMedia = hp.heroMedia?.trim() ?? "";
 
   const featuredProjects = useMemo(
     () => projectsData.filter((p) => !p.archived && p.featured).slice(0, 3),
@@ -65,7 +68,11 @@ export default function Home() {
     [projectsData]
   );
   const [firstName, lastName] = useMemo(() => splitName(identityData.name), [identityData.name]);
-  const STATS = useMemo(() => buildStats(contactData.location), [contactData.location]);
+  const yearsExperience = aboutData.yearsExperience ?? "3+";
+  const STATS = useMemo(
+    () => buildStats(contactData.location, yearsExperience),
+    [contactData.location, yearsExperience]
+  );
 
   return (
     <div className="w-full flex flex-col gap-32 md:gap-48 pt-12 md:pt-24 pb-20">
@@ -122,6 +129,23 @@ export default function Home() {
           {hp.heroIntro}
         </motion.p>
 
+        {heroMedia ? (
+          <motion.div
+            className="relative z-10 w-full max-w-3xl rounded-2xl overflow-hidden border border-border/40 shadow-lg"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.75, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <CoverMedia
+              src={heroMedia}
+              alt={hp.heroMediaAlt?.trim() || "Homepage hero"}
+              mimeHint={hp.heroMediaMime}
+              className="w-full aspect-video object-cover"
+              loading="eager"
+            />
+          </motion.div>
+        ) : null}
+
         {/* Stat pills */}
         <motion.div
           className="relative z-10 flex flex-wrap gap-3"
@@ -150,15 +174,23 @@ export default function Home() {
         >
           <Link
             href={hp.primaryCtaHref}
-            className="text-sm uppercase tracking-[0.35em] font-sans px-6 py-3 rounded-full font-bold transition-opacity hover:opacity-85"
-            style={{ background: "#1A5BD4", color: "#FFFFFF" }}
+            className="inline-flex items-center justify-center h-11 rounded-full text-sm font-sans font-bold uppercase tracking-[0.18em] leading-none border-2 box-border pl-[calc(1.75rem+0.18em)] pr-7 transition-opacity hover:opacity-85"
+            style={{
+              background: "#1A5BD4",
+              borderColor: "#1A5BD4",
+              color: "#FFFFFF",
+            }}
           >
             {hp.primaryCtaLabel}
           </Link>
           <Link
             href={hp.secondaryCtaHref}
-            className="text-sm uppercase tracking-[0.35em] font-sans px-6 py-3 rounded-full border-2 transition-all hover:opacity-75"
-            style={{ borderColor: BLUE + "55", color: BLUE }}
+            className="inline-flex items-center justify-center h-11 rounded-full text-sm font-sans font-bold uppercase tracking-[0.18em] leading-none border-2 box-border pl-[calc(1.75rem+0.18em)] pr-7 transition-opacity hover:opacity-85"
+            style={{
+              background: "transparent",
+              borderColor: BLUE + "55",
+              color: BLUE,
+            }}
           >
             {hp.secondaryCtaLabel}
           </Link>
@@ -188,17 +220,17 @@ export default function Home() {
           initial="hidden"
           whileInView="show"
           viewport={VP}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch"
         >
-          {featuredProjects.map((project, fi) => {
+          {featuredProjects.map((project) => {
             const i = projectIndexMap.get(project.id) ?? 0;
             return (
               <motion.div
                 key={project.id}
                 variants={item}
-                className={`h-full ${fi === 0 ? "lg:col-span-2" : ""}`}
+                className="h-full"
               >
-                <PinterestCard project={project} i={i} isDark={isDark} featured={fi === 0} />
+                <PinterestCard project={project} i={i} isDark={isDark} />
               </motion.div>
             );
           })}

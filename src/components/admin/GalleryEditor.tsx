@@ -5,13 +5,25 @@
 import { useState } from "react";
 import { SafeImage } from "@/components/SafeImage";
 import { AdminSortableList } from "@/pages/admin-sortable";
-import type { GalleryItem } from "./types";
+import type { GalleryImageColumns, GalleryItem } from "./types";
+import {
+  galleryImageColumns,
+  galleryImageSrc,
+  withGalleryImageColumns,
+  withGalleryImageSrc,
+} from "@/lib/gallery-image";
 import { TextInput, TextareaInput, TagsInput, slugify } from "./shared";
 import {
   UploadToLibraryDashed,
   PickFromLibraryButton,
   SectionImageUploader,
 } from "./AssetLibrary";
+
+const COLUMN_OPTIONS: { value: GalleryImageColumns; label: string }[] = [
+  { value: 1, label: "1 — Full" },
+  { value: 2, label: "2 — Half" },
+  { value: 3, label: "3 — Third" },
+];
 
 export function GalleryEditor({
   data,
@@ -93,7 +105,7 @@ export function GalleryEditor({
           const group = data.filter((g) => (g.kind ?? "big") === kind);
           if (group.length === 0) return null;
           const heading =
-            kind === "big" ? "Big Projects" : "Artworks (slideshow)";
+            kind === "big" ? "Big Projects" : "Artworks";
           return (
             <div key={kind} className="flex flex-col gap-1.5 mt-3 first:mt-0">
               <div className="text-[10px] uppercase tracking-[0.3em] text-[#C8A96E] px-1 pt-1 pb-1">
@@ -197,16 +209,94 @@ export function GalleryEditor({
                         : "text-[#8A8278] border-[#3A3530] hover:border-[#C8A96E]"
                     }`}
                   >
-                    {k === "big" ? "Big Project" : "Artwork (slideshow)"}
+                    {k === "big" ? "Big Project" : "Artwork"}
                   </button>
                 );
               })}
             </div>
             <span className="text-[#4A4540] text-[11px] font-sans">
               Big Projects appear in the masonry with a detail page; Artworks
-              appear in the horizontal slideshow with a popup.
+              appear below as folders or slideshow cards.
             </span>
           </div>
+
+          {(item.kind ?? "big") === "small" && (
+            <div className="flex flex-col gap-2">
+              <label className="text-[#8A8278] text-xs uppercase tracking-widest">
+                Card treatment
+              </label>
+              <div className="flex gap-2 flex-wrap">
+                {(
+                  [
+                    { value: undefined, label: "Use Studio default" },
+                    { value: "folder" as const, label: "Hovering folder" },
+                    { value: "slideshow" as const, label: "Slideshow card" },
+                  ] as const
+                ).map(({ value, label }) => {
+                  const active = (item.cardStyle ?? undefined) === value;
+                  return (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => update(selectedIdx, { cardStyle: value })}
+                      className={`text-xs uppercase tracking-widest px-3 py-1.5 border transition-colors ${
+                        active
+                          ? "bg-[#C8A96E] text-[#0A0908] border-[#C8A96E]"
+                          : "text-[#8A8278] border-[#3A3530] hover:border-[#C8A96E]"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+              <span className="text-[#4A4540] text-[11px] font-sans">
+                Folder: images pop out on hover (cover + extra images). Change
+                the Studio-page default under Studio Page.
+              </span>
+            </div>
+          )}
+
+          {(item.kind ?? "big") === "small" && (
+            <div className="flex flex-col gap-2">
+              <label className="text-[#8A8278] text-xs uppercase tracking-widest">
+                Slideshow card shape
+              </label>
+              <div className="flex gap-2 flex-wrap">
+                {(
+                  [
+                    { value: undefined, label: "Auto" },
+                    { value: "portrait" as const, label: "Portrait" },
+                    { value: "landscape" as const, label: "Landscape" },
+                  ] as const
+                ).map(({ value, label }) => {
+                  const active = (item.orientation ?? undefined) === value;
+                  return (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() =>
+                        update(selectedIdx, {
+                          orientation: value,
+                        })
+                      }
+                      className={`text-xs uppercase tracking-widest px-3 py-1.5 border transition-colors ${
+                        active
+                          ? "bg-[#C8A96E] text-[#0A0908] border-[#C8A96E]"
+                          : "text-[#8A8278] border-[#3A3530] hover:border-[#C8A96E]"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+              <span className="text-[#4A4540] text-[11px] font-sans">
+                Auto detects from the cover image. Portrait = tall card;
+                Landscape = wide card.
+              </span>
+            </div>
+          )}
 
           <TextInput
             label="Title"
@@ -316,50 +406,212 @@ export function GalleryEditor({
             )}
           </div>
 
+          <div className="flex flex-col gap-2 border border-[#272421] rounded p-3">
+            <label className="text-[#8A8278] text-xs uppercase tracking-widest">
+              Project logo (marquee)
+            </label>
+            <span className="text-[#4A4540] text-[11px] font-sans">
+              Square mark for the looping logo strip on Studio. Leave blank to skip this item.
+            </span>
+            <input
+              type="text"
+              value={item.logo ?? ""}
+              onChange={(e) => update(selectedIdx, { logo: e.target.value })}
+              placeholder="Paste logo URL"
+              className="bg-transparent border-b border-[#3A3530] text-[#F2EDE5] py-2 text-sm focus:outline-none focus:border-[#C8A96E] transition-colors"
+            />
+            <div className="flex items-center gap-2 flex-wrap">
+              <UploadToLibraryDashed
+                label="↑ Upload logo"
+                accept="image/*"
+                onUploaded={(url) => update(selectedIdx, { logo: url })}
+              />
+              <PickFromLibraryButton
+                type="image"
+                onPick={(url) => update(selectedIdx, { logo: url })}
+              />
+            </div>
+            {item.logo && (
+              <SafeImage
+                src={item.logo}
+                alt="logo preview"
+                className="h-12 w-auto object-contain"
+                fallbackAspect="1 / 1"
+              />
+            )}
+          </div>
+
+          {(item.kind ?? "big") === "small" && (
+            <div className="flex flex-col gap-3 border border-[#272421] rounded p-3">
+              <label className="text-[#8A8278] text-xs uppercase tracking-widest">
+                Folder look
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={item.folderColor || "#D4B483"}
+                  onChange={(e) => update(selectedIdx, { folderColor: e.target.value })}
+                  className="w-10 h-10 bg-transparent cursor-pointer"
+                  aria-label="Folder color"
+                />
+                <TextInput
+                  label="Folder color"
+                  value={item.folderColor ?? ""}
+                  onChange={(v) => update(selectedIdx, { folderColor: v })}
+                  placeholder="#D4B483"
+                />
+              </div>
+              <label className="text-[#8A8278] text-xs uppercase tracking-widest">
+                Stamp photo (optional)
+              </label>
+              <span className="text-[#4A4540] text-[11px] font-sans">
+                Small postage-stamp on the folder. Falls back to the cover image.
+              </span>
+              <input
+                type="text"
+                value={item.stampImage ?? ""}
+                onChange={(e) => update(selectedIdx, { stampImage: e.target.value })}
+                placeholder="Paste stamp URL"
+                className="bg-transparent border-b border-[#3A3530] text-[#F2EDE5] py-2 text-sm focus:outline-none focus:border-[#C8A96E] transition-colors"
+              />
+              <div className="flex items-center gap-2 flex-wrap">
+                <UploadToLibraryDashed
+                  label="↑ Upload stamp"
+                  accept="image/*"
+                  onUploaded={(url) => update(selectedIdx, { stampImage: url })}
+                />
+                <PickFromLibraryButton
+                  type="image"
+                  onPick={(url) => update(selectedIdx, { stampImage: url })}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Additional images */}
           <div className="flex flex-col gap-3">
             <label className="text-[#8A8278] text-xs uppercase tracking-widest">
               Additional Images
             </label>
-            {(item.images ?? []).map((src, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-3 border border-[#272421] p-3 rounded"
-              >
-                {src && (
-                  <SafeImage
-                    src={src}
-                    alt=""
-                    className="w-20 h-20 object-cover rounded flex-shrink-0"
-                    fallbackAspect="16 / 5"
-                  />
-                )}
-                <input
-                  type="text"
-                  value={src}
-                  onChange={(e) => {
-                    const arr = [...(item.images ?? [])];
-                    arr[i] = e.target.value;
-                    update(selectedIdx, { images: arr });
-                  }}
-                  className="flex-1 bg-transparent border-b border-[#3A3530] text-[#F2EDE5] py-1 text-sm focus:outline-none focus:border-[#C8A96E]"
-                />
-                <button
-                  onClick={() => {
-                    const arr = (item.images ?? []).filter((_, j) => j !== i);
-                    update(selectedIdx, { images: arr });
-                  }}
-                  className="text-sm text-[#4A4540] hover:text-red-400"
-                >
-                  ✕
-                </button>
+            {(item.kind ?? "big") === "small" && (
+              <span className="text-[#4A4540] text-[11px] font-sans">
+                On hovering folders, extra images fan out behind the folder
+                with the cover (up to three).
+              </span>
+            )}
+            {(item.kind ?? "big") === "big" && (
+              <div className="flex flex-col gap-2 border border-[#272421] p-3 rounded">
+                <label className="text-[#8A8278] text-[10px] uppercase tracking-widest">
+                  Default columns
+                </label>
+                <div className="flex gap-2 flex-wrap">
+                  {COLUMN_OPTIONS.map(({ value, label }) => {
+                    const active = (item.imageColumns ?? 2) === value;
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() =>
+                          update(selectedIdx, { imageColumns: value })
+                        }
+                        className={`text-xs uppercase tracking-widest px-3 py-1.5 border transition-colors ${
+                          active
+                            ? "bg-[#C8A96E] text-[#0A0908] border-[#C8A96E]"
+                            : "text-[#8A8278] border-[#3A3530] hover:border-[#C8A96E]"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <span className="text-[#4A4540] text-[11px] font-sans">
+                  Applies to images that do not have their own width. Override
+                  any single image below: 1 = full row, 2 = half, 3 = one third.
+                </span>
               </div>
-            ))}
+            )}
+            {(item.images ?? []).map((entry, i) => {
+              const src = galleryImageSrc(entry);
+              const columns = galleryImageColumns(entry, item.imageColumns);
+              return (
+                <div
+                  key={i}
+                  className="flex flex-col gap-2 border border-[#272421] p-3 rounded"
+                >
+                  <div className="flex items-start gap-3">
+                    {src && (
+                      <SafeImage
+                        src={src}
+                        alt=""
+                        className="w-20 h-20 object-cover rounded flex-shrink-0"
+                        fallbackAspect="16 / 5"
+                      />
+                    )}
+                    <input
+                      type="text"
+                      value={src}
+                      onChange={(e) => {
+                        const arr = [...(item.images ?? [])];
+                        arr[i] = withGalleryImageSrc(arr[i] ?? "", e.target.value);
+                        update(selectedIdx, { images: arr });
+                      }}
+                      className="flex-1 bg-transparent border-b border-[#3A3530] text-[#F2EDE5] py-1 text-sm focus:outline-none focus:border-[#C8A96E]"
+                    />
+                    <button
+                      onClick={() => {
+                        const arr = (item.images ?? []).filter((_, j) => j !== i);
+                        update(selectedIdx, { images: arr });
+                      }}
+                      className="text-sm text-[#4A4540] hover:text-red-400"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  {(item.kind ?? "big") === "big" && (
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[#8A8278] text-[10px] uppercase tracking-widest">
+                        This image
+                      </label>
+                      <div className="flex gap-2 flex-wrap">
+                        {COLUMN_OPTIONS.map(({ value, label }) => {
+                          const active = columns === value;
+                          return (
+                            <button
+                              key={value}
+                              type="button"
+                              onClick={() => {
+                                const arr = [...(item.images ?? [])];
+                                arr[i] = withGalleryImageColumns(
+                                  arr[i] ?? "",
+                                  value,
+                                );
+                                update(selectedIdx, { images: arr });
+                              }}
+                              className={`text-xs uppercase tracking-widest px-3 py-1.5 border transition-colors ${
+                                active
+                                  ? "bg-[#C8A96E] text-[#0A0908] border-[#C8A96E]"
+                                  : "text-[#8A8278] border-[#3A3530] hover:border-[#C8A96E]"
+                              }`}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             <div className="flex gap-2 flex-wrap">
               <button
                 onClick={() =>
                   update(selectedIdx, {
-                    images: [...(item.images ?? []), ""],
+                    images: [
+                      ...(item.images ?? []),
+                      { src: "", columns: item.imageColumns ?? 2 },
+                    ],
                   })
                 }
                 className="text-sm border border-[#C8A96E] text-[#C8A96E] px-3 py-1.5 hover:bg-[#C8A96E] hover:text-[#0A0908] transition-colors uppercase tracking-widest"
@@ -369,7 +621,10 @@ export function GalleryEditor({
               <SectionImageUploader
                 onPicked={(url) =>
                   update(selectedIdx, {
-                    images: [...(item.images ?? []), url],
+                    images: [
+                      ...(item.images ?? []),
+                      { src: url, columns: item.imageColumns ?? 2 },
+                    ],
                   })
                 }
               />
@@ -378,7 +633,10 @@ export function GalleryEditor({
                 label="From library"
                 onPick={(url) =>
                   update(selectedIdx, {
-                    images: [...(item.images ?? []), url],
+                    images: [
+                      ...(item.images ?? []),
+                      { src: url, columns: item.imageColumns ?? 2 },
+                    ],
                   })
                 }
               />

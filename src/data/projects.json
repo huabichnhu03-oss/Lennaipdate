@@ -1,447 +1,348 @@
 [
   {
-    "id": "1",
-    "slug": "ttc-ux-redesign",
-    "title": "TTC: Digital Wayfinding & Information Architecture",
-    "subtitle": "Restructured the TTC website's information architecture to prioritize rider tasks, reducing navigation confusion and improving task completion.",
-    "type": "UX Designer",
-    "users": "TTC riders (task-based usability testing)",
-    "methods": "IA audit, WCAG/AODA review, moderated usability testing, annotated wireframes",
-    "period": "Sept 2025 — Dec 2025",
+    "id": "1785987349556",
+    "slug": "habiganize",
     "tags": [
-      "IA Redesign",
-      "Accessibility",
-      "UX Research"
+      "Product Design",
+      "UX Design",
+      "Gamification",
+      "Figma to Code",
+      "Cross-Platform"
     ],
-    "description": "An information architecture audit and WCAG/AODA accessibility review of the Toronto Transit Commission's website, validated through moderated usability tests and translated into prioritized navigation, contrast, and content-structure improvements.",
+    "type": "Product Designer, UX & Product Owner (solo)",
+    "year": "2026",
+    "title": "Habiganize - Habits That Stick (With Pups)",
+    "users": "People who start habit apps and quit within a week",
+    "impact": "Live multi-platform product with a neo-brutalist design system, ~24 companions, and themed auth. Store release and retention metrics are next.",
+    "period": "Jan 2026 - Present",
     "bullets": [
-      "Conducted an information architecture audit and WCAG/AODA accessibility review to identify navigation and readability barriers.",
-      "Ran moderated usability tests to validate pain points across key journeys and quantify impact.",
-      "Proposed prioritized improvements to button hierarchy, color contrast, and content structure, and produced annotated wireframes and remediation recommendations for accessibility compliance."
+      "Reframed retention as attachment: quitting has a visible cost when a pet needs care.",
+      "Designed the habits-to-pets loop in Figma and shipped it across four surfaces.",
+      "Owned PO decisions: monetization, platform strategy, and documented tradeoffs."
     ],
-    "challenge": "Public transit riders often need information quickly — Is my train delayed? Which route should I take? How much will the trip cost? The TTC website is designed to answer these questions but finding those answers isn't always easy.",
-    "solution": "Through usability evaluation and research-driven design improvements, restructured the IA to prioritize primary rider tasks over internal logic.",
-    "impact": "Significantly reduced task completion time for common user journeys including trip planning and service alert lookup. Validated through usability testing with TTC riders.",
-    "coverImage": "https://framerusercontent.com/images/rRpGqsQpN7jD22xhbnNaQ71IKV0.png?width=1024&height=1024",
-    "year": "2025",
+    "methods": "Retention research, behavioral design, Figma system, IA & flows, cross-platform UX, product strategy",
+    "archived": false,
     "featured": true,
     "sections": [
       {
-        "id": "problem",
+        "id": "overview",
+        "body": "Habiganize turns habit tracking into a care ritual. Check off a habit and earn coins, food, and water. Spend them on ~24 hand-designed companions whose hunger and thirst decay in real time - so quitting stops being free. I took this from business case to live product solo across web, iOS/Android (Expo), and a Chrome extension on one shared API.",
         "type": "text",
-        "title": "The Problem",
-        "summary": "Riders couldn't find critical information when they needed it most",
-        "body": "Public transit riders need information quickly: Is my train delayed? Which route should I take? How much will the trip cost? The TTC website has this information — but finding it isn't easy. Navigation labels didn't align with rider mental models, and key tasks were buried under secondary content.",
+        "title": "The Pitch",
         "bullets": [
-          "Users struggled to locate critical information quickly",
-          "Navigation labels didn't match rider expectations",
-          "Key tasks buried under secondary content"
-        ]
+          "Role: solo Product Designer, UX Designer, and Product Owner - plus full-stack build",
+          "Platforms: web (React/Vite), mobile (Expo), Chrome extension, Express + Postgres API",
+          "Live at habitganizer.tech; app-store release and retention instrumentation are next"
+        ],
+        "summary": "A habit tracker people don't want to abandon - designed, built, and shipped by one person",
+        "visibility": "detail"
       },
       {
-        "id": "role",
+        "id": "promo-video",
+        "src": "/case-studies/habiganize/promo.webm",
+        "type": "video",
+        "title": "The 25-Second Version",
+        "caption": "Problem, bet, and shipped product - real screens and diagrams from this project.",
+        "visibility": "detail"
+      },
+      {
+        "id": "problem",
+        "body": "Health & Fitness apps face a brutal retention cliff. Users download with good intentions, check boxes for a few days, then leave - because abstract rewards fade and nothing in the product misses them when they're gone.",
         "type": "text",
-        "title": "My Role & Process",
-        "summary": "Led the UX audit, usability testing, and design recommendations",
+        "title": "The Problem",
         "bullets": [
-          "Role: UX Designer (audit, testing, wireframes)",
-          "Methods: IA audit, WCAG/AODA review, moderated usability testing",
-          "Deliverables: annotated wireframes, remediation recommendations",
-          "Collaboration: worked with stakeholders to prioritize improvements"
-        ]
+          "Business lens: retention is the metric that decides if a habit product survives",
+          "User lens: \"Restart Riley\" - mid-20s, tried 2-3 apps, quits when streaks break",
+          "Root cause: quitting is costless; streak guilt punishes instead of retaining"
+        ],
+        "summary": "97% of habit app users are gone within a month",
+        "bodyDetail": "I started with the market's ugliest number. Health & Fitness apps retain roughly 25% on day 1, 7% by day 7, and 3% by day 30. People download with good intentions, check boxes for a few days, then vanish. Checkbox rewards fade; broken streaks trigger total drop-off - because leaving costs nothing.",
+        "visibility": "always",
+        "bulletsDetail": [
+          "Abstract rewards decay after the novelty week",
+          "Streak guilt punishes instead of retaining",
+          "Root cause: nothing in the product misses you when you leave",
+          "Business framing: retention is the metric that decides if a habit product lives"
+        ],
+        "summaryDetail": "The habit app industry has a 97% abandonment problem"
+      },
+      {
+        "id": "retention-img",
+        "src": "/case-studies/habiganize/retention-chart.png",
+        "type": "image",
+        "title": "The Retention Cliff",
+        "caption": "Industry retention benchmarks that framed the design brief",
+        "visibility": "always"
+      },
+      {
+        "id": "bet",
+        "type": "problem-solution",
+        "title": "The Bet",
+        "problem": "Checkbox and streak-only apps treat consistency as willpower theater. When motivation dips, there is nothing personal left to protect.",
+        "solution": "Give users something alive to care for. Loss aversion, collection drive, and daily care timers create a reason to return that outlasts guilt.",
+        "visibility": "always",
+        "problemDetail": "Checkbox and streak-only products treat consistency as self-discipline theater. When motivation dips, there is nothing personal left to protect.",
+        "solutionDetail": "Make consistency feel like caring for something. Loss aversion, collection drive, and daily care timers create a reason to return that outlasts willpower."
       },
       {
         "id": "research",
+        "body": "The design target is \"Restart Riley\" - mid-20s, tried 2-3 habit apps, responds to playful care over productivity guilt. I synthesized Atomic Habits, BJ Fogg, Duolingo, and Habitica patterns into principles that guided every decision. Desk research, not moderated interviews yet - formal usability testing is scoped as next step.",
         "type": "text",
-        "title": "Research & Discovery",
-        "summary": "Evaluating the existing experience to uncover usability issues",
-        "body": "The project began with an evaluation of the current TTC website to understand where and why users encountered friction.",
+        "title": "Research & The User",
         "bullets": [
-          "UX audit of the existing website",
-          "Task-based usability testing with riders",
-          "Observation of navigation behavior and task completion challenges"
-        ]
+          "Immediate payoff: every completion pays out within one second",
+          "Loss aversion beats abstract gains: a hungry pet is more salient than a broken streak",
+          "Collection creates soft re-engagement without push notifications",
+          "Systems over willpower: one-tap check-ins, optional mood capture"
+        ],
+        "summary": "Behavioral science synthesized into design principles",
+        "visibility": "detail"
       },
       {
-        "id": "testing-img",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/JNUkA272v9oL0xvsXdWV5oQn9U.png?width=1391&height=1080",
-        "caption": "Usability testing with frequent and first-time TTC users"
-      },
-      {
-        "id": "insights",
+        "id": "loop",
+        "body": "Today check-in → earn +10 coins, +1 food, +1 water → shop or care for ~24 companions → meters decay → return. One account across web, mobile, and Chrome extension on a shared API.",
         "type": "text",
-        "title": "Key Insights",
-        "summary": "Three patterns that shaped the redesign",
+        "title": "The Care Loop",
         "bullets": [
-          "Riders think in tasks, not categories — \"I need to plan a trip\" not \"I need the schedules section\"",
-          "Critical information (delays, fares) needs to be 1-2 clicks away",
-          "Accessibility barriers compound navigation confusion"
-        ]
-      },
-      {
-        "id": "ia-before",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/FEL5F32BiD68HhiUVCnzaa8gUQ.png?width=1173&height=1080",
-        "caption": "Header IA — before: organization-based structure"
-      },
-      {
-        "id": "ia-after",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/A3qLKgrHtMaIztrV91iayRNjwhs.png?width=1920&height=987",
-        "caption": "New IA — task-based navigation prioritizing rider goals"
-      },
-      {
-        "id": "decisions",
-        "type": "text",
-        "title": "Design Decisions",
-        "summary": "Every change traced back to a research finding",
-        "bullets": [
-          "Shifted from organization-based to task-based navigation — riders think in goals, not departments",
-          "Simplified hierarchy to 2 levels deep — reduced cognitive load for time-sensitive information",
-          "Revised labels to match rider language — \"Plan a Trip\" instead of \"Trip Planning Tools\"",
-          "Improved contrast ratios to meet WCAG AA — critical for outdoor mobile use"
-        ]
-      },
-      {
-        "id": "ia-nav",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/LTvdFlqyqZRIeMkj1ZLu0oNd00.png?width=1920&height=484",
-        "caption": "Revised navigation hierarchy — task-based IA structure"
+          "Product lens: MVP sequenced loop first; social, health, and premium came after",
+          "Design lens: one job per screen - Today, Pups, Shop",
+          "Tradeoff: Clerk auth for sync and billing vs anonymous-first research"
+        ],
+        "summary": "Habits fund pets; pets bring users back tomorrow",
+        "bodyDetail": "Core loop: Today check-in → earn +10 coins, +1 food, +1 water → shop and care → meters decay → return. ~24 pets, daily decay, care cooldowns, visiting playmates. I tuned the economy so earning (habits) and spending (pets) stay separate - habits remain the engine.",
+        "visibility": "always",
+        "bulletsDetail": [
+          "Rewards: +10 coins, +1 food, +1 water per completion",
+          "Pet prices ~50-320 coins; hunger/thirst decay ~10 points/day",
+          "One job per screen: Today, Pups, Shop",
+          "Tradeoff: Clerk auth for sync and billing vs anonymous-first research"
+        ],
+        "summaryDetail": "Habits fund pets; pets create tomorrow's reason to return"
       },
       {
         "id": "solution",
+        "body": "Core loop: Today check-in → earn +10 coins, +1 food, +1 water → shop and care → meters decay → return. ~24 pets, daily decay, care cooldowns, visiting playmates. I tuned the economy so earning (habits) and spending (pets) stay separate - habits remain the engine.",
         "type": "text",
-        "title": "The Solution",
-        "summary": "Restructured IA with validated wireframes",
-        "body": "Low-fidelity wireframes validated the revised IA without visual bias, then iterated through usability testing into high-fidelity designs."
-      },
-      {
-        "id": "flow2",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/b8Aqxsy57wQIsnbwzx5IJvBKbbE.png?width=1920&height=1080",
-        "caption": "User flow — Trip planning task (before vs. after)"
-      },
-      {
-        "id": "midfi",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/SejMHXjjpGPk1Yfo86Sk7t3LBk.png?width=2287&height=1399",
-        "caption": "Mid-fidelity design iterations based on testing feedback"
-      },
-      {
-        "id": "hifi",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/oqNQTxiIkGHqtjSVdM6f8MDN74.png?width=1920&height=1080",
-        "caption": "Final high-fidelity design — task-based navigation"
-      },
-      {
-        "id": "impact",
-        "type": "text",
-        "title": "Impact & Results",
-        "summary": "Improved clarity and task efficiency in key rider flows",
+        "title": "The Care Economy",
         "bullets": [
-          "~40% reduction in task completion time for trip planning",
-          "Improved navigation confidence scores in usability testing",
-          "Clearer information hierarchy for service alerts and fares"
+          "Rewards: +10 coins, +1 food, +1 water per completion",
+          "Pet prices ~50-320 coins; hunger/thirst decay ~10 points/day",
+          "One job per screen: Today, Pups, Shop",
+          "Tradeoff: Clerk auth for sync and billing vs anonymous-first research"
         ],
-        "body2": "Validated through usability testing with 5 TTC riders. While conceptual, testing indicated meaningful improvements in usability and comprehension."
+        "summary": "Habits fund pets; pets create tomorrow's reason to return",
+        "visibility": "detail"
       },
       {
-        "id": "outcome-img",
+        "id": "loop-img",
+        "src": "/case-studies/habiganize/loop-diagram.png",
         "type": "image",
-        "src": "https://framerusercontent.com/images/D6nG7QGirEcJPtdPr1iLRvYgRr4.png?width=1177&height=881",
-        "caption": "Before and after comparison — navigation structure"
+        "title": "",
+        "caption": "Core product loop - each step maps to a behavioral principle",
+        "visibility": "always"
       },
       {
-        "id": "reflection",
+        "id": "design",
+        "body": "Thick borders, hard shadows, Lexend type, cream-and-strawberry palette - Figma tokens map 1:1 to production CSS. Web is full-featured; mobile is the daily companion; extension is quick-tick only.",
         "type": "text",
-        "title": "Reflection",
-        "summary": "Grounding design in research prevents assumptions",
-        "body": "This project reinforced that IA should drive interface design, not the other way around. Testing with real users revealed assumptions I didn't know I had."
+        "title": "Design & Platform",
+        "bullets": [
+          "Figma → code: tokens, components, pet art spec for ~24 breeds",
+          "Branded auth: Clerk sign-up restyled to match the product",
+          "IA: Habits → Wallet → Pets → Social"
+        ],
+        "summary": "Neo-brutalist system from Figma to production, four surfaces",
+        "bodyDetail": "Thick cocoa borders, hard offset shadows, Lexend type, cream-and-strawberry palette. Built as a Figma token library that maps 1:1 to CSS variables and Tailwind - production screens assemble from the same components as the mockups.",
+        "visibility": "always",
+        "bulletsDetail": [
+          "Tokens: cream background, cocoa ink, strawberry primary, golden accent",
+          "Component pipeline: Figma variants → React + shadow-brutal utilities",
+          "Pet art spec keeps ~24 breeds consistent across the collection",
+          "Clerk auth themed to match - signup never feels bolted on"
+        ],
+        "summaryDetail": "Neo-brutalist brand built as tokens, not one-off screens"
+      },
+      {
+        "id": "figma",
+        "body": "Thick cocoa borders, hard offset shadows, Lexend type, cream-and-strawberry palette. Built as a Figma token library that maps 1:1 to CSS variables and Tailwind - production screens assemble from the same components as the mockups.",
+        "type": "text",
+        "title": "Design System in Figma",
+        "bullets": [
+          "Tokens: cream background, cocoa ink, strawberry primary, golden accent",
+          "Component pipeline: Figma variants → React + shadow-brutal utilities",
+          "Pet art spec keeps ~24 breeds consistent across the collection",
+          "Clerk auth themed to match - signup never feels bolted on"
+        ],
+        "summary": "Neo-brutalist brand built as tokens, not one-off screens",
+        "visibility": "detail"
+      },
+      {
+        "id": "tokens-img",
+        "src": "/case-studies/habiganize/tokens-diagram.png",
+        "type": "image",
+        "title": "Figma → Production",
+        "caption": "Figma variables to production CSS",
+        "visibility": "detail"
+      },
+      {
+        "id": "auth-img",
+        "src": "/case-studies/habiganize/live-auth.png",
+        "type": "image",
+        "title": "Branded Down to Sign-Up",
+        "caption": "Shipped sign-up screen (live capture) - Clerk restyled to match the system",
+        "visibility": "detail"
+      },
+      {
+        "id": "iteration-img",
+        "src": "/case-studies/habiganize/concept-mockup.png",
+        "type": "image",
+        "title": "Early Explorations",
+        "caption": "Early explorations: illustrated and pixel-art directions tested and retired in favor of neo-brutalism for recognizability and tap targets",
+        "visibility": "detail"
+      },
+      {
+        "id": "platform",
+        "body": "Web is full-featured. Mobile is the daily companion. Chrome extension is quick-tick only. One OpenAPI-backed service keeps data in sync via Clerk auth.",
+        "type": "text",
+        "title": "One Product, Four Surfaces",
+        "bullets": [
+          "Mental model: Habits → Wallet → Pets → Social",
+          "Web: Today, Habits, Stats, History, Health, Pups, Friends, Ranks, Premium",
+          "Mobile: five high-frequency tabs; Friends/Ranks via Settings (parity gap)",
+          "Extension: habit check-off only - no pets or social"
+        ],
+        "summary": "One account, one API, four doors",
+        "visibility": "detail"
+      },
+      {
+        "id": "ia-img",
+        "src": "/case-studies/habiganize/ia-diagram.png",
+        "type": "image",
+        "title": "Information Architecture",
+        "caption": "Information architecture across web, mobile, and extension",
+        "visibility": "detail"
+      },
+      {
+        "id": "product-img",
+        "src": "/case-studies/habiganize/mobile-screens.png",
+        "href": "https://habitganizer.tech",
+        "type": "image",
+        "title": "Shipped Product",
+        "caption": "Shipped mobile app (Today + Habits) - live at habitganizer.tech",
+        "linkLabel": "Click here to try the product →",
+        "visibility": "always"
+      },
+      {
+        "id": "pets-img",
+        "src": "/case-studies/habiganize/pets-strip.png",
+        "type": "image",
+        "title": "Meet the Companions",
+        "caption": "Collectible companions - emotional payoff of the care loop",
+        "visibility": "detail"
+      },
+      {
+        "id": "demo",
+        "src": "/case-studies/habiganize/web-cover.png",
+        "href": "https://habitganizer.tech",
+        "type": "image",
+        "title": "Try It Live",
+        "caption": "Open the live product in a new tab — no iframe (avoids frame blockers and page jank).",
+        "linkLabel": "Click here to try the product →",
+        "visibility": "detail"
+      },
+      {
+        "id": "business",
+        "body": "MVP sequenced the retention loop first. Monetization: free tier (5 habits, 3 pets), Pro/Premium/Ultimate subscriptions, coin packs, rewarded ads, donations. Every major tradeoff is documented with its cost.",
+        "type": "text",
+        "title": "Product & Business Decisions",
+        "bullets": [
+          "Clerk auth vs anonymous-first: chose identity and billing; anonymous trial is top revisit",
+          "Chain streaks without freezes: shipped faster; freezes are backlog item #1",
+          "Cold-start wake screen: turned Render free-tier delay into branded UX with fun facts",
+          "Neo-brutalist brand: memorability over enterprise-safe minimalism"
+        ],
+        "summary": "Scope, monetization, and tradeoffs",
+        "visibility": "detail"
+      },
+      {
+        "id": "validation",
+        "body": "I use Habiganize daily and shipped in-app feedback. I won't invent metrics we haven't instrumented. Next: moderated usability tests, D1/D7/D30 measurement, streak freezes, anonymous trial.",
+        "type": "text",
+        "title": "Validation & What's Next",
+        "bullets": [
+          "Next: 5 usability sessions on Today + Pups flows",
+          "Next: does adopting a first pet lift next-day return?",
+          "Then: app-store release (EAS in progress)"
+        ],
+        "summary": "Honest about what's tested and what isn't",
+        "visibility": "detail"
+      },
+      {
+        "id": "outcomes",
+        "body": "Live product at habitganizer.tech with a working pet economy and coherent design system. Metrics not invented - usability testing and D1/D7/D30 measurement are next.",
+        "type": "text",
+        "title": "Outcomes",
+        "bullets": [
+          "BA: framed the problem with market data",
+          "User: loss aversion, collection, immediate payoff",
+          "Design: token system from Figma through auth",
+          "Product: freemium model, platform strategy, tradeoff docs"
+        ],
+        "summary": "One person across BA, user research, design, and product ownership",
+        "bodyDetail": "Live multi-platform product with working pet economy and coherent design system. The portfolio case: I can take a vague business problem, frame it with data, synthesize research, design a system in Figma, ship it, and make the PO calls about scope and debt.",
+        "visibility": "always",
+        "titleDetail": "Outcomes & Why It Matters",
+        "bulletsDetail": [
+          "BA: market data framed retention as the design brief",
+          "User: behavioral science - loss aversion, collection, immediate payoff",
+          "Design: token system from Figma through auth screens",
+          "Product: freemium model, platform strategy, honest tradeoff docs"
+        ],
+        "summaryDetail": "One person across BA, user research, design, and product ownership"
       }
-    ]
+    ],
+    "solution": "Pair one-tap check-ins with a pet economy: habits earn coins, food, and water; companions decay without care. Consistency feels like nurturing, not self-surveillance.",
+    "subtitle": "A cross-platform habit tracker where daily check-ins fund a pet-care economy - designed, built, and shipped solo. Live at habitganizer.tech.",
+    "challenge": "Habit apps lose most users fast (~25% D1, ~7% D7, ~3% D30). Checkbox rewards fade; broken streaks trigger total drop-off - because leaving costs nothing.",
+    "coverImage": "/case-studies/habiganize/web-cover.png",
+    "description": "Habiganize fights habit-app abandonment with emotional attachment instead of streak guilt. I owned the business framing, research, Figma system, and shipped product across web, mobile, and a Chrome extension.",
+    "cardDescription": ""
   },
   {
-    "id": "2",
-    "slug": "freshii-moderated-study",
-    "title": "Freshii: Omnichannel Research & Usability Optimization",
-    "subtitle": "Identified critical usability errors in Freshii's ordering flow through moderated testing, reducing cart abandonment and improving task success.",
-    "type": "Moderator + Researcher",
-    "users": "Freshii mobile app users",
-    "methods": "Moderated think-aloud testing, qualitative synthesis, prioritized UX recommendations",
-    "period": "Sept 2025 — Dec 2025",
-    "tags": [
-      "Moderated Testing",
-      "UX Research",
-      "Omnichannel"
-    ],
-    "description": "Planned and moderated remote usability tests of Freshii's ordering and checkout flows using think-aloud protocols, then synthesized findings into prioritized UX recommendations and design changes to reduce task errors and streamline the omnichannel customer experience.",
-    "bullets": [
-      "Planned and moderated remote usability tests using think-aloud protocols to surface critical usability errors across ordering and checkout flows.",
-      "Led qualitative synthesis of test sessions to identify root causes of user confusion and error patterns.",
-      "Translated findings into prioritized UX recommendations and design changes to reduce task errors and streamline the omnichannel customer experience."
-    ],
-    "challenge": "The Freshii mobile app's customization and checkout flows contained friction points that were leading to cart abandonment and negative user sentiment.",
-    "solution": "Defined task scenarios and success criteria, moderated remote usability sessions, captured detailed behavioral notes, and authored the final report with actionable recommendations.",
-    "impact": "Identified recurring usability issues across account creation, location discovery, rewards redemption, and ordering flows.",
-    "coverImage": "https://framerusercontent.com/images/o4T7ZUfPWuKTK53ALzCqNJP9oI.jpg?width=1024&height=1024",
-    "year": "2025",
-    "featured": true,
+    "id": "1784353650452",
+    "slug": "Quiet-Circle",
+    "tags": [],
+    "type": "Product Design",
+    "year": "2026",
+    "title": "Quiet Circle: A Digital Mental Health & Safety Companion for 2SLGBTQ+ Youth",
+    "impact": "| Design Goal                  | How Quiet Circle Addresses It                           |\n| ---------------------------- | ------------------------------------------------------- |\n| Avoid accidental outing      | Stealth UI, per-post anonymous toggle                   |\n| User-controlled disclosure   | Configurable trusted contacts in Live Signal            |\n| Beyond mental health support | Resource Hub covers housing, employment, local services |\n| Undisturbed private space    | Journal fully separated from shared features            |",
+    "archived": true,
+    "featured": false,
     "sections": [
       {
-        "id": "problem",
+        "id": "1785549669217",
+        "type": "problem-solution",
+        "problem": "LGBTQIA+ youth face heightened exposure to minority stress across home, school, work, and public environments, yet the digital tools available to them don't fully address their needs for discretion, safety, and queer-affirming content. Existing platforms introduce their own risks: outing, misuse of personal data, and interfaces built on assumptions about identity that don't hold for everyone.",
+        "solution": "Reviewed how existing mental health and community apps handle emergency contacts, posting identity, and data visibility, to identify where assumptions of disclosure created risk.\n\nGathered survey feedback directly from LGBTQIA+ youth on discretion needs, including the explicit requirement for a non-outing interface.\n\nMapped visibility needs across five distinct user journeys: reaching out for help, connecting with peers, finding practical resources, adjusting app appearance, and private reflection.\n\nDesigned each feature around user-controlled visibility rather than a single global privacy setting."
+      },
+      {
+        "id": "1784353782016",
+        "body": "",
         "type": "text",
-        "title": "The Problem",
-        "summary": "Cart abandonment and user frustration in ordering flows",
-        "body": "The Freshii mobile app's customization and checkout flows contained friction points leading to cart abandonment. Users struggled with account creation, location discovery, rewards redemption, and custom ordering."
-      },
-      {
-        "id": "role",
-        "type": "text",
-        "title": "My Role & Process",
-        "summary": "Led research planning, moderation, and synthesis",
-        "bullets": [
-          "Role: Moderator + Researcher",
-          "Methods: moderated think-aloud testing, card sorting, qualitative synthesis",
-          "Deliverables: research report with prioritized recommendations",
-          "Sessions: 5 remote usability tests, 15-20 min each"
-        ]
-      },
-      {
-        "id": "overview-img",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/UsoG2MKfFead5qDsLwHxI3xM1E.png?width=1987&height=829",
-        "caption": "Study overview and task framework"
-      },
-      {
-        "id": "tasks",
-        "type": "text",
-        "title": "Tasks Evaluated",
-        "summary": "Four scenarios covering the full ordering journey",
-        "bullets": [
-          "Create an account",
-          "View rewards",
-          "Find the nearest store location",
-          "Order a custom bowl"
-        ]
-      },
-      {
-        "id": "method-img",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/tuCbYCFFGJhY4ODrpKYl6vkSyg.png?width=1101&height=1156",
-        "caption": "Think-aloud session approach and note-taking framework"
-      },
-      {
-        "id": "insights",
-        "type": "text",
-        "title": "Key Findings",
-        "summary": "Three recurring issues across all sessions",
-        "bullets": [
-          "Account creation is fragmented — multiple screens, forced data entry, no progress visibility",
-          "Location discovery uses inconsistent iconography — unclear system states confuse users",
-          "Rewards are buried deep in checkout — users don't discover them until too late"
-        ]
-      },
-      {
-        "id": "s1-img",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/K75GkPOl17FhLZnt0cmSg3oLCLE.png?width=1883&height=716",
-        "caption": "Scenario 1 — Account creation friction: fragmented flow with forced data entry"
-      },
-      {
-        "id": "s2-img",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/HzsSWY5L4y0F91fuvCJKzArHK4.png?width=2091&height=856",
-        "caption": "Scenario 2 — Location discovery: inconsistent iconography and unclear states"
-      },
-      {
-        "id": "s3-img",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/wkTWCLS5KF4xZK0f1wu50Nhs.png?width=3006&height=990",
-        "caption": "Scenario 3 — Rewards buried in checkout flow"
-      },
-      {
-        "id": "s4-img",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/5EAfhWYEzWw2JNMUZLQr3I0xrhY.png?width=3241&height=1081",
-        "caption": "Scenario 4 — Custom bowl ordering: rigid linear flow"
-      },
-      {
-        "id": "decisions",
-        "type": "text",
-        "title": "Design Recommendations",
-        "summary": "Prioritized by impact and effort",
-        "bullets": [
-          "Add progress indicators to multi-step flows — reduces perceived effort",
-          "Allow optional inputs during onboarding — reduces drop-off risk",
-          "Surface rewards earlier in the journey — increases discovery and engagement",
-          "Improve location iconography consistency — reduces cognitive load"
-        ]
-      },
-      {
-        "id": "outcome-img",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/zNOKlAxtOUNfOcY8qdVjhEesOSE.png?width=1666&height=796",
-        "caption": "Prioritized recommendations report"
-      },
-      {
-        "id": "impact",
-        "type": "text",
-        "title": "Impact & Results",
-        "summary": "Actionable findings across 4 critical flows",
-        "bullets": [
-          "Identified 12 specific usability issues across 4 task scenarios",
-          "Prioritized recommendations by impact (high/medium/low)",
-          "Findings informed immediate design changes to account creation flow"
-        ]
-      },
-      {
-        "id": "reflection",
-        "type": "text",
-        "title": "Reflection",
-        "summary": "System feedback and user control are critical in task-based flows",
-        "body": "This project reinforced that users need to feel in control. Progress indicators, optional fields, and clear exit points aren't nice-to-haves — they're essential for reducing abandonment."
+        "title": "Outcomes",
+        "summary": ""
       }
-    ]
-  },
-  {
-    "id": "3",
-    "slug": "kijiji-trust-safety",
-    "title": "Kijiji — Trust & Safety System",
-    "subtitle": "Designed a layered trust framework to reduce fraud and increase buyer confidence in peer-to-peer marketplace transactions.",
-    "type": "UX Designer",
-    "users": "Peer-to-peer marketplace buyers & sellers",
-    "methods": "User research, journey mapping, system design, prototyping",
-    "tags": [
-      "UX Research",
-      "Systems Design",
-      "Trust & Safety"
     ],
-    "description": "A systems-level trust and safety framework designed to reduce fraud and improve buyer confidence on Kijiji's peer-to-peer marketplace.",
-    "challenge": "Kijiji users frequently encounter scams, fraudulent listings, and safety concerns. Users hesitate when profiles are anonymous and listing quality is inconsistent.",
-    "solution": "Worked backwards from user risk moments to define principles, then mapped flows and trust signals into the UI.",
-    "impact": "Proposed a comprehensive trust framework with three core pillars — contextual verification, structured listings, and AI safety layer.",
-    "coverImage": "https://framerusercontent.com/images/gGUV4AdcXMRtuect2AEdvKLzrU.png?width=1024&height=1024",
-    "year": "2024",
-    "featured": true,
-    "sections": [
-      {
-        "id": "problem",
-        "type": "text",
-        "title": "The Problem",
-        "summary": "Users hesitate when trust isn't visible at decision points",
-        "body": "In P2P marketplaces, users need reassurance early because the cost of being wrong is high. Kijiji users encounter scams, fraudulent listings, and safety concerns when meeting strangers for transactions.",
-        "bullets": [
-          "Anonymous profiles create hesitation",
-          "Inconsistent listing quality reduces confidence",
-          "No in-context safety signals during browse and contact"
-        ]
-      },
-      {
-        "id": "trust-journey",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/z9cswsrE0evFGhst0et6GQufY.png?width=1472&height=704",
-        "caption": "Trust journey — high-risk moments from browse to meetup"
-      },
-      {
-        "id": "role",
-        "type": "text",
-        "title": "My Role & Process",
-        "summary": "Owned the system logic, flow mapping, and UI concept",
-        "bullets": [
-          "Role: UX designer (systems + IA/flows + UI concept)",
-          "Deliverables: trust pillar framework, user flows, key screens",
-          "Approach: worked backwards from user risk moments"
-        ]
-      },
-      {
-        "id": "insights",
-        "type": "text",
-        "title": "Key Insights",
-        "summary": "Trust must be visible at decision points, not just on profiles",
-        "bullets": [
-          "Single-point verification creates false security — users need layered signals",
-          "Trust must appear in browse, listing view, and chat — not only after contact",
-          "Over-verification blocks legitimate sellers — contextual triggers work better"
-        ]
-      },
-      {
-        "id": "decisions-img",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/fD5QsSDEfmqfsZ1Bqv4w3lkmG2s.png?width=1920&height=1080",
-        "caption": "Three key design decisions shaping the trust system"
-      },
-      {
-        "id": "decisions",
-        "type": "text",
-        "title": "Design Decisions",
-        "summary": "Three pillars: contextual verification, structured listings, AI safety layer",
-        "bullets": [
-          "Contextual verification — triggered by high-risk actions, not upfront gatekeeping",
-          "Structured listings — required specs and completeness checks before publish",
-          "AI safety layer — scans post-publish, flags suspicious content with transparent messaging"
-        ]
-      },
-      {
-        "id": "d1",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/o2fRsqFyoiO6RiWQs21tdNI7rmk.png?width=1136&height=174",
-        "caption": "Decision 1 — Contextual verification: triggered via settings or high-risk actions"
-      },
-      {
-        "id": "d2",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/raSXKAyt7Oc5aQJh07Ky0jKaG0.png?width=1874&height=349",
-        "caption": "Decision 2 — Listing quality: category-specific required fields"
-      },
-      {
-        "id": "d3",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/FVcu355M4yOJaBlEjJOaBVIBVP8.png?width=1874&height=324",
-        "caption": "Decision 3 — AI safety layer: scans content post-publish"
-      },
-      {
-        "id": "solution",
-        "type": "text",
-        "title": "The Solution",
-        "summary": "A layered trust framework across identity, listings, and behavior",
-        "body": "The framework layers trust signals across three dimensions: who you are (identity), what you're selling (listings), and how you behave (AI monitoring)."
-      },
-      {
-        "id": "trust-overview",
-        "type": "image",
-        "src": "https://framerusercontent.com/images/3vhymF9sCCTaIqvdo62WK9lPsTM.png?width=1920&height=1080",
-        "caption": "Kijiji trust & safety system — full framework overview"
-      },
-      {
-        "id": "impact",
-        "type": "text",
-        "title": "Impact & Results",
-        "summary": "Expected to reduce reported scams by ~25%",
-        "bullets": [
-          "Layered verification reduces false sense of security",
-          "Structured listings improve quality and reduce fraudulent posts",
-          "AI safety net catches issues without blocking legitimate sellers"
-        ],
-        "body2": "Proposed metrics: 25% reduction in reported scams, 15% increase in buyer confidence scores."
-      },
-      {
-        "id": "reflection",
-        "type": "text",
-        "title": "Reflection",
-        "summary": "Trust is cumulative and easily disrupted",
-        "body": "Designing trust at scale requires balancing safety, accessibility, and user autonomy. Over-verification risks excluding valid users; under-verification risks safety. The answer is contextual triggers, not blanket gates."
-      }
-    ]
+    "solution": "Reviewed how existing mental health and community apps handle emergency contacts, posting identity, and data visibility, to identify where assumptions of disclosure created risk.\n\nGathered survey feedback directly from LGBTQIA+ youth on discretion needs, including the explicit requirement for a non-outing interface.\n\nMapped visibility needs across five distinct user journeys: reaching out for help, connecting with peers, finding practical resources, adjusting app appearance, and private reflection.\n\nDesigned each feature around user-controlled visibility rather than a single global privacy setting.",
+    "subtitle": "A mobile app that combines discreet crisis signaling, peer community, and intersectional resources for 2SLGBTQ+ youth navigating minority stress.",
+    "challenge": "The digital tools available to LGBTQIA+ youth don't fully address their need for discretion, safety, and queer-affirming content. Existing platforms introduce their own risks: outing, misuse of personal data, and interfaces built on assumptions about identity that don't hold for everyone. Our survey identified a specific, recurring requirement: users needed something that didn't read as \"visibly queer\" on a shared or surveilled device.",
+    "coverImage": "",
+    "description": "Most support tools for LGBTQIA+ youth are built on an unspoken assumption: that the user is safe enough to be visibly queer on their own device. That assumption breaks down fast for teens navigating unsupportive homes, schools, or workplaces. Quiet Circle is a concept I designed to remove that assumption entirely, treating discretion not as an edge case, but as a core design constraint from day one.",
+    "cardDescription": "A mobile app that combines discreet crisis signaling, peer community, and intersectional resources for 2SLGBTQ+ youth navigating minority stress."
   },
   {
     "id": "4",
     "slug": "beaverbuild",
-    "title": "BeaverBuild — Financial Literacy for Newcomers",
-    "subtitle": "Designed a paced learning platform helping newcomer Ontario college students navigate Canadian finances — from Day 1 to Month 6.",
-    "type": "UX Researcher & Designer",
-    "users": "Newcomer Ontario college students (international, low-income, recent immigrants)",
-    "methods": "Interviews, UX audit, gap analysis, affinity mapping, ideation, high-fi prototyping, moderated usability testing",
     "tags": [
       "UX Research",
       "Service Design",
@@ -449,459 +350,1078 @@
       "Newcomers",
       "Inclusive Design"
     ],
-    "description": "A team UX research and product-design project for a web platform helping newcomer Ontario college students understand and navigate Canadian finances through a paced, milestone-based learning experience.",
-    "challenge": "Newcomer college students arrive in Ontario facing an immediate, high-stakes crash course in a financial system they've never touched. The information exists — but none of it was built for them.",
-    "solution": "Pivoted from a content aggregator to a paced, milestone-based learning journey: Day 1 → Week 1 → Month 1 → Month 6.",
-    "impact": "5-person team. 4 newcomer interviews across 3 Ontario colleges. 5-participant usability test produced prioritized improvements across 5 themes.",
-    "coverImage": "https://framerusercontent.com/images/5atvAgunsX26GQoO7Svr1dm5fgU.png?width=955&height=800",
+    "type": "UX Researcher & Designer",
     "year": "2026",
+    "title": "BeaverBuild  Financial Literacy for Newcomers",
+    "users": "Newcomer Ontario college students (international, low-income, recent immigrants)",
+    "impact": "5-person Humber UXD team. 4 newcomer interviews across 3 Ontario colleges. 5-participant moderated usability test produced a prioritized list of clarity, guidance, engagement, efficiency, and visual-design improvements that were applied across sign-up, roadmap, knowledge hub, community, and tools.",
     "period": "Phase 2 Research → High-fi Prototype · 2026",
-    "featured": true,
+    "methods": "Interviews, UX audit, gap analysis, affinity mapping, ideation, high-fi prototyping, moderated usability testing",
+    "archived": false,
+    "featured": false,
     "sections": [
       {
-        "id": "problem",
-        "type": "text",
-        "title": "The Problem",
-        "summary": "The information exists. Acting on it doesn't.",
+        "id": "context",
         "body": "Newcomer students arriving at Ontario colleges face an immediate, high-stakes crash course in a financial system they have never touched. They are not failing because the information isn't out there — government sites, college workshops, and fintech apps are everywhere. They are failing because none of those resources were built for them.",
-        "bullets": [
-          "Resources scattered across government portals, college emails, and bank websites",
-          "All assume baseline understanding of Canadian credit, taxes, and banking",
-          "Students spend first 6-12 months on debit only out of fear",
-          "No product treats newcomer students as a primary audience"
-        ]
+        "type": "text",
+        "body2": "BeaverBuild is a team project from Humber's UX Design program (UXD-5213, Group 2). I led research synthesis, contributed to ideation, and co-designed the high-fidelity prototype that was tested with newcomer students.",
+        "title": "Context",
+        "summary": "The information exists. Acting on it doesn't."
       },
       {
-        "id": "role",
-        "type": "text",
-        "title": "My Role & Process",
-        "summary": "Led research synthesis, contributed to ideation, co-designed prototype",
-        "bullets": [
-          "Role: UX Researcher & Designer",
-          "Team: 5-person Humber UXD team (Group 2)",
-          "Methods: interviews, UX audit, gap analysis, prototyping, usability testing",
-          "My focus: research synthesis, ideation, high-fi prototype design"
-        ]
+        "id": "problem-goal",
+        "type": "problem-solution",
+        "title": "Problem vs. Design Goal",
+        "problem": "Resources are scattered across government portals, college emails, and bank websites with no clear starting point. All of them assume baseline understanding of Canadian credit, taxes, and banking terminology. Students spend their first 6–12 months on debit only out of fear, missing the most critical credit-building window — and quietly disengage from financial topics entirely. No product treats newcomer students as a primary audience.",
+        "solution": "A single, paced entry point that meets students where they are on Day 1. Jargon-free guidance that builds confidence before complexity. A structured first-year financial roadmap — not a static information dump. Relevant, credible content filtered for the newcomer context. A resource students would actually open, not archive."
       },
       {
         "id": "process",
+        "body": "We ran secondary and primary research in parallel — evaluating existing tools for their UX assumptions, then speaking directly with newcomer students about their lived financial experience. Synthesis connected what the tools do with what students actually need.",
         "type": "text",
-        "title": "Four-Phase Process",
-        "summary": "From scattered signals to a clear design direction",
+        "title": "Four-phase process",
         "bullets": [
-          "01 · Discover — Secondary research & UX audit of Canada.ca, college portals, fintech apps",
-          "02 · Define — 4 interviews with low-income international students from 3 Ontario colleges",
-          "03 · Develop — Synthesis & gap analysis: 3 concrete gaps emerged",
-          "04 · Deliver — Concept sketching → mid-fi → high-fi prototype"
-        ]
+          "01 · Discover — Secondary research & UX audit. Evaluated Canada.ca, Humber/Seneca/Sheridan portals, and KOHO, YNAB, Wealthsimple. Documented both what each offers and what it assumes users already know.",
+          "02 · Define — Interviews with 4 newcomer students. One-on-one semi-structured interviews with low-income international students from three Ontario colleges. Explored lived financial experiences, emotional responses, and real coping behaviours.",
+          "03 · Develop — Synthesis & gap analysis. Cross-referenced what tools offer vs. what students need. Three concrete gaps emerged: scattered resources, no newcomer-specific targeting, and text-heavy formats that reward prior knowledge.",
+          "04 · Deliver — Concept sketching → mid-fi → high-fi prototype. A milestone-based experience: Day 1 → Week 1 → Month 1 → Month 6. Each stage introduces only the financial concept relevant to that moment in a student's first year."
+        ],
+        "summary": "From scattered signals to a clear design direction."
       },
       {
         "id": "insights",
+        "body": "We interviewed four low-income international students — one each from Humber, Seneca, and Sheridan colleges — about their first months managing money in Canada. Three consistent patterns came up in every conversation.",
         "type": "text",
-        "title": "Key Insights",
-        "summary": "Three patterns, heard from every participant",
+        "title": "Three patterns, heard from every participant",
         "bullets": [
-          "Delayed financial confidence — Students limited themselves to debit for 6-12 months from fear of the unknown",
-          "Information overload & low visibility — College emails went unread, government sites felt cluttered",
-          "Reactive, not proactive — Students managed money by checking balances after the fact, not planning ahead"
-        ]
+          "Delayed financial confidence — \"Almost everything felt unfamiliar at the beginning.\" Students limited themselves to debit only for the first 6–12 months — not from choice, but from fear of the unknown. Low awareness of credit, taxes, and banking terminology meant they missed the most critical window to build a financial foundation.",
+          "Information overload & low visibility — \"I didn't even know that such an assessment existed.\" College emails went unread. Government websites felt cluttered and were avoided early on. Students often didn't know what they didn't know — existing resources couldn't reach them because they weren't surfaced at the right moment or in a digestible form.",
+          "Reactive, not proactive — \"I mostly just check the transaction records in my bank app.\" Without structured first-year guidance, students managed money reactively — checking balances after the fact rather than planning ahead. Unexpected expenses were consistently hard to anticipate, and no budgeting tools were in use."
+        ],
+        "summary": "Four interviews. Three insights that cut across all of them."
       },
       {
         "id": "pivot",
+        "body": "Early ideation pulled us toward a resource aggregator — essentially a better-organized version of Canada.ca. It made logical sense: the problem was scattered information, so consolidate it. But the interviews surfaced something deeper than information overload — students lacked a mental model for Canadian finance. They didn't need more content organized more cleanly; they needed someone to tell them what matters on Day 1, what to learn in Month 1, and why it matters at all.",
         "type": "text",
-        "title": "The Pivot Moment",
-        "summary": "We almost built the wrong thing",
-        "body": "Early ideation pulled us toward a resource aggregator — essentially a better-organized Canada.ca. But the interviews surfaced something deeper: students lacked a mental model for Canadian finance. They didn't need more content organized more cleanly; they needed someone to tell them what matters on Day 1.",
-        "body2": "We shifted from a content hub to a paced milestone journey: a guide, not a library."
+        "body2": "This was uncomfortable to admit midway through ideation. We had already invested time mapping content architecture for an aggregator model. But the data was clear: another well-organized list of links wouldn't move the needle. The emotional barrier — feeling lost, not just uninformed — required a fundamentally different approach. We shifted from a content hub to a paced milestone journey: a guide, not a library.",
+        "title": "The pivot moment",
+        "summary": "We almost built the wrong thing."
       },
       {
         "id": "decisions",
         "type": "text",
-        "title": "Design Decisions",
-        "summary": "Every decision traced back to a research finding",
+        "title": "Key design decisions",
         "bullets": [
-          "Milestone-based timeline (Day 1 → Month 6) — temporal anchoring reduces cognitive load",
-          "Newcomer-first language — no jargon without plain-language explanation",
-          "Mobile-first, single-task screens — college portals were described as \"cluttered\"",
-          "Proactive push at enrollment — reach students before avoidance habits set in",
-          "Progress-visible design — \"Month 1 of 6\" rather than endless scroll"
-        ]
+          "Milestone-based timeline (Day 1 → Month 6) instead of a topic library — temporal anchoring reduces cognitive load by surfacing only what's relevant to the student's current moment. Directly addresses the \"reactive, not proactive\" pattern.",
+          "Newcomer-first language — no financial jargon without an immediate plain-language explanation. Every existing tool we audited assumed baseline financial literacy; participants avoided resources that felt like tests of knowledge they didn't have.",
+          "Mobile-first, single-task screens rather than information-dense pages — college and government portals were described as \"cluttered\" and were actively avoided. One concept per screen reduces decision fatigue.",
+          "Proactive push at enrollment — not buried in a college portal sidebar. The tool has to reach students before they develop avoidance habits, not after.",
+          "Progress-visible design (\"Month 1 of 6\" rather than endless scroll) — financial learning felt boundless and therefore paralyzing. Visible progress creates a sense of completion and lowers the emotional cost of engaging."
+        ],
+        "summary": "Every decision traced back to a research finding."
       },
       {
-        "id": "solution",
+        "id": "prototype",
+        "body": "The high-fidelity prototype is built around four complementary surfaces — each one mapped to a barrier we heard in interviews.",
         "type": "text",
-        "title": "The Solution",
-        "summary": "Four product surfaces, each addressing a specific research gap",
+        "title": "Prototype features",
         "bullets": [
-          "Guided learning modules — First-year roadmap broken into 4 milestones with auto-saved progress",
-          "Knowledge Hub — Curated library of plain-language videos and guides, filtered for newcomer context",
-          "Community Hub — Peer-to-peer questions with admin presence and trust signals",
-          "Financial tools — Lightweight calculators with contextual tips"
-        ]
+          "Guided learning modules — A first-year financial roadmap broken into four milestones (Financial Survival Guide → Essential Setup → Building Roots → Long-term Planning). Auto-saved progress, plain-language module summaries, and a visible \"X of 4 complete\" bar so the journey feels finite.",
+          "Knowledge Hub — A curated library of plain-language videos, guides, and articles. Filtered for the newcomer context and tagged so students can find a topic without already knowing the Canadian terminology for it.",
+          "Community Hub — Peer-to-peer questions, shared journeys, and points for posting. An admin presence and trust signals encourage participation from students who would otherwise lurk.",
+          "Financial tools — Lightweight calculators (budget planner, savings tracker) that surface contextual tips when a user has extra budget left over, instead of waiting for the user to know what to ask."
+        ],
+        "summary": "Four product surfaces, each addressing a specific research gap."
+      },
+      {
+        "id": "screens-intro",
+        "body": "The mobile-first concept walks newcomer students through six financial milestones in their first year in Canada. Each milestone is unlocked over time, introducing one concept at a time, with plain language and a single recommended action.",
+        "type": "text",
+        "title": "A first-year financial milestone guide",
+        "summary": "Six milestones, unlocked over time. One concept per screen."
       },
       {
         "id": "screen-onboarding",
-        "type": "image",
         "src": "",
-        "caption": "Milestone Map — Students see the full journey at a glance (Day 1 → Month 6)"
+        "type": "image",
+        "caption": "Milestone Map — Students see the full journey at a glance (Day 1 → Week 1 → Month 1 → Month 6), making financial learning feel finite and achievable."
       },
       {
         "id": "screen-day1",
-        "type": "image",
         "src": "",
-        "caption": "Day 1 — Financial Survival Guide: open an account, understand debit vs. credit"
+        "type": "image",
+        "caption": "Day 1 — Financial Survival Guide. Only the essentials: open an account, understand debit vs. credit, get your SIN."
       },
       {
         "id": "screen-month1",
-        "type": "image",
         "src": "",
-        "caption": "Month 1 — Credit Introduction: why it matters in Canada, how to start building"
+        "type": "image",
+        "caption": "Month 1 — Credit Introduction. Credit explained from scratch: why it matters in Canada, how to start building it safely."
+      },
+      {
+        "id": "screen-budget",
+        "src": "",
+        "type": "image",
+        "caption": "Budget Awareness — Visual income-to-expense breakdown without the overwhelm of full budgeting categories."
+      },
+      {
+        "id": "screen-wireframes",
+        "src": "",
+        "type": "image",
+        "caption": "Wireframe Flow — Full journey from landing through all six milestones, showing navigation logic and content pacing decisions."
       },
       {
         "id": "usability-testing",
+        "body": "We ran moderated, task-based usability tests with five international students in Canada — 15–20 minutes per session, think-aloud protocol. Tasks: sign up, use the financial roadmap, find an article, explore the community, use a tool. We measured task completion, time on task, observations, participant quotes, and post-task ratings.",
         "type": "text",
-        "title": "Usability Testing",
-        "summary": "5 participants, 5 tasks, one prioritized backlog",
-        "body": "Moderated task-based tests with 5 international students — 15-20 min sessions, think-aloud protocol.",
+        "body2": "Findings were tagged across five themes — clarity, guidance, engagement & trust, efficiency, and visual design — so iterations could be prioritized rather than addressed ad-hoc.",
+        "title": "Usability testing",
         "bullets": [
-          "Sign up — Users unsure where to sign up, multiple entry points caused confusion",
-          "Financial Roadmap — Stage names and terminology confused users",
-          "Knowledge Hub — \"My Library\" label unclear, content didn't match expectations",
-          "Community — Users unsure if others would post, low engagement signals",
-          "Tools — No tips after budget entry, users wanted suggestions"
-        ]
+          "Sign up — Users were unsure where to sign up. Multiple entry points caused confusion and the sign-up was not visually emphasized.",
+          "Financial Roadmap — Users were confused by stage names and terminology. Lack of instruction and context made progression unclear.",
+          "Knowledge Hub — Some labels and categories (notably \"My Library\") were unclear; content didn't always match user expectations and articles needed more structure.",
+          "Community — Users were unsure if others would actively post. Low engagement signals and no clear motivation to participate.",
+          "Tools — No tips after a budget was entered; users wanted simple suggestions for what to do with leftover budget."
+        ],
+        "summary": "Five participants, five tasks, one prioritized backlog."
       },
       {
         "id": "iterations",
         "type": "text",
-        "title": "Before → After Iterations",
-        "summary": "What we changed, and why",
+        "title": "Before → After iterations",
         "bullets": [
-          "Sign up — Added time concept, bigger register button, real human imagery",
-          "Roadmap — Added inline instructions, hero explanation, module descriptions",
-          "Knowledge Hub — Renamed \"My Library\", adjusted category labels",
-          "Community — Added search, admin presence, visible points reward",
-          "Tools — Added contextual tips in budget planner"
-        ]
+          "Sign up — Added a time concept to the financial plan, made the register button bigger and added a Register CTA on the guest homepage, replaced stylized illustrations with real human imagery, and added a clear register progress flow.",
+          "Roadmap — Added inline instructions, a short hero explanation, and revealed more information in the financial roadmap section so users no longer needed to scroll to discover the larger map.",
+          "Roadmap modules — Added descriptions under each module (and inside each module) so users understood the purpose before clicking in.",
+          "Knowledge Hub — Renamed \"My Library\" and adjusted category labels to match user mental models.",
+          "Knowledge Hub articles — Broke long-form articles into shorter sections with clear headings to better support comprehension.",
+          "Community — Added a search function, an admin presence that posts and replies, and a visible points reward to encourage participation.",
+          "Tools — Added contextual tips in the budget planner (e.g. simple suggestions when there's extra budget left)."
+        ],
+        "summary": "What we changed, and why."
+      },
+      {
+        "id": "marketing",
+        "body": "Because students reported ignoring school emails and not knowing resources existed until it was too late, the platform's reach has to begin before they're sitting at a laptop. We mapped six newcomer touchpoints and a marketing material for each.",
+        "type": "text",
+        "body2": "Each material maps back to a specific pain point — scattered information, anxiety, heavy text, confusion over financial terms, or low motivation — so the marketing doesn't just create awareness, it sets expectations for what the product will solve.",
+        "title": "Marketing & touchpoints",
+        "bullets": [
+          "School acceptance email — Embedded checklist linking to the onboarding hub.",
+          "Airport arrival — Booklets and 3D-printed luggage tags with a QR code to the platform.",
+          "Service & Canada Bank visits — Standees and sign holders next to high-anxiety in-branch tasks.",
+          "On-campus orientation — Postcards students can send home that double as platform awareness.",
+          "Daily financial activities — Personal roadmap and flyers placed where decisions actually happen.",
+          "Social media & peer networks — Knowledge hub teasers, financial tools, and the community hub used as conversation starters."
+        ],
+        "summary": "Reaching students before avoidance habits set in."
       },
       {
         "id": "impact",
         "type": "text",
-        "title": "Impact & Results",
-        "summary": "4 interviews, 3 critical gaps, 0 existing products for this audience",
+        "body2": "Lessons learned: (1) Cognitive load is an equity issue — when tools assume financial literacy, they don't just create friction, they exclude. (2) Timing matters as much as content — the right information at the wrong time doesn't help. (3) Don't confuse information access with information usability — Canada.ca is comprehensive; students still couldn't use it. (4) Inclusive design starts with who's in the room during research — \"newcomer\" is broad, and future testing should include recent permanent residents, refugees, and domestic students from low-income backgrounds to validate whether the milestone model holds across different newcomer experiences.",
+        "title": "Impact & reflection",
         "bullets": [
-          "4 low-income international students interviewed across 3 Ontario colleges",
-          "3 critical gaps identified where no existing tool met student needs",
-          "5-participant usability test produced 5-theme prioritization applied across prototype",
-          "0 existing products treat newcomer students as primary audience"
-        ]
+          "4 low-income international students interviewed across 3 Ontario colleges (Humber, Seneca, Sheridan).",
+          "3 critical gaps identified where no existing tool met student needs.",
+          "0 existing products that treat newcomer students as a primary design audience.",
+          "5-participant moderated usability test produced a 5-theme prioritization (clarity, guidance, engagement & trust, efficiency, visual design) applied across the high-fi prototype."
+        ],
+        "summary": "What this research revealed about designing for newcomers."
       },
       {
-        "id": "reflection",
+        "id": "next-steps",
+        "body": "This case study represents Phase 2 of the project — research synthesis and early ideation through to a high-fi prototype. The next phase moves into broader interactive testing, incorporating Humber's Idea Lab Audio & Visual resources to validate the pacing model with a wider group of newcomer students.",
         "type": "text",
-        "title": "Reflection",
-        "summary": "Cognitive load is an equity issue",
-        "body": "When tools assume financial literacy, they don't just create friction — they exclude. Timing matters as much as content: the right information at the wrong time doesn't help. Inclusive design starts with who's in the room during research."
+        "body2": "Key questions for the next round: Does the milestone structure feel intuitive without coaching? Does plain-language content reduce anxiety, or does it feel too simplified? And — critically — will students actually open it on Day 1? Accessibility note: the next prototype phase treats WCAG 2.1 AA as a baseline, not a bonus — plain language, ≥4.5:1 contrast for body text, multilingual support, and screen-reader compatibility are non-negotiable for users with varying English literacy levels.",
+        "title": "What's next",
+        "summary": "Prototyping & validation."
       }
-    ]
+    ],
+    "solution": "We pivoted from a content aggregator to a paced, milestone-based learning journey: Day 1 → Week 1 → Month 1 → Month 6. Newcomer-first language, single-task screens, and a guided roadmap that surfaces only what matters at each moment.",
+    "subtitle": "Researching why newcomer Ontario college students can't act on the financial information that already exists — and designing a paced, jargon-free learning path to close that gap.",
+    "challenge": "Newcomer college students arrive in Ontario facing an immediate, high-stakes crash course in a financial system they've never touched. The information exists — government sites, college workshops, fintech apps — but none of it was built for them.",
+    "coverImage": "https://framerusercontent.com/images/5atvAgunsX26GQoO7Svr1dm5fgU.png?width=955&height=800",
+    "description": "A team UX research and product-design project for a web platform helping newcomer Ontario college students understand and navigate Canadian finances — banking, credit, budgeting, and OSAP — through a paced, milestone-based learning experience."
   },
   {
     "id": "5",
     "slug": "best-buy-analysis",
-    "title": "Best Buy — Competitive UX Analysis",
-    "subtitle": "Analyzed how retail experience patterns shape trust, decision-making, and purchase confidence across electronics retailers.",
-    "type": "UX Researcher",
-    "users": "Budget-conscious electronics buyers",
-    "methods": "Heuristic evaluation, user flow mapping, IA analysis, journey mapping, service blueprint",
     "tags": [
       "Experience Research",
       "Analysis",
       "Competitive Analysis"
     ],
-    "description": "A competitive UX analysis examining Best Buy alongside comparable electronics retailers to identify recurring UX patterns, strengths, and gaps across discovery, comparison, and checkout experiences.",
-    "challenge": "Electronics purchases involve high financial risk, delivery concerns, and return anxiety. Users require clear system feedback and strong trust signals throughout the decision-making process.",
-    "solution": "Evaluated structure, flow, and surface cues across the end-to-end purchase journey using heuristic evaluation, user flow mapping, IA analysis, and journey mapping.",
-    "impact": "Produced a detailed analysis report with specific UX improvements across web, mobile, and in-store digital interactions.",
-    "coverImage": "https://framerusercontent.com/images/Bu9Y45MBqBQoFl5Gh2ydpBWKjF0.png?width=1024&height=896",
+    "type": "UX Researcher",
     "year": "2024",
+    "title": "Best Buy  Competitive UX Analysis",
+    "users": "Budget-conscious electronics buyers",
+    "impact": "Produced a detailed analysis report with specific UX improvements across web, mobile, and in-store digital interactions.",
+    "methods": "Heuristic evaluation, user flow mapping, IA analysis, journey mapping, service blueprint",
     "featured": false,
     "sections": [
       {
-        "id": "problem",
+        "id": "context",
+        "body": "Electronics purchases involve high financial risk and uncertainty around delivery and returns. Users rely on clear product information and strong trust signals before committing to a purchase.",
         "type": "text",
-        "title": "The Problem",
-        "summary": "Buying expensive electronics amplifies need for reassurance",
-        "body": "Electronics purchases involve high financial risk and uncertainty around delivery and users rely on clear product information and strong trust signals before committing.",
-        "body2": "Primary user: a budget-conscious buyer prioritizing reliability, clarity, and risk reduction."
-      },
-      {
-        "id": "role",
-        "type": "text",
-        "title": "My Role & Process",
-        "summary": "Led competitive analysis across multiple methods",
-        "bullets": [
-          "Role: UX Researcher",
-          "Methods: heuristic evaluation, user flow mapping, IA analysis, journey mapping, service blueprint",
-          "Scope: web, mobile, and in-store digital interactions"
-        ]
+        "body2": "Primary user: a budget-conscious buyer, purchasing electronics online with home delivery, who prioritizes reliability, clarity, and risk reduction.",
+        "title": "Context",
+        "summary": "Buying expensive electronics amplifies users' need for reassurance before commitment"
       },
       {
         "id": "findings",
         "type": "text",
         "title": "Key Findings",
-        "summary": "Clarity builds trust — but complexity appears at critical decision points",
         "bullets": [
-          "Strong product-driven surface design — clear visual hierarchy and consistent labeling",
-          "Complex flows during sign-in and checkout — branching paths increase cognitive load",
-          "Policy reassurance comes late — surfaced after users invested effort in comparison"
-        ]
+          "Finding 1 — Strong product-driven surface design: clear visual hierarchy and consistent labeling across browsing",
+          "Finding 2 — Complex flows during sign-in and checkout: branching paths increase cognitive load",
+          "Finding 3 — Policy and delivery reassurance comes late: surfaced after users have already invested effort in comparison"
+        ],
+        "summary": "Clarity builds trust — but complexity still appears at critical decision points"
       },
       {
         "id": "flow1",
-        "type": "image",
         "src": "https://framerusercontent.com/images/rkRpFgLZaFWItgqpQrc5BTA9ZC4.png?width=6270&height=2466",
-        "caption": "User Flow 1 — Sign-in journey with branching paths"
+        "type": "image",
+        "caption": "User Flow 1 — Sign-in journey"
       },
       {
         "id": "flow2",
-        "type": "image",
         "src": "https://framerusercontent.com/images/jumxdcjBAhLR7HI1Qu0kkAhqQWU.png?width=6185&height=1341",
+        "type": "image",
         "caption": "User Flow 2 — Product purchase journey"
       },
       {
         "id": "blueprint",
+        "body": "This service blueprint maps how the user experience is supported across different touchpoints, including digital platforms, physical interactions, and internal operational processes.",
         "type": "text",
         "title": "Service Blueprint",
-        "summary": "Mapping experience across touchpoints",
-        "body": "This service blueprint maps how the user experience is supported across digital platforms, physical interactions, and internal operational processes."
+        "summary": "Mapping how user experience is supported across touchpoints"
       },
       {
         "id": "bp1",
-        "type": "image",
         "src": "https://framerusercontent.com/images/4ZwAzrcII5KXqW1peaDKM3rhc14.png?width=2000&height=1160",
+        "type": "image",
         "caption": "Service Blueprint — online experience & employee touchpoints"
       },
       {
         "id": "bp2",
-        "type": "image",
         "src": "https://framerusercontent.com/images/zHXoUbmjf9aVsrMnarcq53X2zdI.png?width=1920&height=1080",
+        "type": "image",
         "caption": "Service Blueprint — physical store experience"
       },
       {
-        "id": "decisions",
-        "type": "text",
-        "title": "Design Opportunities",
-        "summary": "Surface reassurance earlier to reduce hesitation",
-        "bullets": [
-          "Surface delivery and return information earlier in comparison views",
-          "Reduce branching paths in authentication",
-          "Use progressive disclosure to simplify deep category navigation"
-        ]
+        "id": "bp2b",
+        "src": "https://framerusercontent.com/images/6JWRCQfRNxvFzSQSEP4o9PrW10.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Service Blueprint — combined online & in-store touchpoints"
+      },
+      {
+        "id": "bp3",
+        "src": "https://framerusercontent.com/images/bpV4iVQMn2BZDLxdCkfBn8XbLZA.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Service Blueprint — hybrid experience"
+      },
+      {
+        "id": "bp4",
+        "src": "https://framerusercontent.com/images/carunn4v7LOPl6TlJGRb8hTTA.png?width=3050&height=1838",
+        "type": "image",
+        "caption": "Service Blueprint — B2B"
+      },
+      {
+        "id": "ps",
+        "type": "problem-solution",
+        "problem": "Complex flows during sign-in and checkout introduce branching paths that increase cognitive load. Policy and delivery reassurance comes late — often surfaced after users have already invested effort in comparison. Category trees are overwhelmingly deep with limited progressive disclosure for novice users.",
+        "solution": "Surface trust signals and return/delivery policies earlier in the decision flow. Reduce branching paths in authentication. Use progressive disclosure to simplify deep category navigation for users with narrow goals."
       },
       {
         "id": "ia-works",
+        "body": "What works:",
         "type": "text",
+        "body2": "What struggles:",
         "title": "Information Architecture",
-        "summary": "A robust IA supports scale, but depth creates friction",
         "bullets": [
-          "What works: clear top-level categories, consistent labeling, strong shopping/support separation",
-          "What struggles: overwhelming depth in category trees, limited progressive disclosure"
+          "Clear top-level categories",
+          "Consistent labeling",
+          "Strong separation between shopping and support"
+        ],
+        "summary": "A robust IA supports scale, but depth creates friction",
+        "bullets2": [
+          "Overwhelming depth in category trees",
+          "Limited progressive disclosure for novice users"
         ]
       },
       {
         "id": "ia1",
-        "type": "image",
         "src": "https://framerusercontent.com/images/ngiZKRzDjH8XNvih1dy4UNdaUEA.png?width=6503&height=2808",
-        "caption": "IA — what works: clear categories, consistent labeling"
+        "type": "image",
+        "caption": "IA — what works: clear top-level categories, consistent labeling"
+      },
+      {
+        "id": "ia2",
+        "src": "https://framerusercontent.com/images/EZ2462NnVYDLEUpMDj9mKuIH8oY.png?width=6503&height=2808",
+        "type": "image",
+        "caption": "IA — where it struggles: overwhelming depth, limited progressive disclosure"
       },
       {
         "id": "visual",
         "type": "text",
         "title": "Visual Design & Trust",
-        "summary": "Color, hierarchy, and contrast reinforce credibility",
-        "body": "Best Buy's visual system uses blue to convey trust and technology. Yellow accents function as high-visibility action triggers in pricing and promotions."
+        "bullets": [
+          "Best Buy's visual system uses blue as a dominant color to convey trust, technology, and authority. Yellow accents function as high-visibility action triggers, especially in pricing and promotions.",
+          "Together, these choices guide users toward confident action while maintaining brand recognition."
+        ],
+        "summary": "Color, hierarchy, and contrast reinforce credibility and action"
       },
       {
         "id": "v1",
-        "type": "image",
         "src": "https://framerusercontent.com/images/xMmFHfvjHzmpttOUpWWvpOe0TA.png?width=1920&height=1080",
-        "caption": "Visual design analysis — homepage hierarchy"
+        "type": "image",
+        "caption": "Visual design analysis — homepage"
+      },
+      {
+        "id": "v2",
+        "src": "https://framerusercontent.com/images/DCosPZ2EugqGlxS9u3O3fQgdokE.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Visual design analysis — product listing"
+      },
+      {
+        "id": "v3",
+        "src": "https://framerusercontent.com/images/ev49aRSwdON5RVzeshMQmYMjkQ.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Visual design analysis — product detail"
+      },
+      {
+        "id": "v4",
+        "src": "https://framerusercontent.com/images/ZgG4SajAx00P5PwLcT0He4UvYlA.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Visual design analysis — checkout flow"
       },
       {
         "id": "v5",
-        "type": "image",
         "src": "https://framerusercontent.com/images/mHIXXCOxzrExgwPzD84QbOO5IQ.png?width=1920&height=1080",
-        "caption": "Competitive analysis — mobile product browsing"
+        "type": "image",
+        "caption": "Competitive analysis — mobile product browsing experience"
+      },
+      {
+        "id": "v6",
+        "src": "https://framerusercontent.com/images/bBgztvEXc60H0qaRiR2QaO7VY.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Competitive analysis — search and filtering patterns"
+      },
+      {
+        "id": "v7",
+        "src": "https://framerusercontent.com/images/NoJ6MuU5TwfYddD81pxuNJrdBI.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Competitive analysis — product comparison view"
       },
       {
         "id": "v8",
-        "type": "image",
         "src": "https://framerusercontent.com/images/byZWigH5tSJr1Md32TEb6LKnhc.png?width=1920&height=1080",
+        "type": "image",
         "caption": "Competitive analysis — trust and reassurance signals"
       },
       {
-        "id": "impact",
+        "id": "v9",
+        "src": "https://framerusercontent.com/images/laG13861qniPLNFlx3WRxDiKAP0.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Competitive analysis — checkout experience patterns"
+      },
+      {
+        "id": "v10",
+        "src": "https://framerusercontent.com/images/F3nAPqEea0DrmOcXoJ0Bd3SRQ3Q.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Competitive analysis — category navigation structure"
+      },
+      {
+        "id": "v11",
+        "src": "https://framerusercontent.com/images/BMXuk0lXKb6esqkYu6OFIpRL1k.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Competitive analysis — mobile homepage layout"
+      },
+      {
+        "id": "v12",
+        "src": "https://framerusercontent.com/images/e2sBpsEAkRf5ObkzQvyN9rCK0.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Competitive analysis — product detail page patterns"
+      },
+      {
+        "id": "v13",
+        "src": "https://framerusercontent.com/images/lNgT9IsMyuF6u5h6Q8AjIhyXFs.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Competitive analysis — cart and pre-checkout experience"
+      },
+      {
+        "id": "v14",
+        "src": "https://framerusercontent.com/images/jF0AttLMIxnp7KKDQPzpByVbvc.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Competitive analysis — delivery and pickup options"
+      },
+      {
+        "id": "v15",
+        "src": "https://framerusercontent.com/images/dJn06OiSehh4ZuiwdGvqt4CvX6Q.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Competitive analysis — returns and support flows"
+      },
+      {
+        "id": "v16",
+        "src": "https://framerusercontent.com/images/bmMIujNKAPjdk1MzrawT4nR1s3s.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Competitive analysis — loyalty and rewards integration"
+      },
+      {
+        "id": "comp-logo1",
+        "src": "https://framerusercontent.com/images/6tTbkXggWgQCAJ4DO2QEdXXmgM.svg",
+        "type": "image",
+        "caption": "Competitor brand analysis — visual identity comparison"
+      },
+      {
+        "id": "comp-logo2",
+        "src": "https://framerusercontent.com/images/11KSGbIZoRSg4pjdnUoif6MKHI.svg",
+        "type": "image",
+        "caption": "Competitor brand analysis — logo and mark study"
+      },
+      {
+        "id": "opportunities",
         "type": "text",
-        "title": "Impact & Results",
-        "summary": "Detailed analysis with specific improvement opportunities",
+        "title": "Opportunities",
         "bullets": [
-          "Identified 3 key UX gaps in sign-in, checkout, and policy surfacing",
-          "Produced service blueprint mapping online, in-store, and hybrid experiences",
-          "Competitive analysis across 5 retailers revealed industry patterns"
-        ]
+          "Introduce clearer \"What's included\" summaries for refurbished products",
+          "Surface delivery and return information earlier in comparison views",
+          "Reduce perceived checkout complexity through clearer progress feedback"
+        ],
+        "summary": "Surface reassurance earlier to reduce hesitation"
       },
       {
         "id": "reflection",
         "type": "text",
         "title": "Reflection",
-        "summary": "Trust is cumulative and easily disrupted",
-        "body": "Trust isn't created by a single screen or policy. It's built through consistent clarity, predictable structure, and timely reassurance across the entire journey. Designing for high-value purchases means reducing uncertainty before users feel it."
+        "bullets": [
+          "This analysis reinforced that trust isn't created by a single screen or policy. It's built through consistent clarity, predictable structure, and timely reassurance across the entire journey.",
+          "Designing for high-value purchases means reducing uncertainty before users feel it."
+        ],
+        "summary": "Trust is cumulative and easily disrupted"
       }
-    ]
+    ],
+    "solution": "Evaluated structure, flow, and surface cues across the end-to-end purchase journey using heuristic evaluation, user flow mapping, IA analysis, and journey mapping.",
+    "subtitle": "A competitive UX analysis examining how retail experience patterns shape trust, decision-making, and purchase confidence.",
+    "challenge": "Electronics purchases involve high financial risk, delivery concerns, and return anxiety. Users require clear system feedback and strong trust signals throughout the decision-making process.",
+    "coverImage": "https://framerusercontent.com/images/Bu9Y45MBqBQoFl5Gh2ydpBWKjF0.png?width=1024&height=896",
+    "description": "A competitive UX analysis examining Best Buy alongside comparable electronics retailers to identify recurring UX patterns, strengths, and gaps across discovery, comparison, and checkout experiences."
   },
   {
     "id": "6",
     "slug": "duolingo-behavior",
-    "title": "Duolingo — Behavior & Motivation Research",
-    "subtitle": "Uncovered motivation breakdowns and learning flow friction in Duolingo's mobile experience through moderated testing.",
-    "type": "UX Researcher",
-    "users": "Active Duolingo language learners",
-    "methods": "Moderated usability testing, think-aloud protocol, task analysis, card sorting",
     "tags": [
       "Behavioral Research",
       "Gamification",
       "Moderated Testing"
     ],
-    "description": "Behavioral UX research examining how Duolingo's gamification mechanics influence daily engagement patterns and long-term learning retention.",
-    "challenge": "Users lose motivation and clarity during learning sessions despite Duolingo's strong gamification. The research aimed to identify moments where motivation drops and learning flow is disrupted.",
-    "solution": "Led the research planning and execution: defining task scenarios, moderating sessions, capturing qualitative data, and synthesizing findings.",
-    "impact": "Identified 3 key UX gaps: abstract progress feedback, streak pressure creating anxiety, and missing post-session guidance.",
-    "coverImage": "https://framerusercontent.com/images/iHHpNS11h43bqTPlJSvUfwM0as4.jpg?width=1024&height=1024",
+    "type": "UX Researcher",
     "year": "2024",
+    "title": "Duolingo  Behavior & Motivation Research",
+    "users": "Active Duolingo language learners",
+    "impact": "Identified 3 key UX gaps: abstract progress feedback, streak pressure creating anxiety, and missing post-session guidance.",
+    "methods": "Moderated usability testing, think-aloud protocol, task analysis, card sorting",
     "featured": false,
     "sections": [
       {
-        "id": "problem",
+        "id": "context",
         "type": "text",
-        "title": "The Problem",
-        "summary": "Users lose motivation despite strong gamification",
-        "body": "Users lose motivation and clarity during learning sessions. The research aimed to identify where and why learning momentum breaks during real usage."
-      },
-      {
-        "id": "role",
-        "type": "text",
-        "title": "My Role & Process",
-        "summary": "Led research planning, moderation, and synthesis",
+        "body2": "This study focused on identifying where learning motivation breaks during real usage and how feedback and flow affect engagement. Through moderated usability testing, I uncovered recurring friction points and translated them into clear UX opportunity areas to improve learning continuity.",
+        "title": "Context & Goal",
         "bullets": [
-          "Role: UX Researcher",
-          "Methods: moderated usability testing, think-aloud, task analysis, card sorting",
-          "Deliverables: research report with 3 key UX gaps"
-        ]
+          "Problem: Users lose motivation and clarity during learning sessions despite Duolingo's strong gamification",
+          "Approach: Moderated usability testing focused on task flow & feedback",
+          "Outcome: Identified 3 key UX gaps with concrete improvement opportunities"
+        ],
+        "summary": "Understanding where and why learning momentum breaks during real user sessions"
       },
       {
         "id": "overview-img",
-        "type": "image",
         "src": "https://framerusercontent.com/images/AUtYv8oNCAbD4qVWXFpDLkzBBM0.png?width=1920&height=1080",
+        "type": "image",
         "caption": "Research framework and study overview"
       },
       {
+        "id": "userflow",
+        "src": "https://framerusercontent.com/images/grPQJoTY2eInwk5qsbvuhJQegrg.png?width=2155&height=891",
+        "type": "image",
+        "caption": "Improvement recommendation on user flow"
+      },
+      {
+        "id": "research-overview",
+        "src": "https://framerusercontent.com/images/R4sptl6HyyoWfEQPBDfp3fKK90c.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Research planning and participant session overview"
+      },
+      {
         "id": "approach",
+        "body": "I led the research planning and execution, including defining task scenarios, moderating sessions, capturing qualitative data, and synthesizing findings. Key methods:",
         "type": "text",
         "title": "Research Approach",
-        "summary": "Moderated testing focused on task flow, feedback, and motivation",
-        "body": "I led research planning and execution, including defining task scenarios, moderating sessions, capturing qualitative data, and synthesizing findings.",
         "bullets": [
+          "Moderated usability testing",
+          "Think-aloud protocol",
           "Task scenarios: starting lessons, reviewing progress, continuing learning",
-          "Think-aloud protocol with post-task questions",
           "Card sorting for research synthesis"
-        ]
+        ],
+        "summary": "Moderated usability testing focused on task flow, feedback, and motivation"
       },
       {
         "id": "method-img",
-        "type": "image",
         "src": "https://framerusercontent.com/images/tiT0ieHg15yXhdPlZ1uJcQBYoE.png?width=1920&height=1080",
+        "type": "image",
         "caption": "Research method — moderated testing session structure"
       },
       {
-        "id": "insights",
+        "id": "findings",
         "type": "text",
         "title": "Key Findings",
-        "summary": "Three recurring issues disrupted learning motivation",
         "bullets": [
-          "Progress feedback feels abstract — users understood they were 'learning' but couldn't grasp how much progress they'd made",
-          "Streak mechanics create pressure — streaks motivated initially but introduced anxiety after breaks",
-          "Session endings lack guidance — after completing a lesson, users were unsure what to do next"
-        ]
+          "Finding 1 — Progress feedback feels abstract: Users understood they were 'learning' but struggled to grasp how much progress they had made or what goal they were working toward.",
+          "Finding 2 — Streak mechanics create pressure: Streaks initially motivated users but introduced anxiety after breaks, discouraging re-engagement.",
+          "Finding 3 — Session endings lack guidance: After completing a lesson, users were unsure what to do next, breaking learning momentum."
+        ],
+        "summary": "Three recurring UX issues consistently disrupted learning motivation and flow"
       },
       {
         "id": "f1",
-        "type": "image",
         "src": "https://framerusercontent.com/images/N8LJ7I4ZHWhNq86u4KEOLmMVgCE.png?width=2166&height=574",
+        "type": "image",
         "caption": "Finding 1 & 2 — Abstract progress and streak-induced anxiety"
       },
       {
         "id": "f3",
-        "type": "image",
         "src": "https://framerusercontent.com/images/RHAKC2U8QeurGwqgjvGKcgEet1U.png?width=1946&height=802",
+        "type": "image",
         "caption": "Finding 3 — Session endings with no guidance"
       },
       {
-        "id": "decisions",
+        "id": "ps",
+        "type": "problem-solution",
+        "problem": "Three recurring issues: abstract progress feedback, streak pressure creating anxiety after breaks, and session endings that leave users directionless — all disrupting learning continuity despite strong gamification design.",
+        "solution": "Make learning progress more tangible through short-term milestones. Reframe streak feedback to emphasize encouragement over pressure. Provide guided next steps at the end of every learning session."
+      },
+      {
+        "id": "recommendations",
         "type": "text",
-        "title": "Design Opportunities",
-        "summary": "Research insights translated into actionable areas",
+        "title": "Opportunities",
         "bullets": [
-          "Make progress tangible through short-term milestones",
+          "Make learning progress more tangible through short-term milestones",
           "Reframe streak feedback to emphasize encouragement over pressure",
-          "Provide guided next steps at the end of every session"
-        ]
+          "Provide guided next steps at the end of learning sessions"
+        ],
+        "summary": "Research insights translated into actionable opportunity areas"
       },
       {
         "id": "opp1",
-        "type": "image",
         "src": "https://framerusercontent.com/images/aDPCh22OlNpMHI5aogvhue7xEJk.png?width=1585&height=684",
-        "caption": "UX opportunity — reducing friction in onboarding"
+        "type": "image",
+        "caption": "UX opportunity — reducing friction in new user onboarding"
       },
       {
         "id": "opp2",
-        "type": "image",
         "src": "https://framerusercontent.com/images/CX16sUDH016cFjpNOucQSux52Q.png?width=1479&height=753",
-        "caption": "UX opportunity — enhancing rewards transparency"
+        "type": "image",
+        "caption": "UX opportunity — enhancing transparency in the rewards system"
       },
       {
         "id": "opp3",
-        "type": "image",
         "src": "https://framerusercontent.com/images/khnrE9LMCZAOk3wOEpqfGahl7I.png?width=1920&height=1080",
-        "caption": "UX opportunity — improving post-session guidance"
+        "type": "image",
+        "caption": "UX opportunity — improving post-session guidance and continuity"
       },
       {
-        "id": "impact",
+        "id": "reflection",
+        "body": "This project reinforced that motivation is emotional, not purely functional. The timing and tone of feedback can significantly influence user engagement, and clear research insights are often more valuable than polished visual solutions.",
         "type": "text",
-        "title": "Impact & Results",
-        "summary": "3 key UX gaps identified with concrete improvement opportunities",
+        "title": "Reflection",
+        "summary": "Designing for learning requires emotional and motivational sensitivity"
+      },
+      {
+        "id": "supporting",
+        "src": "https://framerusercontent.com/images/lTK7WWVKMVHbUM58Xf4rVPAJ4.png?width=1784&height=639",
+        "type": "image",
+        "caption": "Supporting research artifacts — research plans, collected data, synthesis documentation"
+      }
+    ],
+    "solution": "Led the research planning and execution: defining task scenarios, moderating sessions, capturing qualitative data, and synthesizing findings.",
+    "subtitle": "A moderated UX research study uncovering motivation breakdowns and learning flow friction in Duolingo's mobile experience.",
+    "challenge": "Users lose motivation and clarity during learning sessions despite Duolingo's strong gamification. The research aimed to identify moments where motivation drops and learning flow is disrupted.",
+    "coverImage": "https://framerusercontent.com/images/iHHpNS11h43bqTPlJSvUfwM0as4.jpg?width=1024&height=1024",
+    "description": "Behavioral UX research examining how Duolingo's gamification mechanics influence daily engagement patterns and long-term learning retention."
+  },
+  {
+    "id": "1",
+    "slug": "ttc-ux-redesign",
+    "tags": [
+      "IA Redesign",
+      "Accessibility",
+      "UX Research"
+    ],
+    "type": "UX Designer",
+    "year": "2025",
+    "title": "TTC: Digital Wayfinding & Information Architecture",
+    "users": "TTC riders (task-based usability testing)",
+    "impact": "Significantly reduced task completion time for common user journeys including trip planning and service alert lookup. Validated through usability testing with TTC riders.",
+    "period": "Sept 2025 — Dec 2025",
+    "bullets": [
+      "Conducted an information architecture audit and WCAG/AODA accessibility review to identify navigation and readability barriers.",
+      "Ran moderated usability tests to validate pain points across key journeys and quantify impact.",
+      "Proposed prioritized improvements to button hierarchy, color contrast, and content structure, and produced annotated wireframes and remediation recommendations for accessibility compliance."
+    ],
+    "methods": "IA audit, WCAG/AODA review, moderated usability testing, annotated wireframes",
+    "featured": true,
+    "sections": [
+      {
+        "id": "context",
+        "body": "Public transit riders often need information quickly: Is my train delayed? Which route should I take? How much will the trip cost? The Toronto Transit Commission website is designed to answer these questions — but finding those answers isn't always easy. While the platform offers essential services like trip planning, fare details, and service alerts, users frequently encounter difficulties navigating the site and locating the information they need. This project began with a simple question: Why does such a critical service still feel difficult to use?",
+        "type": "text",
+        "title": "Context & Goal",
+        "summary": "Identifying usability gaps in a public-sector digital experience"
+      },
+      {
+        "id": "problem-solution",
+        "type": "problem-solution",
+        "problem": "Users struggled to locate critical information quickly. Navigation labels did not align with user expectations, and key rider tasks were buried under secondary content — a misalignment between the site's structure and rider mental models.",
+        "solution": "Restructured the IA to prioritize primary rider tasks. Mapped user goals to content categories, simplified navigation hierarchy, and revised labels to match user language — shifting from organization-based to task-based navigation."
+      },
+      {
+        "id": "research",
+        "body": "The project began with an evaluation of the current TTC website to understand where and why users encountered friction. Research activities included:",
+        "type": "text",
+        "body2": "This phase focused on identifying patterns rather than isolated issues.",
+        "title": "Research & Evaluation",
         "bullets": [
-          "Identified 3 specific motivation breakdown points",
-          "Translated findings into actionable design opportunities",
-          "Insights informed recommendations for progress feedback and session flow"
+          "UX audit of the existing website",
+          "Task-based usability testing with riders",
+          "Observation of navigation behavior and task completion challenges"
+        ],
+        "summary": "Evaluating the existing experience to uncover usability issues"
+      },
+      {
+        "id": "testing-img",
+        "src": "https://framerusercontent.com/images/JNUkA272v9oL0xvsXdWV5oQn9U.png?width=1391&height=1080",
+        "type": "image",
+        "caption": "Usability testing with frequent and first-time TTC users"
+      },
+      {
+        "id": "ia-before",
+        "src": "https://framerusercontent.com/images/FEL5F32BiD68HhiUVCnzaa8gUQ.png?width=1173&height=1080",
+        "type": "image",
+        "caption": "Header IA — before restructuring"
+      },
+      {
+        "id": "ia-nav",
+        "src": "https://framerusercontent.com/images/LTvdFlqyqZRIeMkj1ZLu0oNd00.png?width=1920&height=484",
+        "type": "image",
+        "caption": "Revised navigation hierarchy — task-based IA structure"
+      },
+      {
+        "id": "ia-after",
+        "src": "https://framerusercontent.com/images/A3qLKgrHtMaIztrV91iayRNjwhs.png?width=1920&height=987",
+        "type": "image",
+        "caption": "New IA — task-based navigation"
+      },
+      {
+        "id": "lofi",
+        "body": "Low-fidelity wireframes were created to validate the revised IA and navigation flow without introducing visual bias. The focus at this stage was:",
+        "type": "text",
+        "body2": "This allowed early feedback on structure before moving to detailed design.",
+        "title": "Low-Fi Prototyping",
+        "bullets": [
+          "Navigation clarity",
+          "Page structure",
+          "Task completion path"
+        ],
+        "summary": "Testing structure and flow before visual refinement"
+      },
+      {
+        "id": "flow2",
+        "src": "https://framerusercontent.com/images/b8Aqxsy57wQIsnbwzx5IJvBKbbE.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "User flow — Task 2"
+      },
+      {
+        "id": "flow3",
+        "src": "https://framerusercontent.com/images/D867F253Hph2nsM4cQmfF7e7sqQ.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "User flow — Task 3"
+      },
+      {
+        "id": "midfi",
+        "src": "https://framerusercontent.com/images/SejMHXjjpGPk1Yfo86Sk7t3LBk.png?width=2287&height=1399",
+        "type": "image",
+        "caption": "Mid-fidelity design iterations"
+      },
+      {
+        "id": "usability-testing",
+        "body": "The low-fi prototypes were tested with 5 users to assess whether the new structure improved clarity and usability. Feedback indicated:",
+        "type": "text",
+        "body2": "Based on feedback, iterations included:",
+        "title": "Usability Testing & Iteration",
+        "bullets": [
+          "Improved understanding of where to find information",
+          "Reduced navigation confusion",
+          "More predictable task flows"
+        ],
+        "summary": "Validating design decisions through user feedback",
+        "bullets2": [
+          "Refining navigation labels",
+          "Adjusting content grouping",
+          "Removing unnecessary steps"
         ]
+      },
+      {
+        "id": "fare-comparison",
+        "src": "https://framerusercontent.com/images/WvoTuuTaBUaUj5obOG273DQYdSY.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Fare & Passes design comparison"
+      },
+      {
+        "id": "final-design",
+        "body": "After validating the structure, the design was refined into higher-fidelity screens that maintained the tested IA while improving visual hierarchy and readability. Final designs aimed to:",
+        "type": "text",
+        "title": "Final Design",
+        "bullets": [
+          "Reinforce task prioritization",
+          "Improve scannability",
+          "Support accessibility considerations"
+        ],
+        "summary": "Refining the interface while preserving validated structure"
+      },
+      {
+        "id": "hifi",
+        "src": "https://framerusercontent.com/images/oqNQTxiIkGHqtjSVdM6f8MDN74.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Final high-fidelity design"
+      },
+      {
+        "id": "outcome",
+        "body": "The redesigned experience resulted in:",
+        "type": "text",
+        "body2": "While this was a conceptual redesign, testing indicated meaningful improvements in usability and comprehension.",
+        "title": "Outcome",
+        "bullets": [
+          "Clearer navigation structure",
+          "Faster access to key information",
+          "Greater user confidence when completing tasks"
+        ],
+        "summary": "Improved clarity and task efficiency in key rider flows"
+      },
+      {
+        "id": "outcome-img",
+        "src": "https://framerusercontent.com/images/D6nG7QGirEcJPtdPr1iLRvYgRr4.png?width=1177&height=881",
+        "type": "image",
+        "caption": "Outcome — before and after comparison"
+      },
+      {
+        "id": "reflection",
+        "body": "This project reinforced the importance of:",
+        "type": "text",
+        "body2": "While this was a conceptual redesign, testing indicated meaningful improvements in usability and comprehension.",
+        "title": "Reflection",
+        "bullets": [
+          "Grounding design decisions in user research",
+          "Letting information architecture drive interface design",
+          "Iterating based on real user feedback rather than assumptions"
+        ],
+        "summary": "Designing for public-sector systems requires clarity, restraint, and validation"
+      }
+    ],
+    "solution": "Through usability evaluation and research-driven design improvements, restructured the IA to prioritize primary rider tasks over internal logic.",
+    "subtitle": "Conducted an IA audit and WCAG/AODA accessibility review, ran moderated usability tests, and proposed prioritized improvements to navigation, contrast, and content structure.",
+    "challenge": "Public transit riders often need information quickly — Is my train delayed? Which route should I take? How much will the trip cost? The TTC website is designed to answer these questions but finding those answers isn't always easy.",
+    "coverImage": "https://framerusercontent.com/images/rRpGqsQpN7jD22xhbnNaQ71IKV0.png?width=1024&height=1024",
+    "description": "An information architecture audit and WCAG/AODA accessibility review of the Toronto Transit Commission's website, validated through moderated usability tests and translated into prioritized navigation, contrast, and content-structure improvements."
+  },
+  {
+    "id": "2",
+    "slug": "freshii-moderated-study",
+    "tags": [
+      "Moderated Testing",
+      "UX Research",
+      "Omnichannel"
+    ],
+    "type": "Moderator + Researcher",
+    "year": "2025",
+    "title": "Freshii: Omnichannel Research & Usability Optimization",
+    "users": "Freshii mobile app users",
+    "impact": "Identified recurring usability issues across account creation, location discovery, rewards redemption, and ordering flows.",
+    "period": "Sept 2025 — Dec 2025",
+    "bullets": [
+      "Planned and moderated remote usability tests using think-aloud protocols to surface critical usability errors across ordering and checkout flows.",
+      "Led qualitative synthesis of test sessions to identify root causes of user confusion and error patterns.",
+      "Translated findings into prioritized UX recommendations and design changes to reduce task errors and streamline the omnichannel customer experience."
+    ],
+    "methods": "Moderated think-aloud testing, qualitative synthesis, prioritized UX recommendations",
+    "featured": true,
+    "sections": [
+      {
+        "id": "executive",
+        "type": "text",
+        "body2": "I defined task scenarios and success criteria, moderated remote usability sessions, captured detailed behavioral notes, synthesized findings into themes, and authored the final research report with clear, actionable recommendations.",
+        "title": "Executive Summary",
+        "bullets": [
+          "Focus: task success, clarity, and confidence in ordering",
+          "Methods: moderated testing and IA validation",
+          "Output: prioritized findings and recommendations"
+        ],
+        "summary": "Focus: task success, clarity, and confidence in ordering"
+      },
+      {
+        "id": "overview-img",
+        "src": "https://framerusercontent.com/images/UsoG2MKfFead5qDsLwHxI3xM1E.png?width=1987&height=829",
+        "type": "image",
+        "caption": "Study overview and task framework"
+      },
+      {
+        "id": "methodology-img",
+        "src": "https://framerusercontent.com/images/Ddoz36dt7e2r7MrKzBOplAK2Sw.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Research methodology and session planning overview"
+      },
+      {
+        "id": "method",
+        "body": "Sessions followed a think-aloud protocol with post-task questions. Card sorting was used to validate navigation labels and grouping, helping explain why users struggled rather than only where they failed.",
+        "type": "text",
+        "title": "Method & Approach",
+        "summary": "Combined task-based testing with IA validation to connect observed issues to structural causes"
+      },
+      {
+        "id": "method-img",
+        "src": "https://framerusercontent.com/images/tuCbYCFFGJhY4ODrpKYl6vkSyg.png?width=1101&height=1156",
+        "type": "image",
+        "caption": "Think-aloud session approach and note-taking framework"
+      },
+      {
+        "id": "tasks",
+        "body": "The study evaluated four tasks:",
+        "type": "text",
+        "title": "Tasks Evaluated",
+        "bullets": [
+          "Create an account",
+          "View rewards",
+          "Find the nearest store location",
+          "Order a custom bowl"
+        ],
+        "summary": "Four scenarios covering the full ordering journey"
+      },
+      {
+        "id": "tasks-img",
+        "src": "https://framerusercontent.com/images/WtWMDHA6lYHVZ43oyd5QstTcYL8.png?width=662&height=612",
+        "type": "image",
+        "caption": "Task scenario framework"
+      },
+      {
+        "id": "s1-ps",
+        "type": "problem-solution",
+        "problem": "Account creation is highly fragmented across multiple screens, requiring users to disclose personal information (ZIP code, birthday) early in the flow, with no option to skip. The lack of progress visibility and forced data entry reduces user control and increases drop-off risk.",
+        "solution": "Introduce progress indicators and clear completion feedback in multi-step flows. Allow optional inputs and clearer exit points during onboarding to reduce perceived commitment."
+      },
+      {
+        "id": "s1-img",
+        "src": "https://framerusercontent.com/images/K75GkPOl17FhLZnt0cmSg3oLCLE.png?width=1883&height=716",
+        "type": "image",
+        "caption": "Scenario 1 — Account creation friction analysis"
+      },
+      {
+        "id": "s2-img",
+        "src": "https://framerusercontent.com/images/HzsSWY5L4y0F91fuvCJKzArHK4.png?width=2091&height=856",
+        "type": "image",
+        "caption": "Scenario 2 — Location discovery issues: inconsistent iconography and unclear system states"
+      },
+      {
+        "id": "s3-img",
+        "src": "https://framerusercontent.com/images/wkTWCLS5KF4xZK0f1wu50Nhs.png?width=3006&height=990",
+        "type": "image",
+        "caption": "Scenario 3 — Rewards buried deep in checkout flow"
+      },
+      {
+        "id": "s4-img",
+        "src": "https://framerusercontent.com/images/5EAfhWYEzWw2JNMUZLQr3I0xrhY.png?width=3241&height=1081",
+        "type": "image",
+        "caption": "Scenario 4 — Custom bowl ordering: rigid linear flow with unclear requirements"
+      },
+      {
+        "id": "outcome",
+        "body": "Key recommendations:",
+        "type": "text",
+        "title": "Outcome & Recommendations",
+        "bullets": [
+          "Introduce progress indicators and clear completion feedback in multi-step flows",
+          "Improve categorization and labeling in rewards and menu sections",
+          "Allow optional inputs and clearer exit points during ordering"
+        ],
+        "summary": "Improving clarity, structure, and flexibility without redesigning the entire system"
+      },
+      {
+        "id": "outcome-img",
+        "src": "https://framerusercontent.com/images/zNOKlAxtOUNfOcY8qdVjhEesOSE.png?width=1666&height=796",
+        "type": "image",
+        "caption": "Prioritized recommendations report"
       },
       {
         "id": "reflection",
         "type": "text",
         "title": "Reflection",
-        "summary": "Motivation is emotional, not purely functional",
-        "body": "The timing and tone of feedback significantly influence engagement. Clear research insights are often more valuable than polished visual solutions."
+        "bullets": [
+          "This project strengthened my experience moderating usability tests and synthesizing qualitative data into clear findings.",
+          "It reinforced the importance of system feedback, information hierarchy, and user control in task-based mobile experiences."
+        ],
+        "summary": "Translating qualitative research into focused, actionable UX insights"
+      },
+      {
+        "id": "supporting-text",
+        "type": "text",
+        "title": "Supporting Research",
+        "bullets": [
+          "Affinity maps",
+          "Interview notes",
+          "Task completion data"
+        ],
+        "summary": "Additional research artifacts available upon request"
+      },
+      {
+        "id": "supporting",
+        "src": "https://framerusercontent.com/images/ot1i26Uh0GH9zvXWk5ESxrcYTo.png?width=1972&height=909",
+        "type": "image",
+        "caption": "Supporting research artifacts"
       }
-    ]
+    ],
+    "solution": "Defined task scenarios and success criteria, moderated remote usability sessions, captured detailed behavioral notes, and authored the final report with actionable recommendations.",
+    "subtitle": "Planned and moderated remote usability tests using think-aloud protocols, synthesized findings, and translated them into prioritized UX recommendations to streamline the omnichannel customer experience.",
+    "challenge": "The Freshii mobile app's customization and checkout flows contained friction points that were leading to cart abandonment and negative user sentiment.",
+    "coverImage": "https://framerusercontent.com/images/o4T7ZUfPWuKTK53ALzCqNJP9oI.jpg?width=1024&height=1024",
+    "description": "Planned and moderated remote usability tests of Freshii's ordering and checkout flows using think-aloud protocols, then synthesized findings into prioritized UX recommendations and design changes to reduce task errors and streamline the omnichannel customer experience."
+  },
+  {
+    "id": "3",
+    "slug": "kijiji-trust-safety",
+    "tags": [
+      "UX Research",
+      "Systems Design",
+      "Trust & Safety"
+    ],
+    "type": "UX Designer",
+    "year": "2024",
+    "title": "Kijiji  Trust & Safety System",
+    "users": "Peer-to-peer marketplace buyers & sellers",
+    "impact": "Proposed a comprehensive trust framework with three core pillars — contextual verification, structured listings, and AI safety layer.",
+    "methods": "User research, journey mapping, system design, prototyping",
+    "featured": true,
+    "sections": [
+      {
+        "id": "context",
+        "type": "text",
+        "title": "Context & Problem",
+        "bullets": [
+          "Kijiji, as a peer-to-peer marketplace, faces ongoing challenges with trust and safety.",
+          "Users frequently encounter scams, fraudulent listings, and safety concerns when meeting strangers for transactions.",
+          "Users hesitate when profiles are anonymous and listing quality is inconsistent.",
+          "Trust must be visible in browse, listing view, and chat — not only after contact."
+        ],
+        "summary": "In P2P marketplaces, users need reassurance early because the cost of being wrong is high"
+      },
+      {
+        "id": "trust-journey",
+        "src": "https://framerusercontent.com/images/z9cswsrE0evFGhst0et6GQufY.png?width=1472&height=704",
+        "type": "image",
+        "caption": "Trust journey — high-risk moments from browse to meetup"
+      },
+      {
+        "id": "scope",
+        "type": "text",
+        "title": "Scope & My Role",
+        "bullets": [
+          "Role: UX designer (systems + IA/flows + UI concept)",
+          "Deliverables: trust pillar framework, user flows, key screens, expected impact metrics (proposed)",
+          "Collaboration: team project; I focused on structure, decision points, and how trust is communicated"
+        ],
+        "summary": "Owned the system logic, flow mapping, and translated insights into a cohesive trust UI concept"
+      },
+      {
+        "id": "approach",
+        "type": "text",
+        "title": "Approach",
+        "bullets": [
+          "Identify high-risk moments (browse → contact → meetup)",
+          "Define trust pillars and placement rules",
+          "Design flows + UI touchpoints where trust matters most"
+        ],
+        "summary": "Worked backwards from user risk moments to define principles, then mapped flows and trust signals"
+      },
+      {
+        "id": "decisions-img",
+        "src": "https://framerusercontent.com/images/fD5QsSDEfmqfsZ1Bqv4w3lkmG2s.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Three key design decisions shaping the trust system"
+      },
+      {
+        "id": "ps",
+        "type": "problem-solution",
+        "problem": "Single-point verification creates a false sense of security and blocks legitimate sellers. Users encounter suspicious listings, anonymous profiles, and no in-context safety signals during browse and contact flow.",
+        "solution": "Layered trust signals across identity, listings, and behavior. Contextual identity verification triggered by high-risk actions. Listing quality enforced before publishing. AI acts as safety net, not gatekeeper."
+      },
+      {
+        "id": "d1",
+        "src": "https://framerusercontent.com/images/o2fRsqFyoiO6RiWQs21tdNI7rmk.png?width=1136&height=174",
+        "type": "image",
+        "caption": "Decision 1 — Contextual identity verification: triggered via settings or high-risk actions"
+      },
+      {
+        "id": "d2",
+        "src": "https://framerusercontent.com/images/raSXKAyt7Oc5aQJh07Ky0jKaG0.png?width=1874&height=349",
+        "type": "image",
+        "caption": "Decision 2 — Listing quality enforced before publishing: category-specific required fields"
+      },
+      {
+        "id": "d3",
+        "src": "https://framerusercontent.com/images/FVcu355M4yOJaBlEjJOaBVIBVP8.png?width=1874&height=324",
+        "type": "image",
+        "caption": "Decision 3 — AI safety layer: scans content post-publish, flags suspicious listings"
+      },
+      {
+        "id": "trust-overview",
+        "src": "https://framerusercontent.com/images/3vhymF9sCCTaIqvdo62WK9lPsTM.png?width=1920&height=1080",
+        "type": "image",
+        "caption": "Kijiji trust & safety system — full framework overview"
+      },
+      {
+        "id": "recommendations",
+        "type": "text",
+        "title": "Recommendations",
+        "bullets": [
+          "Contextual verification triggered by high-risk categories/price thresholds",
+          "Pre-publish listing structure (required specs, completeness checks)",
+          "AI safety layer: warn/hold suspicious content post-publish with transparent messaging"
+        ],
+        "summary": "Introduce contextual verification + structured listings + AI-assisted warnings"
+      },
+      {
+        "id": "reflection",
+        "type": "text",
+        "body2": "This project reinforced my interest in designing systems where UX decisions directly affect real-world safety.",
+        "title": "Reflection",
+        "bullets": [
+          "Trust must be visible at decision points",
+          "Over-verification risks excluding valid users",
+          "Platform responsibility extends beyond digital interactions"
+        ],
+        "summary": "Designing trust at scale requires balancing safety, accessibility, and user autonomy"
+      }
+    ],
+    "solution": "Worked backwards from user risk moments to define principles, then mapped flows and trust signals into the UI.",
+    "subtitle": "Designing a comprehensive trust framework to reduce fraud and increase buyer confidence in peer-to-peer marketplace transactions.",
+    "challenge": "Kijiji users frequently encounter scams, fraudulent listings, and safety concerns. Users hesitate when profiles are anonymous and listing quality is inconsistent.",
+    "coverImage": "https://framerusercontent.com/images/gGUV4AdcXMRtuect2AEdvKLzrU.png?width=1024&height=1024",
+    "description": "A systems-level trust and safety framework designed to reduce fraud and improve buyer confidence on Kijiji's peer-to-peer marketplace."
   },
   {
     "id": "7",
     "slug": "art-creative-gallery",
-    "title": "Art & Creative — Selected Gallery",
-    "subtitle": "A collection of illustration, art direction, photography, and motion work exploring the intersection of emotion and form.",
-    "type": "Art Director · Designer",
-    "users": "Brand collaborators, creative agencies, personal projects",
-    "methods": "Art direction, photography, illustration, motion, brand identity",
     "tags": [
       "Art Direction",
       "Illustration",
@@ -909,287 +1429,124 @@
       "Brand Identity",
       "Motion"
     ],
-    "description": "Visual worlds, crafted by hand. A continuously growing body of personal and commissioned creative work.",
-    "challenge": "Translating intuition and feeling into work that holds together as a single visual voice across very different mediums.",
-    "solution": "An ongoing gallery of illustration, photography, art direction, brand identity, and motion — letting the through-lines speak across pieces.",
-    "impact": "A living archive of the creative practice that runs in parallel with the product work.",
-    "coverImage": "https://framerusercontent.com/images/UiY5Pk7sFfrs9bZ7N9mVRqYU7wg.png?width=1200",
+    "type": "Art Director · Designer",
     "year": "2024",
+    "title": "Art & Creative — Selected Gallery",
+    "users": "Brand collaborators, creative agencies, personal projects",
+    "impact": "A living archive of the creative practice that runs in parallel with the product work — used as both a personal reference and a way to invite collaborators into the broader visual world.",
+    "methods": "Art direction, photography, illustration, motion, brand identity",
+    "archived": true,
     "featured": false,
     "sections": [
       {
         "id": "intro",
+        "body": "This is an ongoing collection of personal and commissioned work spanning art direction, illustration, photography, brand identity, and motion. Each piece is an exploration into how form, color, and rhythm can carry feeling — moving between stillness and energy, structure and improvisation.",
         "type": "text",
         "title": "Visual worlds, crafted by hand",
-        "summary": "A collection of illustration, art direction, photography, and motion work",
-        "body": "This is an ongoing collection of personal and commissioned work spanning art direction, illustration, photography, brand identity, and motion. Each piece is an exploration into how form, color, and rhythm can carry feeling."
+        "summary": "A collection of illustration, art direction, photography, and motion work"
+      },
+      {
+        "id": "approach",
+        "type": "problem-solution",
+        "problem": "Creative work is often filed away after delivery — separated from the thinking, the references, and the moments of decision that gave it shape.",
+        "solution": "This gallery brings the work back together as one continuous body, letting the through-lines (color sensibility, spatial intuition, narrative pacing) speak for themselves across mediums."
       },
       {
         "id": "gallery-g1",
-        "type": "image",
         "src": "https://framerusercontent.com/images/UiY5Pk7sFfrs9bZ7N9mVRqYU7wg.png?width=1000&height=1000",
+        "type": "image",
         "caption": "The Third — Art Director"
       },
       {
         "id": "gallery-g2",
-        "type": "image",
         "src": "https://framerusercontent.com/images/ASUsf3TZ9JPrUnkysgECY0c8h4.png?width=1275&height=1173",
+        "type": "image",
         "caption": "Media Production — D.O.P / Producer"
       },
       {
         "id": "gallery-g3",
-        "type": "image",
         "src": "https://framerusercontent.com/images/cZRigJNSrDLTA3WrjPyWPqlVbA.png?width=1000&height=800",
+        "type": "image",
         "caption": "Photobook — Photography & Editorial"
       },
       {
         "id": "gallery-g4",
-        "type": "image",
         "src": "https://framerusercontent.com/images/URXbTJOZBmVceM6kZ7NMQiZee0.png?width=1000&height=750",
+        "type": "image",
         "caption": "Graphic Design — Design"
       },
       {
         "id": "gallery-g5",
-        "type": "image",
         "src": "https://framerusercontent.com/images/SYz8EbrIENFqg59uq3qwlfHB5NU.png?width=1000&height=1000",
+        "type": "image",
         "caption": "The Third — Campaign — Graphic Design"
       },
       {
         "id": "gallery-g6",
-        "type": "image",
         "src": "https://framerusercontent.com/images/i8oBYcKrBbIYE56qOBntLtyMqUM.png?width=1000&height=562",
+        "type": "image",
         "caption": "Event Design — Art Direction"
       },
       {
         "id": "gallery-g7",
-        "type": "image",
         "src": "https://framerusercontent.com/images/RGn1ss4BKQ9xoaaUFTxkKR7g.png?width=1000&height=562",
+        "type": "image",
         "caption": "Spatial Concept — Art Direction"
       },
       {
         "id": "gallery-g8",
-        "type": "image",
         "src": "https://framerusercontent.com/images/RzvZhTHqsJe6VVSEQxkIKHfQ8.png?width=513&height=516",
+        "type": "image",
         "caption": "Graffiti Production — Video Production"
       },
       {
         "id": "gallery-g9",
-        "type": "image",
         "src": "https://framerusercontent.com/images/WDiIQI3jbqTFwv9KyvAWIhBcnU.png?width=1000&height=447",
+        "type": "image",
         "caption": "Rat Wedding — Animation"
       },
       {
         "id": "extra-1",
-        "type": "image",
         "src": "https://framerusercontent.com/images/3csc1QyYFaXepl2mwn6VnzVfoc.png?width=1200",
+        "type": "image",
         "caption": "Editorial layout study — typography meets photography"
       },
       {
         "id": "extra-2",
-        "type": "image",
         "src": "https://framerusercontent.com/images/yhNjk9nH84KC7ujqF4qVnqYbOmE.png?width=1200",
+        "type": "image",
         "caption": "Brand exploration — mark, color, and motion language"
       },
       {
-        "id": "reflection",
-        "type": "text",
-        "title": "Reflection",
-        "summary": "Craft is craft, regardless of where it lives",
-        "body": "Working across art and product design isn't a contradiction — both ask the same questions about how something should feel and what it should make a person notice."
-      }
-    ]
-  },
-  {
-    "id": "8",
-    "slug": "habitpup",
-    "title": "HabitPup — Gamified Habit Tracker with Virtual Pet System",
-    "subtitle": "Designed and built a cross-platform habit tracker where completing habits keeps virtual pets alive — leveraging loss aversion and collection mechanics to solve the habit-tracker retention cliff.",
-    "type": "Product Designer & Full-Stack Developer",
-    "users": "Habit builders who've abandoned traditional trackers",
-    "methods": "Retention research, gamification system design, full-stack development (React, React Native, Express, PostgreSQL)",
-    "period": "Jan 2026 — Present",
-    "tags": [
-      "Product Design",
-      "Gamification",
-      "Full-Stack Development",
-      "Cross-Platform",
-      "Behavioral Design"
-    ],
-    "description": "A cross-platform habit tracker with a virtual pet gamification layer — users complete habits to earn currency, adopt pets, and keep them alive. Ships on web, iOS, Android, and as a Chrome extension.",
-    "bullets": [
-      "Designed a virtual pet decay system leveraging loss aversion — pets lose hunger/thirst daily, and prolonged neglect causes level drops, creating genuine urgency to maintain habits.",
-      "Built a full-stack monorepo (pnpm workspaces) with OpenAPI-first contract design — a single spec generates both React Query hooks and Zod validation schemas.",
-      "Shipped across 4 surfaces: React web app, React Native mobile app (Expo SDK 54), Express 5 API, and Chrome MV3 browser extension."
-    ],
-    "challenge": "Habit tracking apps have a well-documented retention cliff. Users download them with good intentions, log habits for a few days, then abandon them. The core issue: the reward loop is too abstract. Checking a box provides a brief dopamine hit, but there's no tangible, ongoing consequence to quitting.",
-    "solution": "Introduced a virtual pet system where pets actively decay over time — hunger and thirst meters drop daily, and prolonged neglect causes visible level drops. Completing habits earns coins, food, and water to care for pets. Loss aversion replaces abstract motivation.",
-    "impact": "Designed and developed the complete product across 4 platforms with 14 database tables, 24 virtual pet species, a multi-tier economy system, social features, and health metric tracking.",
-    "coverImage": "",
-    "year": "2026",
-    "featured": true,
-    "sections": [
-      {
-        "id": "problem",
-        "type": "text",
-        "title": "The Problem",
-        "summary": "Habit trackers fail because quitting has no visible cost",
-        "body": "Habit tracking apps have a well-documented retention cliff. Users download them with good intentions, log habits for a few days, then abandon them. The core issue: the reward loop is too abstract. Checking a box provides a brief dopamine hit, but there's no tangible, ongoing consequence to quitting. The habit tracker becomes another forgotten app.",
-        "bullets": [
-          "Checkbox-based trackers provide no emotional stakes",
-          "Streak counters motivate through pressure, not pleasure — and breaking a streak often causes total abandonment",
-          "No existing tracker makes the cost of quitting visible and personal"
-        ]
+        "id": "extra-3",
+        "src": "https://framerusercontent.com/images/BTiCz4TF9DIWVDwSXmwoL15iE.png?width=1200",
+        "type": "image",
+        "caption": "Spatial campaign mockup — physical/digital interplay"
       },
       {
-        "id": "role",
-        "type": "text",
-        "title": "My Role & Process",
-        "summary": "Solo product designer and full-stack developer — concept through deployment",
-        "bullets": [
-          "Role: Product Designer & Full-Stack Developer (solo project)",
-          "Research: retention psychology, gamification mechanics, streak computation models",
-          "Design: system architecture, interaction design, neo-brutalist visual language",
-          "Development: React web, React Native mobile, Express API, PostgreSQL, Chrome extension"
-        ]
+        "id": "extra-4",
+        "src": "https://framerusercontent.com/images/j6k32JA4B6tio65D35VMQ3HQwM.png?width=1200",
+        "type": "image",
+        "caption": "Series cover — composition and contrast experiments"
       },
       {
-        "id": "research",
-        "type": "text",
-        "title": "Research & Design Foundation",
-        "summary": "Retention psychology pointed to two proven mechanics",
-        "body": "Before writing any code, I researched retention psychology, gamification frameworks, and existing habit tracker UX patterns. Two insights shaped the design direction:",
-        "bullets": [
-          "Loss aversion — people work harder to avoid losing something they already have than to gain something new (Kahneman & Tversky)",
-          "Collection completion drives — incomplete sets create psychological tension that motivates action (Zeigarnik effect applied to collecting)",
-          "Streak mechanics alone create anxiety after breaks — the Duolingo research confirmed this pattern"
-        ],
-        "body2": "The design question became: what if your habits kept something alive?"
-      },
-      {
-        "id": "insights",
-        "type": "text",
-        "title": "Key Insights",
-        "summary": "Three patterns that shaped the product",
-        "bullets": [
-          "Tangible stakes beat abstract metrics — a starving pet is more motivating than a broken streak",
-          "Decay creates genuine urgency — unlike a checkbox that waits for you, a pet actively deteriorates without attention",
-          "Collection pressure drives re-engagement — seeing pets you don't have creates soft motivation to keep earning"
-        ]
-      },
-      {
-        "id": "system-design",
-        "type": "text",
-        "title": "System Design",
-        "summary": "A multi-layered economy connecting habits to pet wellbeing",
-        "body": "The core loop connects habit completion to pet care through a virtual economy. Completing habits awards coins, food, and water. Coins buy pets (24 species, 50–320 coins), toys, and training sessions. Food and water restore hunger and thirst meters. But the meters decay daily — creating a continuous need to maintain habits.",
-        "bullets": [
-          "Pet decay: hunger/thirst drop 10 points/day. Level down if either hits 0 for 24+ hours. Level up if both stay above 70% for 24+ hours.",
-          "Care activities: Walk (4hr decay reset, 1hr cooldown), Bath (2-day reset, 12hr cooldown), Play (3hr reset, 30min cooldown)",
-          "Food tiers: Kibble (restores 20), Treat (restores 35), Premium (restores 50 + instant level-up)",
-          "Training: costs 5 coins, 30min cooldown. Every 5 tricks learned grants a level-up.",
-          "Visitor system: random unowned pets appear every 6 hours — playing with them awards 15 coins and refreshes all pet play meters"
-        ]
-      },
-      {
-        "id": "architecture",
-        "type": "text",
-        "title": "Architecture Decisions",
-        "summary": "OpenAPI-first monorepo with generated clients",
-        "body": "The most impactful architectural decision was making the OpenAPI 3.1 specification the single source of truth for the entire API contract. From this one YAML file, Orval generates TanStack Query hooks for the clients and Zod validation schemas for the server. If the API changes, both clients and server validation update in a single codegen run.",
-        "bullets": [
-          "pnpm workspace monorepo with 4 shippable artifacts and 5 shared libraries",
-          "OpenAPI-first: one spec → generated React Query hooks + Zod schemas (no contract drift)",
-          "Clerk authentication across all surfaces with custom userScope middleware for per-user data isolation",
-          "Three-tier rate limiting: general (100/min), write (30/min), financial (10/min)",
-          "Timezone-aware date handling — 'today' computed in user's local time via X-Habit-Calendar-Timezone header"
-        ]
-      },
-      {
-        "id": "design-language",
-        "type": "text",
-        "title": "Visual Design",
-        "summary": "Neo-brutalist aesthetic that stands apart in a sea of minimalist trackers",
-        "body": "The web frontend uses a distinctive brutalist aesthetic — thick borders, hard drop shadows, bold oversized typography, and high-contrast color palette. This isn't just aesthetic preference: the thick, high-contrast UI elements are easy to tap on mobile web, and the bold visual language makes the app instantly recognizable.",
-        "bullets": [
-          "Thick borders and hard shadows create depth without skeuomorphism",
-          "Bold typography scales well across screen sizes",
-          "High contrast meets accessibility requirements for outdoor mobile use",
-          "Radix UI primitives provide accessible interaction patterns underneath the visual layer"
-        ]
-      },
-      {
-        "id": "streak-algorithm",
-        "type": "text",
-        "title": "Streak Computation",
-        "summary": "Handling daily and scheduled habits differently",
-        "body": "Not all habits are daily. Some run on specific weekdays (e.g., gym on Mon/Wed/Fri). The streak algorithm handles both cases: for daily habits, it walks backward over every day. For scheduled habits, it walks backward over only target days. The dashboard endpoint batch-fetches completions for the last 400 days and computes all streaks in-memory, avoiding N+1 queries.",
-        "bullets": [
-          "Daily habits: every consecutive day counts toward the streak",
-          "Scheduled habits: only target weekdays count (e.g., Mon/Wed/Fri)",
-          "Batch computation: all streaks calculated in a single pass over 400 days of data",
-          "Timezone-safe: all date operations use the user's local timezone, not UTC"
-        ]
-      },
-      {
-        "id": "cross-platform",
-        "type": "text",
-        "title": "Cross-Platform Delivery",
-        "summary": "Four surfaces, one API, shared type contracts",
-        "body": "The product ships on four surfaces, all consuming the same API through generated type-safe hooks:",
-        "bullets": [
-          "Web: React 19 + Vite 7 + Tailwind v4 + TanStack Query v5",
-          "Mobile: React Native 0.81 + Expo SDK 54 + Expo Router + push notifications",
-          "API: Express 5 + Drizzle ORM + PostgreSQL (Neon) + Pino logging",
-          "Extension: Chrome MV3 + vanilla JS + chrome.storage.local"
-        ],
-        "body2": "Mobile-specific features include Android Health Connect integration for automatic step/sleep data sync, AdMob rewarded ads, and EAS cloud builds for App Store/Play Store submission."
-      },
-      {
-        "id": "social",
-        "type": "text",
-        "title": "Social & Health Features",
-        "summary": "Beyond habits — community and wellness tracking",
-        "body": "The product extends beyond habit tracking into social accountability and health monitoring:",
-        "bullets": [
-          "Friend system: unique friend codes, send/accept/decline requests, undirected edge storage (userA < userB)",
-          "Leaderboards: ranked by coins or total completions, scoped to friends-only or global",
-          "Health metrics: steps, calories, sleep, standups, heart rate with configurable goals and 7-day history",
-          "Grocery list: per-user shopping list with check/uncheck, reorder, and bulk-clear"
-        ]
-      },
-      {
-        "id": "security",
-        "type": "text",
-        "title": "Security & Reliability",
-        "summary": "Supply-chain defense and multi-tier rate limiting",
-        "body": "Security was considered from the start, not bolted on later:",
-        "bullets": [
-          "Supply-chain defense: pnpm enforces 1-day minimum release age for npm packages, preventing compromised package consumption",
-          "Per-user data isolation: every query scoped to Clerk userId via userScope middleware — no cross-user data access possible",
-          "Three-tier rate limiting: general (100 req/min), write operations (30 req/min), financial operations (10 req/min)",
-          "Structured logging: Pino for production-grade request/error logging"
-        ]
-      },
-      {
-        "id": "impact",
-        "type": "text",
-        "title": "Impact & Results",
-        "summary": "Full product designed and shipped across 4 platforms",
-        "bullets": [
-          "Designed and built the complete product end-to-end: 14 database tables, 24 pet species, multi-tier economy, social system, health tracking",
-          "Shipped on 4 surfaces (web, iOS, Android, Chrome extension) from a single monorepo",
-          "OpenAPI-first architecture eliminated frontend/backend contract drift entirely",
-          "560-line deployment guide makes the project fully independent of any single platform"
-        ],
-        "body2": "The pet decay system is the core differentiator — unlike streak counters that create anxiety, caring for a virtual pet reframes habit maintenance as nurturing rather than performance."
+        "id": "extra-5",
+        "src": "https://framerusercontent.com/images/nlV6V6nRhl2KAhHTd2TwsbZB7Jg.png?width=1200",
+        "type": "image",
+        "caption": "Animation still — frame from short motion piece"
       },
       {
         "id": "reflection",
+        "body": "Working across art and product design isn't a contradiction — both ask the same questions about how something should feel and what it should make a person notice. The gallery is a reminder that craft is craft, regardless of where it ends up living.",
         "type": "text",
         "title": "Reflection",
-        "summary": "Gamification works when quitting has visible, emotional cost",
-        "body": "This project reinforced that the most effective retention mechanics aren't about rewards — they're about consequences. A checkbox is forgettable. A starving virtual pet is not. Loss aversion is a powerful lever, but it has to be balanced: too much pressure causes abandonment, too little causes indifference. The decay rate (10 points/day) and recovery mechanics (food tiers, care activities) were designed to create urgency without anxiety."
+        "summary": "Why this work sits next to the product design practice"
       }
-    ]
+    ],
+    "solution": "An ongoing gallery of illustration, photography, art direction, brand identity, and motion — letting the through-lines (color, rhythm, composition) speak across pieces.",
+    "subtitle": "A collection of illustration, art direction, photography, and motion work exploring the intersection of emotion and form.",
+    "challenge": "Translating intuition and feeling into work that holds together as a single visual voice across very different mediums.",
+    "coverImage": "https://framerusercontent.com/images/UiY5Pk7sFfrs9bZ7N9mVRqYU7wg.png?width=1200",
+    "description": "Visual worlds, crafted by hand. A continuously growing body of personal and commissioned creative work."
   }
 ]

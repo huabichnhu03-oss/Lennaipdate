@@ -68,12 +68,10 @@ export function DinoFallback({
   caption,
 }: DinoFallbackProps) {
   const reduce = useReducedMotion();
-  const label = caption ?? "Under construction";
+  const label = caption?.trim() ?? "";
   const ariaLabel = alt
-    ? `${alt} — image unavailable, under construction`
-    : "Image unavailable, under construction";
-
-  const ease = [0.16, 1, 0.3, 1] as const;
+    ? `${alt} — image unavailable`
+    : "Image unavailable";
 
   return (
     <div
@@ -135,60 +133,7 @@ export function DinoFallback({
             strokeDasharray="4 4"
           />
 
-          {/* Sign post */}
-          <rect x="146" y="64" width="4" height="74" fill="rgba(255,255,255,0.5)" />
-          <rect x="178" y="64" width="4" height="74" fill="rgba(255,255,255,0.5)" />
-
-          {/* Sign board */}
-          <g>
-            <motion.g
-              initial={{ rotate: 0 }}
-              animate={reduce ? undefined : { rotate: [-1.4, 1.4, -1.4] }}
-              transition={
-                reduce
-                  ? undefined
-                  : { duration: 3.6, ease: "easeInOut", repeat: Infinity }
-              }
-              style={{ transformOrigin: "164px 78px" }}
-            >
-              <rect
-                x="116"
-                y="48"
-                width="96"
-                height="36"
-                rx="3"
-                fill={BRAND.blue}
-                stroke="rgba(255,255,255,0.85)"
-                strokeWidth="1.5"
-              />
-              <text
-                x="164"
-                y="65"
-                textAnchor="middle"
-                fontFamily="ui-monospace, Menlo, monospace"
-                fontSize="9"
-                fontWeight="700"
-                fill="#FFFFFF"
-                letterSpacing="1.2"
-              >
-                UNDER
-              </text>
-              <text
-                x="164"
-                y="78"
-                textAnchor="middle"
-                fontFamily="ui-monospace, Menlo, monospace"
-                fontSize="9"
-                fontWeight="700"
-                fill="#FFFFFF"
-                letterSpacing="1.2"
-              >
-                CONSTRUCTION
-              </text>
-            </motion.g>
-          </g>
-
-          {/* Dino — simple cartoon silhouette */}
+          {/* Dino — same cartoon style, carrying a picture frame */}
           <motion.g
             initial={{ y: 0 }}
             animate={reduce ? undefined : { y: [0, -2.5, 0] }}
@@ -228,48 +173,64 @@ export function DinoFallback({
               strokeLinejoin="round"
             />
 
-            {/* Hammer arm — swings */}
+            {/* Picture-frame arm — gentle bob */}
             <motion.g
-              initial={{ rotate: -10 }}
-              animate={reduce ? undefined : { rotate: [-22, 18, -22] }}
+              initial={{ rotate: -6 }}
+              animate={reduce ? undefined : { rotate: [-10, 4, -10] }}
               transition={
                 reduce
                   ? undefined
-                  : { duration: 0.9, ease: "easeInOut", repeat: Infinity }
+                  : { duration: 1.6, ease: "easeInOut", repeat: Infinity }
               }
-              style={{ transformOrigin: "104px 96px" }}
+              style={{ transformOrigin: "104px 100px" }}
             >
+              {/* Arm */}
               <rect
-                x="102"
-                y="92"
+                x="100"
+                y="94"
                 width="6"
-                height="22"
+                height="18"
                 rx="2"
                 fill={BRAND.teal}
                 stroke="rgba(0,0,0,0.35)"
                 strokeWidth="1"
               />
-              {/* Hammer head */}
+              {/* Frame */}
               <rect
-                x="96"
-                y="84"
-                width="20"
-                height="10"
+                x="98"
+                y="72"
+                width="28"
+                height="22"
                 rx="1.5"
-                fill="rgba(255,255,255,0.9)"
+                fill="rgba(255,255,255,0.92)"
                 stroke="rgba(0,0,0,0.5)"
-                strokeWidth="1"
+                strokeWidth="1.5"
               />
-              <rect x="100" y="83" width="4" height="12" fill="rgba(0,0,0,0.45)" />
+              {/* Inner mat */}
+              <rect
+                x="102"
+                y="76"
+                width="20"
+                height="14"
+                rx="0.5"
+                fill={BRAND.blue}
+                opacity="0.85"
+              />
+              {/* Tiny mountain / image mark */}
+              <path
+                d="M104 88 L110 80 L116 86 L120 82 L122 88 Z"
+                fill="rgba(255,255,255,0.9)"
+              />
+              <circle cx="118" cy="79" r="1.4" fill="rgba(255,255,255,0.95)" />
             </motion.g>
           </motion.g>
 
-          {/* Sparks / dust */}
+          {/* Soft sparkles */}
           {!reduce && (
             <g>
               <motion.circle
-                cx="118"
-                cy="86"
+                cx="132"
+                cy="70"
                 r="1.6"
                 fill={BRAND.pink}
                 initial={{ opacity: 0, y: 0 }}
@@ -277,8 +238,8 @@ export function DinoFallback({
                 transition={{ duration: 1.2, repeat: Infinity, repeatDelay: 0.3 }}
               />
               <motion.circle
-                cx="124"
-                cy="90"
+                cx="138"
+                cy="78"
                 r="1.2"
                 fill={BRAND.coral}
                 initial={{ opacity: 0, y: 0 }}
@@ -291,8 +252,8 @@ export function DinoFallback({
                 }}
               />
               <motion.circle
-                cx="112"
-                cy="92"
+                cx="126"
+                cy="82"
                 r="1"
                 fill={BRAND.blue}
                 initial={{ opacity: 0, y: 0 }}
@@ -308,18 +269,20 @@ export function DinoFallback({
           )}
         </svg>
 
-        <span
-          style={{
-            fontFamily: "ui-monospace, Menlo, monospace",
-            fontSize: "9px",
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            color: "rgba(255,255,255,0.6)",
-            textAlign: "center",
-          }}
-        >
-          {label}
-        </span>
+        {label ? (
+          <span
+            style={{
+              fontFamily: "ui-monospace, Menlo, monospace",
+              fontSize: "9px",
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.6)",
+              textAlign: "center",
+            }}
+          >
+            {label}
+          </span>
+        ) : null}
       </div>
     </div>
   );

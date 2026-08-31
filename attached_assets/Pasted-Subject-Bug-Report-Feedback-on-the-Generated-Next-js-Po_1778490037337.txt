@@ -6,7 +6,7 @@ Here is a summary of the bugs and friction points I encountered while running th
 
 The Bug: The project includes an /admin dashboard that requires a password, but the generated setup instructions and ZIP file did not include the .env.local file. This completely locked me out of the local server upon initial boot.
 
-The Fix: I had to manually create a .env.local file in the root directory and add NEXT_PUBLIC_ADMIN_PASSWORD=lenna2025, then restart the Next.js server to gain access.
+The Fix: I had to manually create a .env.local file in the root directory and add ADMIN_PASSWORD=<redacted>, then restart the Next.js server to gain access.
 
 Suggestion: Always auto-generate the .env.local file or explicitly halt the user to create it before telling them to run npm run dev.
 

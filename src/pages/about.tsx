@@ -17,7 +17,7 @@ function resumeHref(resume: ResumeMeta | undefined): string {
   return import.meta.env.BASE_URL + raw.replace(/^\/+/, "");
 }
 
-type AboutShape = typeof aboutSeed & { community?: string };
+type AboutShape = typeof aboutSeed & { community?: string; yearsExperience?: string };
 import { FloatingDecor } from "@/components/FloatingDecor";
 import { SafeImage } from "@/components/SafeImage";
 
@@ -153,6 +153,7 @@ function StackedExpCard({
 
 export default function About() {
   const aboutData = useContent("about", aboutSeed) as AboutShape;
+  const yearsLabel = `${(aboutData.yearsExperience ?? "3+").trim() || "3+"} Years`;
   const experienceData = useContent("experience", experienceSeed) as typeof experienceSeed;
   const educationData = useContent("education", educationSeed) as typeof educationSeed;
   const filesContent = useContent("files", filesSeed) as FilesShape;
@@ -214,7 +215,7 @@ export default function About() {
             className="flex flex-wrap gap-3 mt-4"
           >
             {[
-              { label: "3+ Years",   sub: "UX Design" },
+              { label: yearsLabel,   sub: "UX Design" },
               { label: "20+ Projects", sub: "Shipped" },
               { label: "Toronto",    sub: "Based" },
             ].map(({ label, sub }) => (

@@ -9,6 +9,8 @@ import identitySeed from "./data/identity.json" with { type: "json" };
 import contactSeed from "./data/contact.json" with { type: "json" };
 import filesSeed from "./data/files.json" with { type: "json" };
 import homepageSeed from "./data/homepage.json" with { type: "json" };
+import studioSeed from "./data/studio.json" with { type: "json" };
+import appearanceSeed from "./data/appearance.json" with { type: "json" };
 
 export const ALLOWED_SECTIONS = [
   "projects",
@@ -20,6 +22,8 @@ export const ALLOWED_SECTIONS = [
   "contact",
   "files",
   "homepage",
+  "studio",
+  "appearance",
 ] as const;
 
 export type SectionName = (typeof ALLOWED_SECTIONS)[number];
@@ -38,16 +42,25 @@ const SEEDS: Record<SectionName, unknown> = {
   contact: contactSeed,
   files: filesSeed,
   homepage: homepageSeed,
+  studio: studioSeed,
+  appearance: appearanceSeed,
 };
 
+/**
+ * New admin sections: return bundled seed for API/client but do not INSERT into
+ * Postgres on first read — avoids changing live content until you Save in admin.
+ */
+const SEED_ONLY_SECTIONS = new Set<SectionName>(["studio", "appearance"]);
+
 export async function getSection(name: SectionName): Promise<unknown> {
+  const seed = SEEDS[name];
   try {
     const rows = await query<{ data: unknown }>(
       "SELECT data FROM content_sections WHERE name = $1",
       [name],
     );
     if (rows.length > 0) return rows[0]!.data;
-    const seed = SEEDS[name];
+    if (SEED_ONLY_SECTIONS.has(name)) return seed;
     await query(
       `INSERT INTO content_sections (name, data) VALUES ($1, $2::jsonb)
        ON CONFLICT (name) DO NOTHING`,
@@ -55,7 +68,7 @@ export async function getSection(name: SectionName): Promise<unknown> {
     );
     return seed;
   } catch {
-    return SEEDS[name];
+    return seed;
   }
 }
 

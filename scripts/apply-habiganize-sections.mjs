@@ -1,0 +1,338 @@
+/**
+ * Writes Habiganize as ONE sections[] list with visibility flags.
+ * - skim (always): 8 blocks
+ * - see more (detail): remaining deep-dive blocks
+ * Demo is an image + CTA link (no iframe). Promo is type "video".
+ * Clears deprecated detailSections so admin/DB stay on one list.
+ */
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+const ALWAYS = "always";
+const DETAIL = "detail";
+
+/** Ordered narrative. visibility controls See more. */
+const sections = [
+  {
+    id: "overview",
+    type: "text",
+    visibility: DETAIL,
+    title: "The Pitch",
+    summary:
+      "A habit tracker people don't want to abandon - designed, built, and shipped by one person",
+    body: "Habiganize turns habit tracking into a care ritual. Check off a habit and earn coins, food, and water. Spend them on ~24 hand-designed companions whose hunger and thirst decay in real time - so quitting stops being free. I took this from business case to live product solo across web, iOS/Android (Expo), and a Chrome extension on one shared API.",
+    bullets: [
+      "Role: solo Product Designer, UX Designer, and Product Owner - plus full-stack build",
+      "Platforms: web (React/Vite), mobile (Expo), Chrome extension, Express + Postgres API",
+      "Live at habitganizer.tech; app-store release and retention instrumentation are next",
+    ],
+  },
+  {
+    id: "promo-video",
+    type: "video",
+    visibility: DETAIL,
+    src: "/case-studies/habiganize/promo.webm",
+    title: "The 25-Second Version",
+    caption: "Problem, bet, and shipped product - real screens and diagrams from this project.",
+  },
+  {
+    id: "problem",
+    type: "text",
+    visibility: ALWAYS,
+    title: "The Problem",
+    summary: "97% of habit app users are gone within a month",
+    body: "Health & Fitness apps face a brutal retention cliff. Users download with good intentions, check boxes for a few days, then leave - because abstract rewards fade and nothing in the product misses them when they're gone.",
+    bullets: [
+      "Business lens: retention is the metric that decides if a habit product survives",
+      "User lens: \"Restart Riley\" - mid-20s, tried 2-3 apps, quits when streaks break",
+      "Root cause: quitting is costless; streak guilt punishes instead of retaining",
+    ],
+    summaryDetail: "The habit app industry has a 97% abandonment problem",
+    bodyDetail:
+      "I started with the market's ugliest number. Health & Fitness apps retain roughly 25% on day 1, 7% by day 7, and 3% by day 30. People download with good intentions, check boxes for a few days, then vanish. Checkbox rewards fade; broken streaks trigger total drop-off - because leaving costs nothing.",
+    bulletsDetail: [
+      "Abstract rewards decay after the novelty week",
+      "Streak guilt punishes instead of retaining",
+      "Root cause: nothing in the product misses you when you leave",
+      "Business framing: retention is the metric that decides if a habit product lives",
+    ],
+  },
+  {
+    id: "retention-img",
+    type: "image",
+    visibility: ALWAYS,
+    src: "/case-studies/habiganize/retention-chart.png",
+    caption: "Industry retention benchmarks that framed the design brief",
+    title: "The Retention Cliff",
+  },
+  {
+    id: "bet",
+    type: "problem-solution",
+    visibility: ALWAYS,
+    title: "The Bet",
+    problem:
+      "Checkbox and streak-only apps treat consistency as willpower theater. When motivation dips, there is nothing personal left to protect.",
+    solution:
+      "Give users something alive to care for. Loss aversion, collection drive, and daily care timers create a reason to return that outlasts guilt.",
+    problemDetail:
+      "Checkbox and streak-only products treat consistency as self-discipline theater. When motivation dips, there is nothing personal left to protect.",
+    solutionDetail:
+      "Make consistency feel like caring for something. Loss aversion, collection drive, and daily care timers create a reason to return that outlasts willpower.",
+  },
+  {
+    id: "research",
+    type: "text",
+    visibility: DETAIL,
+    title: "Research & The User",
+    summary: "Behavioral science synthesized into design principles",
+    body: "The design target is \"Restart Riley\" - mid-20s, tried 2-3 habit apps, responds to playful care over productivity guilt. I synthesized Atomic Habits, BJ Fogg, Duolingo, and Habitica patterns into principles that guided every decision. Desk research, not moderated interviews yet - formal usability testing is scoped as next step.",
+    bullets: [
+      "Immediate payoff: every completion pays out within one second",
+      "Loss aversion beats abstract gains: a hungry pet is more salient than a broken streak",
+      "Collection creates soft re-engagement without push notifications",
+      "Systems over willpower: one-tap check-ins, optional mood capture",
+    ],
+  },
+  {
+    id: "loop",
+    type: "text",
+    visibility: ALWAYS,
+    title: "The Care Loop",
+    summary: "Habits fund pets; pets bring users back tomorrow",
+    body: "Today check-in → earn +10 coins, +1 food, +1 water → shop or care for ~24 companions → meters decay → return. One account across web, mobile, and Chrome extension on a shared API.",
+    bullets: [
+      "Product lens: MVP sequenced loop first; social, health, and premium came after",
+      "Design lens: one job per screen - Today, Pups, Shop",
+      "Tradeoff: Clerk auth for sync and billing vs anonymous-first research",
+    ],
+    summaryDetail: "Habits fund pets; pets create tomorrow's reason to return",
+    bodyDetail:
+      "Core loop: Today check-in → earn +10 coins, +1 food, +1 water → shop and care → meters decay → return. ~24 pets, daily decay, care cooldowns, visiting playmates. I tuned the economy so earning (habits) and spending (pets) stay separate - habits remain the engine.",
+    bulletsDetail: [
+      "Rewards: +10 coins, +1 food, +1 water per completion",
+      "Pet prices ~50-320 coins; hunger/thirst decay ~10 points/day",
+      "One job per screen: Today, Pups, Shop",
+      "Tradeoff: Clerk auth for sync and billing vs anonymous-first research",
+    ],
+  },
+  {
+    id: "solution",
+    type: "text",
+    visibility: DETAIL,
+    title: "The Care Economy",
+    summary: "Habits fund pets; pets create tomorrow's reason to return",
+    body: "Core loop: Today check-in → earn +10 coins, +1 food, +1 water → shop and care → meters decay → return. ~24 pets, daily decay, care cooldowns, visiting playmates. I tuned the economy so earning (habits) and spending (pets) stay separate - habits remain the engine.",
+    bullets: [
+      "Rewards: +10 coins, +1 food, +1 water per completion",
+      "Pet prices ~50-320 coins; hunger/thirst decay ~10 points/day",
+      "One job per screen: Today, Pups, Shop",
+      "Tradeoff: Clerk auth for sync and billing vs anonymous-first research",
+    ],
+  },
+  {
+    id: "loop-img",
+    type: "image",
+    visibility: ALWAYS,
+    src: "/case-studies/habiganize/loop-diagram.png",
+    caption: "Core product loop - each step maps to a behavioral principle",
+    title: "Core Loop",
+  },
+  {
+    id: "design",
+    type: "text",
+    visibility: ALWAYS,
+    title: "Design & Platform",
+    summary: "Neo-brutalist system from Figma to production, four surfaces",
+    body: "Thick borders, hard shadows, Lexend type, cream-and-strawberry palette - Figma tokens map 1:1 to production CSS. Web is full-featured; mobile is the daily companion; extension is quick-tick only.",
+    bullets: [
+      "Figma → code: tokens, components, pet art spec for ~24 breeds",
+      "Branded auth: Clerk sign-up restyled to match the product",
+      "IA: Habits → Wallet → Pets → Social",
+    ],
+    summaryDetail: "Neo-brutalist brand built as tokens, not one-off screens",
+    bodyDetail:
+      "Thick cocoa borders, hard offset shadows, Lexend type, cream-and-strawberry palette. Built as a Figma token library that maps 1:1 to CSS variables and Tailwind - production screens assemble from the same components as the mockups.",
+    bulletsDetail: [
+      "Tokens: cream background, cocoa ink, strawberry primary, golden accent",
+      "Component pipeline: Figma variants → React + shadow-brutal utilities",
+      "Pet art spec keeps ~24 breeds consistent across the collection",
+      "Clerk auth themed to match - signup never feels bolted on",
+    ],
+  },
+  {
+    id: "figma",
+    type: "text",
+    visibility: DETAIL,
+    title: "Design System in Figma",
+    summary: "Neo-brutalist brand built as tokens, not one-off screens",
+    body: "Thick cocoa borders, hard offset shadows, Lexend type, cream-and-strawberry palette. Built as a Figma token library that maps 1:1 to CSS variables and Tailwind - production screens assemble from the same components as the mockups.",
+    bullets: [
+      "Tokens: cream background, cocoa ink, strawberry primary, golden accent",
+      "Component pipeline: Figma variants → React + shadow-brutal utilities",
+      "Pet art spec keeps ~24 breeds consistent across the collection",
+      "Clerk auth themed to match - signup never feels bolted on",
+    ],
+  },
+  {
+    id: "tokens-img",
+    type: "image",
+    visibility: DETAIL,
+    src: "/case-studies/habiganize/tokens-diagram.png",
+    caption: "Figma variables to production CSS",
+    title: "Figma → Production",
+  },
+  {
+    id: "auth-img",
+    type: "image",
+    visibility: DETAIL,
+    src: "/case-studies/habiganize/live-auth.png",
+    caption: "Shipped sign-up screen (live capture) - Clerk restyled to match the system",
+    title: "Branded Down to Sign-Up",
+  },
+  {
+    id: "iteration-img",
+    type: "image",
+    visibility: DETAIL,
+    src: "/case-studies/habiganize/concept-mockup.png",
+    caption:
+      "Early explorations: illustrated and pixel-art directions tested and retired in favor of neo-brutalism for recognizability and tap targets",
+    title: "Early Explorations",
+  },
+  {
+    id: "platform",
+    type: "text",
+    visibility: DETAIL,
+    title: "One Product, Four Surfaces",
+    summary: "One account, one API, four doors",
+    body: "Web is full-featured. Mobile is the daily companion. Chrome extension is quick-tick only. One OpenAPI-backed service keeps data in sync via Clerk auth.",
+    bullets: [
+      "Mental model: Habits → Wallet → Pets → Social",
+      "Web: Today, Habits, Stats, History, Health, Pups, Friends, Ranks, Premium",
+      "Mobile: five high-frequency tabs; Friends/Ranks via Settings (parity gap)",
+      "Extension: habit check-off only - no pets or social",
+    ],
+  },
+  {
+    id: "ia-img",
+    type: "image",
+    visibility: DETAIL,
+    src: "/case-studies/habiganize/ia-diagram.png",
+    caption: "Information architecture across web, mobile, and extension",
+    title: "Information Architecture",
+  },
+  {
+    id: "product-img",
+    type: "image",
+    visibility: ALWAYS,
+    src: "/case-studies/habiganize/mobile-screens.png",
+    caption: "Shipped mobile app (Today + Habits) - live at habitganizer.tech",
+    title: "Shipped Product",
+    href: "https://habitganizer.tech",
+    linkLabel: "Click here to try the product →",
+  },
+  {
+    id: "pets-img",
+    type: "image",
+    visibility: DETAIL,
+    src: "/case-studies/habiganize/pets-strip.png",
+    caption: "Collectible companions - emotional payoff of the care loop",
+    title: "Meet the Companions",
+  },
+  {
+    id: "demo",
+    type: "image",
+    visibility: DETAIL,
+    src: "/case-studies/habiganize/web-cover.png",
+    title: "Try It Live",
+    caption: "Open the live product in a new tab — no iframe (avoids frame blockers and page jank).",
+    href: "https://habitganizer.tech",
+    linkLabel: "Click here to try the product →",
+  },
+  {
+    id: "business",
+    type: "text",
+    visibility: DETAIL,
+    title: "Product & Business Decisions",
+    summary: "Scope, monetization, and tradeoffs",
+    body: "MVP sequenced the retention loop first. Monetization: free tier (5 habits, 3 pets), Pro/Premium/Ultimate subscriptions, coin packs, rewarded ads, donations. Every major tradeoff is documented with its cost.",
+    bullets: [
+      "Clerk auth vs anonymous-first: chose identity and billing; anonymous trial is top revisit",
+      "Chain streaks without freezes: shipped faster; freezes are backlog item #1",
+      "Cold-start wake screen: turned Render free-tier delay into branded UX with fun facts",
+      "Neo-brutalist brand: memorability over enterprise-safe minimalism",
+    ],
+  },
+  {
+    id: "validation",
+    type: "text",
+    visibility: DETAIL,
+    title: "Validation & What's Next",
+    summary: "Honest about what's tested and what isn't",
+    body: "I use Habiganize daily and shipped in-app feedback. I won't invent metrics we haven't instrumented. Next: moderated usability tests, D1/D7/D30 measurement, streak freezes, anonymous trial.",
+    bullets: [
+      "Next: 5 usability sessions on Today + Pups flows",
+      "Next: does adopting a first pet lift next-day return?",
+      "Then: app-store release (EAS in progress)",
+    ],
+  },
+  {
+    id: "outcomes",
+    type: "text",
+    visibility: ALWAYS,
+    title: "Outcomes",
+    summary: "One person across BA, user research, design, and product ownership",
+    body: "Live product at habitganizer.tech with a working pet economy and coherent design system. Metrics not invented - usability testing and D1/D7/D30 measurement are next.",
+    bullets: [
+      "BA: framed the problem with market data",
+      "User: loss aversion, collection, immediate payoff",
+      "Design: token system from Figma through auth",
+      "Product: freemium model, platform strategy, tradeoff docs",
+    ],
+    titleDetail: "Outcomes & Why It Matters",
+    summaryDetail: "One person across BA, user research, design, and product ownership",
+    bodyDetail:
+      "Live multi-platform product with working pet economy and coherent design system. The portfolio case: I can take a vague business problem, frame it with data, synthesize research, design a system in Figma, ship it, and make the PO calls about scope and debt.",
+    bulletsDetail: [
+      "BA: market data framed retention as the design brief",
+      "User: behavioral science - loss aversion, collection, immediate payoff",
+      "Design: token system from Figma through auth screens",
+      "Product: freemium model, platform strategy, honest tradeoff docs",
+    ],
+  },
+];
+
+const skimCount = sections.filter((s) => s.visibility === ALWAYS).length;
+const detailCount = sections.filter((s) => s.visibility === DETAIL).length;
+
+function writeJsonAtomic(filePath, value) {
+  const tmp = `${filePath}.${process.pid}.tmp`;
+  const body = `${JSON.stringify(value, null, 2)}\n`;
+  fs.writeFileSync(tmp, body);
+  try {
+    fs.renameSync(tmp, filePath);
+  } catch {
+    fs.copyFileSync(tmp, filePath);
+    fs.unlinkSync(tmp);
+  }
+}
+
+for (const rel of ["src/data/projects.json", "lib/data/projects.json"]) {
+  const p = path.join(root, rel);
+  const projects = JSON.parse(fs.readFileSync(p, "utf8"));
+  const idx = projects.findIndex((x) => x.slug === "habiganize");
+  if (idx < 0) throw new Error("habiganize not found in " + rel);
+  const next = { ...projects[idx], sections };
+  delete next.detailSections;
+  projects[idx] = next;
+  writeJsonAtomic(p, projects);
+  console.log(rel, "always:", skimCount, "detail:", detailCount, "total:", sections.length);
+}
+
+writeJsonAtomic(
+  path.join(root, "scripts/habiganize-detail-sections.json"),
+  sections,
+);
+console.log("Updated scripts/habiganize-detail-sections.json (upload this into Admin → Sections)");

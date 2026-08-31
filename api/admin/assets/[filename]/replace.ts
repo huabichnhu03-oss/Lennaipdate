@@ -3,10 +3,14 @@ import formidable from "formidable";
 import fs from "fs";
 import { isAdminRequest } from "../../../../lib/admin-auth.js";
 import { removeAsset, renameAsset, replaceAsset } from "../../../../lib/assets-store.js";
+import {
+  MAX_VIDEO_ASSET_BYTES,
+  maxAssetBytesForMime,
+  formatMaxMb,
+} from "../../../../lib/asset-limits.js";
 
 export const config = { bodyParser: false, maxDuration: 30 };
 
-const MAX_ASSET_BYTES = 4 * 1024 * 1024;
 const isAllowedAssetMime = (mime: string): boolean =>
   mime.startsWith("image/") || mime.startsWith("video/");
 
@@ -33,7 +37,7 @@ function parseMultipart(req: VercelRequest): Promise<{
   files: MultipartFiles;
 }> {
   return new Promise((resolve, reject) => {
-    const form = formidable({ maxFileSize: MAX_ASSET_BYTES });
+    const form = formidable({ maxFileSize: MAX_VIDEO_ASSET_BYTES });
     form.parse(req as unknown as Parameters<typeof form.parse>[0], (err: unknown, fields: unknown, files: unknown) => {
       if (err) reject(err);
       else resolve({ fields: fields as MultipartFields, files: files as MultipartFiles });
@@ -85,7 +89,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Upload parse failed";
       const isTooBig = msg.toLowerCase().includes("maxfilesize") || msg.toLowerCase().includes("too large");
-      res.status(isTooBig ? 413 : 400).json({ error: isTooBig ? `File is too large (max ${Math.floor(MAX_ASSET_BYTES / 1024 / 1024)} MB).` : msg });
+      res.status(isTooBig ? 413 : 400).json({ error: isTooBig ? `File is too large (max ${formatMaxMb(MAX_VIDEO_ASSET_BYTES)} MB).` : msg });
       return;
     }
 
@@ -117,6 +121,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       buffer = fs.readFileSync(file.filepath);
     } catch {
       res.status(500).json({ error: "Failed to read uploaded file." });
+      return;
+    }
+    const maxBytes = maxAssetBytesForMime(mime);
+    if (buffer.length > maxBytes) {
+      res.status(413).json({ error: `File is too large (max ${formatMaxMb(maxBytes)} MB).` });
       return;
     }
 
@@ -195,7 +204,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const buffer = isBase64 ? Buffer.from(m[2]!, "base64") : Buffer.from(decodeURIComponent(m[2]!), "utf8");
   if (!isAllowedAssetMime(mime)) { res.status(400).json({ error: `Unsupported file type: ${mime}` }); return; }
   if (buffer.length === 0) { res.status(400).json({ error: "Uploaded file is empty." }); return; }
-  if (buffer.length > MAX_ASSET_BYTES) { res.status(413).json({ error: `File is too large (max ${Math.floor(MAX_ASSET_BYTES / 1024 / 1024)} MB).` }); return; }
+  const maxBytes = maxAssetBytesForMime(mime);
+  if (buffer.length > maxBytes) { res.status(413).json({ error: `File is too large (max ${formatMaxMb(maxBytes)} MB).` }); return; }
 
   try {
     const updated = await replaceAsset(id, {

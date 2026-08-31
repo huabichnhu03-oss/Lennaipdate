@@ -46,21 +46,35 @@ function ClampedText({ children, lines = 5 }: { children: React.ReactNode; lines
   );
 }
 
-type SectionType = "text" | "image" | "problem-solution";
+type SectionType = "text" | "image" | "video" | "problem-solution" | "embed";
 
 interface ContentSection {
   id: string;
   type: SectionType;
+  /** Default skim. "detail" only after See more. */
+  visibility?: "always" | "detail";
   title?: string;
   summary?: string;
   body?: string;
   bullets?: string[];
   body2?: string;
   bullets2?: string[];
+  /** When See more is on, these replace the skim fields on the same block. */
+  titleDetail?: string;
+  summaryDetail?: string;
+  bodyDetail?: string;
+  bulletsDetail?: string[];
   src?: string;
   caption?: string;
   problem?: string;
   solution?: string;
+  problemDetail?: string;
+  solutionDetail?: string;
+  /** Optional CTA under image/video (no iframe). */
+  href?: string;
+  linkLabel?: string;
+  /** Embed iframe height in px (default 500). PubHTML5 only. */
+  height?: number;
 }
 
 interface Project {
@@ -83,6 +97,8 @@ interface Project {
   featured: boolean;
   archived?: boolean;
   sections?: ContentSection[];
+  /** @deprecated Prefer sections[].visibility — kept for older DB rows. */
+  detailSections?: ContentSection[];
 }
 
 // `projects` is resolved per-render from useContent inside CaseStudy() so
@@ -250,17 +266,163 @@ function useTOC(sections: ContentSection[]) {
   return { tocItems, activeId };
 }
 
+function isAllowedEmbedSrc(src: string): boolean {
+  try {
+    const u = new URL(src);
+    // Live product sites use CTA links — iframe only for PubHTML5 publications.
+    return u.protocol === "https:" && (
+      u.hostname === "online.pubhtml5.com" ||
+      u.hostname.endsWith(".pubhtml5.com")
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isSafeCtaHref(href: string): boolean {
+  try {
+    const u = new URL(href);
+    return u.protocol === "https:" || u.protocol === "http:";
+  } catch {
+    return href.startsWith("/");
+  }
+}
+
+function MediaCta({ href, linkLabel }: { href?: string; linkLabel?: string }) {
+  const raw = href?.trim() ?? "";
+  if (!raw || !isSafeCtaHref(raw)) return null;
+  return (
+    <a
+      href={raw}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-2 mt-1 text-primary text-xs uppercase tracking-[0.25em] font-sans font-bold w-max hover:opacity-80 transition-opacity"
+    >
+      {linkLabel?.trim() || "Click here to try the product →"}
+    </a>
+  );
+}
+
+/** Resolve skim vs expanded without remounting a second document tree when possible. */
+function resolveDisplaySections(
+  project: Project | undefined,
+  showDetail: boolean,
+): { sections: ContentSection[]; hasExpandable: boolean } {
+  const base = project?.sections ?? [];
+  const legacyDetail = project?.detailSections ?? [];
+  const usesVisibility = base.some((s) => s.visibility === "detail" || s.visibility === "always");
+
+  if (usesVisibility) {
+    const hasExpandable =
+      base.some((s) => s.visibility === "detail") ||
+      base.some(
+        (s) =>
+          !!(s.bodyDetail || s.summaryDetail || s.titleDetail || s.bulletsDetail?.length ||
+            s.problemDetail || s.solutionDetail),
+      );
+    return {
+      hasExpandable,
+      sections: showDetail ? base : base.filter((s) => s.visibility !== "detail"),
+    };
+  }
+
+  // Legacy: separate detailSections array (older DB / seed rows)
+  if (legacyDetail.length > 0) {
+    return {
+      hasExpandable: true,
+      sections: showDetail ? legacyDetail : base,
+    };
+  }
+
+  const hasTextExpand = base.some(
+    (s) =>
+      !!(s.bodyDetail || s.summaryDetail || s.titleDetail || s.bulletsDetail?.length ||
+        s.problemDetail || s.solutionDetail),
+  );
+  return { hasExpandable: hasTextExpand, sections: base };
+}
+
 function SectionBlock({
   section,
+  expanded,
   onImageClick,
 }: {
   section: ContentSection;
+  expanded: boolean;
   onImageClick: (src: string, caption?: string) => void;
 }) {
-  if (section.type === "image") {
+  if (section.type === "image" || section.type === "video") {
     return <ImageSection section={section} onImageClick={onImageClick} />;
   }
-  return <SectionBlockText section={section} />;
+  if (section.type === "embed") {
+    return <EmbedSection section={section} />;
+  }
+  return <SectionBlockText section={section} expanded={expanded} />;
+}
+
+function pickExpanded<T>(expanded: boolean, skim: T | undefined, detail: T | undefined): T | undefined {
+  if (expanded && detail !== undefined && detail !== null && detail !== "") {
+    if (Array.isArray(detail) && detail.length === 0) return skim;
+    return detail;
+  }
+  return skim;
+}
+
+function EmbedSection({ section }: { section: ContentSection }) {
+  const src = section.src?.trim() ?? "";
+  const allowed = isAllowedEmbedSrc(src);
+  const height =
+    typeof section.height === "number" && section.height > 0 ? section.height : 500;
+
+  return (
+    <motion.div
+      id={`cs-${section.id}`}
+      className="flex flex-col gap-3"
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.65, ease: BRAND_EASE }}
+    >
+      {section.title && (
+        <h2 className="font-display font-black uppercase text-xl md:text-2xl text-primary leading-tight tracking-tight">
+          {section.title}
+        </h2>
+      )}
+      {allowed ? (
+        <>
+          <div
+            className="w-full overflow-hidden rounded-xl bg-card border border-border"
+            style={{ height }}
+          >
+            <iframe
+              src={src}
+              title={section.title || section.caption || "Embedded publication"}
+              className="w-full h-full border-0"
+              allowFullScreen
+              sandbox="allow-same-origin allow-scripts allow-pointer-lock allow-forms allow-popups allow-popups-to-escape-sandbox"
+            />
+          </div>
+          <a
+            href={src}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary text-xs uppercase tracking-[0.25em] font-sans font-bold w-max hover:opacity-80 transition-opacity"
+          >
+            Open in a new tab ↗
+          </a>
+        </>
+      ) : (
+        <p className="text-sm font-sans text-muted-foreground">
+          Embed unavailable — add a valid embed URL.
+        </p>
+      )}
+      {section.caption && (
+        <p className="text-sm font-sans text-muted-foreground italic">
+          {section.caption}
+        </p>
+      )}
+    </motion.div>
+  );
 }
 
 function ImageSection({
@@ -271,7 +433,46 @@ function ImageSection({
   onImageClick: (src: string, caption?: string) => void;
 }) {
   const [errored, setErrored] = useState(false);
-  const clickable = !errored && !!section.src;
+  const isVideo =
+    section.type === "video" ||
+    (!!section.src &&
+      (/\.(mp4|webm|ogg|mov)(\?|$)/i.test(section.src) || section.src.startsWith("data:video")));
+  const clickable = !errored && !!section.src && !isVideo;
+
+  if (isVideo) {
+    return (
+      <motion.div
+        id={`cs-${section.id}`}
+        className="flex flex-col gap-3"
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.65, ease: BRAND_EASE }}
+      >
+        {section.title && (
+          <h2 className="font-display font-black uppercase text-xl md:text-2xl text-primary leading-tight tracking-tight">
+            {section.title}
+          </h2>
+        )}
+        <div className="w-full overflow-hidden rounded-xl bg-card">
+          <video
+            src={section.src}
+            controls
+            playsInline
+            preload="metadata"
+            className="block w-full h-auto max-h-[70vh]"
+          />
+        </div>
+        {section.caption && (
+          <p className="text-sm font-sans text-muted-foreground italic">
+            {section.caption}
+          </p>
+        )}
+        <MediaCta href={section.href} linkLabel={section.linkLabel} />
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       id={`cs-${section.id}`}
@@ -281,6 +482,11 @@ function ImageSection({
       viewport={{ once: true }}
       transition={{ duration: 0.65, ease: BRAND_EASE }}
     >
+      {section.title && (
+        <h2 className="font-display font-black uppercase text-xl md:text-2xl text-primary leading-tight tracking-tight">
+          {section.title}
+        </h2>
+      )}
       <div
         className={`w-full overflow-hidden rounded-xl group relative bg-card flex items-center justify-center ${clickable ? "cursor-zoom-in" : ""}`}
         onClick={() => clickable && onImageClick(section.src!, section.caption)}
@@ -291,7 +497,7 @@ function ImageSection({
       >
         <SafeImage
           src={section.src}
-          alt={section.caption || ""}
+          alt={section.caption || section.title || ""}
           className="block max-w-full max-h-[40vh] md:max-h-[55vh] w-auto h-auto object-contain transition-transform duration-500 group-hover:scale-[1.015]"
           loading="lazy"
           fallbackAspect="16 / 5"
@@ -310,11 +516,25 @@ function ImageSection({
           {section.caption}
         </p>
       )}
+      <MediaCta href={section.href} linkLabel={section.linkLabel} />
     </motion.div>
   );
 }
 
-function SectionBlockText({ section }: { section: ContentSection }) {
+function SectionBlockText({
+  section,
+  expanded,
+}: {
+  section: ContentSection;
+  expanded: boolean;
+}) {
+  const title = pickExpanded(expanded, section.title, section.titleDetail);
+  const summary = pickExpanded(expanded, section.summary, section.summaryDetail);
+  const body = pickExpanded(expanded, section.body, section.bodyDetail);
+  const bullets = pickExpanded(expanded, section.bullets, section.bulletsDetail);
+  const problem = pickExpanded(expanded, section.problem, section.problemDetail);
+  const solution = pickExpanded(expanded, section.solution, section.solutionDetail);
+
   if (section.type === "problem-solution") {
     return (
       <motion.div
@@ -327,11 +547,11 @@ function SectionBlockText({ section }: { section: ContentSection }) {
       >
         <div className="bg-card border border-border p-5 md:p-6 flex flex-col gap-3 rounded-xl">
           <span className="text-primary text-xs uppercase tracking-[0.4em] font-sans font-bold">Problem</span>
-          <ClampedText>{section.problem}</ClampedText>
+          <ClampedText>{problem}</ClampedText>
         </div>
         <div className="bg-card border border-primary/40 p-5 md:p-6 flex flex-col gap-3 rounded-xl">
           <span className="text-primary text-xs uppercase tracking-[0.4em] font-sans font-bold">Solution</span>
-          <ClampedText>{section.solution}</ClampedText>
+          <ClampedText>{solution}</ClampedText>
         </div>
       </motion.div>
     );
@@ -346,28 +566,28 @@ function SectionBlockText({ section }: { section: ContentSection }) {
       viewport={{ once: true }}
       transition={{ duration: 0.65, ease: BRAND_EASE }}
     >
-      {(section.title || section.summary) && (
+      {(title || summary) && (
         <div className="flex flex-col lg:flex-row lg:gap-10 gap-3 border-b border-border pb-5">
-          {section.title && (
+          {title && (
             <h2 className="font-display font-black uppercase text-xl md:text-2xl text-primary lg:w-48 flex-shrink-0 leading-tight tracking-tight">
-              {section.title}
+              {title}
             </h2>
           )}
-          {section.summary && (
+          {summary && (
             <p className="text-foreground text-base md:text-xl font-sans leading-relaxed flex-1 font-medium">
-              {section.summary}
+              {summary}
             </p>
           )}
         </div>
       )}
-      {section.body && (
+      {body && (
         <p className="text-foreground/80 text-base md:text-lg leading-relaxed font-sans">
-          {section.body}
+          {body}
         </p>
       )}
-      {section.bullets && section.bullets.length > 0 && (
+      {bullets && bullets.length > 0 && (
         <ul className="flex flex-col gap-2.5 mt-1">
-          {section.bullets.map((b, i) => (
+          {bullets.map((b, i) => (
             <li key={i} className="flex gap-3 items-start">
               <span className="text-primary flex-shrink-0 mt-[0.3em] text-sm leading-none">▸</span>
               <span className="text-foreground/80 text-base md:text-lg leading-relaxed font-sans">{b}</span>
@@ -472,14 +692,18 @@ export default function CaseStudy() {
   const prevProject = currentIdx > 0 ? visibleProjects[currentIdx - 1] : null;
   const nextProject = currentIdx < visibleProjects.length - 1 ? visibleProjects[currentIdx + 1] : null;
   const hasSections = Boolean(project?.sections?.length);
-
   const [lightbox, setLightbox] = useState<{ src: string; caption?: string } | null>(null);
   const [coverErrored, setCoverErrored] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
   useEffect(() => {
     setCoverErrored(false);
+    setShowDetail(false);
   }, [params.slug]);
-  const sections = project?.sections ?? [];
-  const { tocItems, activeId } = useTOC(sections);
+  const { sections: displaySections, hasExpandable: hasDetailSections } = resolveDisplaySections(
+    project,
+    showDetail,
+  );
+  const { tocItems, activeId } = useTOC(displaySections);
 
   const scrollToSection = useCallback((id: string) => {
     const el = document.getElementById(`cs-${id}`);
@@ -710,14 +934,47 @@ export default function CaseStudy() {
         {/* Main content */}
         <div className="flex flex-col gap-12 md:gap-16">
           {hasSections
-            ? project.sections!.map(s => (
+            ? displaySections.map(s => (
                 <SectionBlock
                   key={s.id}
                   section={s}
+                  expanded={showDetail}
                   onImageClick={(src, cap) => setLightbox({ src, caption: cap })}
                 />
               ))
             : <FallbackSections project={project} />}
+
+          {hasDetailSections && (
+            <motion.div
+              className="flex flex-col items-center gap-3 pt-4 border-t border-border"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: BRAND_EASE }}
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  const expanding = !showDetail;
+                  setShowDetail(expanding);
+                  if (expanding) {
+                    requestAnimationFrame(() => {
+                      document.getElementById("cs-detail-toggle")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                    });
+                  }
+                }}
+                id="cs-detail-toggle"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-sans text-sm font-bold uppercase tracking-[0.2em] hover:bg-primary hover:text-primary-foreground transition-colors"
+              >
+                {showDetail ? "Show less" : "See more detail"}
+                <span aria-hidden="true">{showDetail ? "↑" : "↓"}</span>
+              </button>
+              <p className="text-muted-foreground text-xs font-sans text-center max-w-md">
+                {showDetail
+                  ? "Full case study with research, Figma system, and product deep-dive."
+                  : "Skim version (~5 min). Expand for research, video, and more detail."}
+              </p>
+            </motion.div>
+          )}
         </div>
       </div>
 
